@@ -671,7 +671,7 @@
             stations.forEach((station, index) => {
                 const summaryItem = document.createElement('div');
                 summaryItem.className = `summary-item ${index === currentStationIndex ? 'current' : ''}`;
-                summaryItem.textContent = `${station.name}: ${station.count}`;
+                summaryItem.textContent = `${index + 1}. ${station.name}: ${station.count}`;
                 summaryList.appendChild(summaryItem);
             });
         }
