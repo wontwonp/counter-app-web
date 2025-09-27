@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정류장 카운터</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        h3 {
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        /* 정류장 개수 입력 페이지 */
+        .station-count-input {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .number-input {
+            font-size: 1.5rem;
+            padding: 15px 20px;
+            margin: 20px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            text-align: center;
+            width: 200px;
+        }
+
+        .submit-btn {
+            font-size: 1.2rem;
+            padding: 15px 30px;
+            margin: 20px;
+            border: none;
+            border-radius: 10px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        /* 정류장 이름 입력 페이지 */
+        .station-names-input {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .station-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .station-input-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .station-input-group label {
+            min-width: 100px;
+            text-align: left;
+            font-size: 1.1rem;
+        }
+
+        .station-name-input {
+            flex: 1;
+            font-size: 1.1rem;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .start-btn, .reset-btn {
+            font-size: 1.2rem;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .start-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .start-btn:hover:not(:disabled) {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .start-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .reset-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background: #da190b;
+            transform: translateY(-2px);
+        }
+
+        /* 키패드 페이지 */
+        .current-station {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .clock-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-family: 'Courier New', monospace;
+        }
+
+        .clock-time {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 5px;
+        }
+
+        .clock-date {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .input-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .number-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .keypad {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .keypad-row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .keypad-btn {
+            width: 90px;
+            height: 90px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .keypad-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .keypad-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .enter-btn {
+            width: 285px;
+            height: 90px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .enter-btn:hover {
+            background: #45a049;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .enter-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* 정류장 요약 */
+        .station-summary {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 400px;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .summary-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .summary-item {
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .summary-item.current {
+            background: rgba(76, 175, 80, 0.3);
+            border: 2px solid #4CAF50;
+            font-weight: bold;
+        }
+
+        .reset-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .reset-counts-btn, .reset-app-btn {
+            font-size: 1.1rem;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reset-counts-btn {
+            background: #ff9800;
+        }
+
+        .reset-counts-btn:hover {
+            background: #f57c00;
+            transform: translateY(-2px);
+        }
+
+        .reset-app-btn {
+            background: #f44336;
+        }
+
+        .reset-app-btn:hover {
+            background: #da190b;
+            transform: translateY(-2px);
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .station-count-input, .station-names-input {
+                padding: 20px;
+            }
+            
+            .station-input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .station-input-group label {
+                text-align: center;
+                min-width: auto;
+            }
+            
+            .keypad-btn {
+                width: 70px;
+                height: 70px;
+                font-size: 1.4rem;
+            }
+            
+            .enter-btn {
+                width: 225px;
+                height: 70px;
+                font-size: 1.4rem;
+            }
+            
+            .number-display {
+                font-size: 2.5rem;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* 다크모드 토글 버튼 */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            font-size: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        /* 다크모드에서의 카드 스타일 조정 */
+        body.dark-mode .station-count-input,
+        body.dark-mode .station-names-input,
+        body.dark-mode .current-station,
+        body.dark-mode .clock-display,
+        body.dark-mode .input-display,
+        body.dark-mode .station-summary {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .keypad-btn {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        body.dark-mode .keypad-btn:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">🌙</button>
+    <div class="container">
+        <h1>정류장 카운터</h1>
+        
+        <!-- 정류장 개수 입력 페이지 -->
+        <div id="station-count-page">
+            <div class="station-count-input">
+                <h2>정류장 개수를 입력하세요</h2>
+                <input type="number" id="station-count" min="1" max="20" placeholder="정류장 개수" class="number-input" oninput="updateStationCount()">
+                <button id="count-submit" class="submit-btn" onclick="submitStationCount()" disabled>확인</button>
+            </div>
+        </div>
+
+        <!-- 정류장 이름 입력 페이지 -->
+        <div id="station-names-page" class="hidden">
+            <div class="station-names-input">
+                <h2>정류장 이름을 입력하세요</h2>
+                <div id="station-inputs" class="station-inputs"></div>
+                <div class="button-group">
+                    <button id="start-counting" class="start-btn" onclick="startCounting()" disabled>카운팅 시작</button>
+                    <button id="reset-setup" class="reset-btn" onclick="resetSetup()">다시 설정</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 키패드 페이지 -->
+        <div id="keypad-page" class="hidden">
+            <div class="current-station">
+                <h2 id="current-station-name">현재 정류장: </h2>
+                <p id="current-station-count">합계 카운트: 0</p>
+            </div>
+
+            <div class="clock-display">
+                <div id="clock-time" class="clock-time">00:00:00</div>
+                <div id="clock-date" class="clock-date">2024년 1월 1일 월요일</div>
+            </div>
+
+            <div class="input-display">
+                <div id="number-display" class="number-display">0</div>
+            </div>
+
+            <div class="keypad">
+                <div class="keypad-row">
+                    <button class="keypad-btn" onclick="inputDigit('1')">1</button>
+                    <button class="keypad-btn" onclick="inputDigit('2')">2</button>
+                    <button class="keypad-btn" onclick="inputDigit('3')">3</button>
+                </div>
+                <div class="keypad-row">
+                    <button class="keypad-btn" onclick="inputDigit('4')">4</button>
+                    <button class="keypad-btn" onclick="inputDigit('5')">5</button>
+                    <button class="keypad-btn" onclick="inputDigit('6')">6</button>
+                </div>
+                <div class="keypad-row">
+                    <button class="keypad-btn" onclick="inputDigit('7')">7</button>
+                    <button class="keypad-btn" onclick="inputDigit('8')">8</button>
+                    <button class="keypad-btn" onclick="inputDigit('9')">9</button>
+                </div>
+                <div class="keypad-row">
+                    <button class="keypad-btn" onclick="clearInput()">C</button>
+                    <button class="keypad-btn" onclick="inputDigit('0')">0</button>
+                    <button class="keypad-btn" onclick="backspace()">⌫</button>
+                </div>
+                <div class="keypad-row">
+                    <button class="enter-btn" onclick="enterNumber()">ENTER</button>
+                </div>
+            </div>
+
+            <div class="station-summary">
+                <h3>정류장별 카운트</h3>
+                <div id="summary-list" class="summary-list"></div>
+            </div>
+
+            <div class="reset-buttons">
+                <button onclick="resetCounts()" class="reset-counts-btn">정류장 명수 초기화</button>
+                <button onclick="resetApp()" class="reset-app-btn">처음으로</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 전역 변수
+        let stations = [];
+        let stationNames = [];
+        let currentStationIndex = 0;
+        let currentInput = '';
+        let stationCount = 0;
+        let isDarkMode = false;
+
+        // 다크모드 토글 함수
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            const body = document.body;
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            if (isDarkMode) {
+                body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+                localStorage.setItem('darkMode', 'true');
+            } else {
+                body.classList.remove('dark-mode');
+                themeToggle.textContent = '🌙';
+                localStorage.setItem('darkMode', 'false');
+            }
+        }
+
+        // 페이지 로드 시 저장된 테마 설정 불러오기
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('darkMode');
+            if (savedTheme === 'true') {
+                isDarkMode = true;
+                document.body.classList.add('dark-mode');
+                document.getElementById('theme-toggle').textContent = '☀️';
+            }
+        }
+
+        // 정류장 개수 업데이트 함수
+        function updateStationCount() {
+            stationCount = parseInt(document.getElementById('station-count').value) || 0;
+            document.getElementById('count-submit').disabled = stationCount <= 0;
+        }
+
+        // 정류장 개수 제출 함수
+        function submitStationCount() {
+            stationCount = parseInt(document.getElementById('station-count').value) || 0;
+            if (stationCount > 0) {
+                stations = Array.from({ length: stationCount }, (_, index) => ({
+                    id: index,
+                    name: '',
+                    count: 0
+                }));
+                stationNames = new Array(stationCount).fill('');
+                createStationInputs();
+                document.getElementById('station-count-page').classList.add('hidden');
+                document.getElementById('station-names-page').classList.remove('hidden');
+            }
+        }
+
+        // 정류장 이름 입력 필드 생성
+        function createStationInputs() {
+            const stationInputs = document.getElementById('station-inputs');
+            stationInputs.innerHTML = '';
+            stations.forEach((station, index) => {
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'station-input-group';
+                inputGroup.innerHTML = `
+                    <label>정류장 ${index + 1}:</label>
+                    <input type="text" class="station-name-input" placeholder="정류장 ${index + 1} 이름" 
+                           onchange="updateStationName(${index}, this.value)">
+                `;
+                stationInputs.appendChild(inputGroup);
+            });
+        }
+
+        // 정류장 이름 업데이트
+        function updateStationName(index, name) {
+            stationNames[index] = name;
+            stations[index].name = name;
+            checkAllNamesFilled();
+        }
+
+        // 모든 정류장 이름이 입력되었는지 확인
+        function checkAllNamesFilled() {
+            const allFilled = stations.every(station => station.name.trim() !== '');
+            document.getElementById('start-counting').disabled = !allFilled;
+        }
+
+        // 카운팅 시작
+        function startCounting() {
+            if (stations.every(station => station.name.trim() !== '')) {
+                currentStationIndex = 0;
+                updateKeypadPage();
+                document.getElementById('station-names-page').classList.add('hidden');
+                document.getElementById('keypad-page').classList.remove('hidden');
+                
+                // 시계 시작
+                updateClock();
+                setInterval(updateClock, 1000);
+            }
+        }
+
+        // 다시 설정
+        function resetSetup() {
+            stationCount = 0;
+            stations = [];
+            stationNames = [];
+            document.getElementById('station-count').value = '';
+            document.getElementById('count-submit').disabled = true;
+            document.getElementById('station-names-page').classList.add('hidden');
+            document.getElementById('station-count-page').classList.remove('hidden');
+        }
+
+        // 시계 업데이트 함수
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            const weekdays = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+            const weekday = weekdays[now.getDay()];
+            
+            document.getElementById('clock-time').textContent = `${hours}:${minutes}:${seconds}`;
+            document.getElementById('clock-date').textContent = `${year}년 ${month}월 ${day}일 ${weekday}`;
+        }
+
+        // 키패드 페이지 업데이트
+        function updateKeypadPage() {
+            const totalCount = stations.reduce((sum, station) => sum + station.count, 0);
+            document.getElementById('current-station-name').textContent = `현재 정류장: ${stations[currentStationIndex].name}`;
+            document.getElementById('current-station-count').textContent = `합계 카운트: ${totalCount}`;
+            updateSummary();
+        }
+
+        // 요약 업데이트
+        function updateSummary() {
+            const summaryList = document.getElementById('summary-list');
+            summaryList.innerHTML = '';
+            stations.forEach((station, index) => {
+                const summaryItem = document.createElement('div');
+                summaryItem.className = `summary-item ${index === currentStationIndex ? 'current' : ''}`;
+                summaryItem.textContent = `${station.name}: ${station.count}`;
+                summaryList.appendChild(summaryItem);
+            });
+        }
+
+        // 숫자 입력
+        function inputDigit(digit) {
+            currentInput += digit;
+            document.getElementById('number-display').textContent = currentInput || '0';
+        }
+
+        // 입력 초기화
+        function clearInput() {
+            currentInput = '';
+            document.getElementById('number-display').textContent = '0';
+        }
+
+        // 백스페이스
+        function backspace() {
+            currentInput = currentInput.slice(0, -1);
+            document.getElementById('number-display').textContent = currentInput || '0';
+        }
+
+        // 엔터 (숫자 입력 완료)
+        function enterNumber() {
+            if (currentInput && currentStationIndex < stations.length) {
+                stations[currentStationIndex].count += parseInt(currentInput);
+                currentInput = '';
+                document.getElementById('number-display').textContent = '0';
+                
+                // 마지막 정류장에서 머물도록 수정
+                if (currentStationIndex < stations.length - 1) {
+                    currentStationIndex++;
+                } else {
+                    // 마지막 정류장에서는 입력 완료 상태로 변경
+                    disableKeypad();
+                }
+                
+                updateKeypadPage();
+            }
+        }
+
+        // 키패드 비활성화 함수
+        function disableKeypad() {
+            const keypadButtons = document.querySelectorAll('.keypad-btn, .enter-btn');
+            keypadButtons.forEach(button => {
+                button.disabled = true;
+                button.style.opacity = '0.5';
+                button.style.cursor = 'not-allowed';
+            });
+            
+            // 완료 메시지 표시
+            const inputDisplay = document.getElementById('number-display');
+            inputDisplay.textContent = '완료';
+            inputDisplay.style.color = '#4CAF50';
+            inputDisplay.style.fontSize = '2rem';
+        }
+
+        // 키패드 활성화 함수
+        function enableKeypad() {
+            const keypadButtons = document.querySelectorAll('.keypad-btn, .enter-btn');
+            keypadButtons.forEach(button => {
+                button.disabled = false;
+                button.style.opacity = '1';
+                button.style.cursor = 'pointer';
+            });
+            
+            // 입력 표시 복원
+            const inputDisplay = document.getElementById('number-display');
+            inputDisplay.textContent = '0';
+            inputDisplay.style.color = '#fff';
+            inputDisplay.style.fontSize = '3rem';
+        }
+
+        // 정류장 명수만 초기화
+        function resetCounts() {
+            if (confirm('모든 정류장의 카운트를 초기화하시겠습니까?')) {
+                stations.forEach(station => {
+                    station.count = 0;
+                });
+                currentStationIndex = 0;
+                currentInput = '';
+                enableKeypad(); // 키패드 다시 활성화
+                updateKeypadPage();
+            }
+        }
+
+        // 앱 초기화
+        function resetApp() {
+            stationCount = 0;
+            stations = [];
+            stationNames = [];
+            currentStationIndex = 0;
+            currentInput = '';
+            document.getElementById('station-count').value = '';
+            document.getElementById('count-submit').disabled = true;
+            
+            document.getElementById('keypad-page').classList.add('hidden');
+            document.getElementById('station-names-page').classList.add('hidden');
+            document.getElementById('station-count-page').classList.remove('hidden');
+        }
+
+        // 키보드 이벤트
+        document.addEventListener('keydown', function(event) {
+            if (document.getElementById('keypad-page').classList.contains('hidden')) return;
+            
+            // 키패드가 비활성화된 상태에서는 키보드 입력 무시
+            const enterBtn = document.querySelector('.enter-btn');
+            if (enterBtn && enterBtn.disabled) return;
+            
+            if (event.key >= '0' && event.key <= '9') {
+                inputDigit(event.key);
+            } else if (event.key === 'Enter') {
+                enterNumber();
+            } else if (event.key === 'Escape') {
+                clearInput();
+            } else if (event.key === 'Backspace') {
+                backspace();
+            }
+        });
+
+        // 페이지 로드 시 초기화
+        window.addEventListener('load', function() {
+            loadTheme();
+        });
+    </script>
+</body>
+</html>
