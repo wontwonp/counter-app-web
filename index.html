@@ -695,8 +695,10 @@
 
         // 엔터 (숫자 입력 완료)
         function enterNumber() {
-            if (currentInput && currentStationIndex < stations.length) {
-                stations[currentStationIndex].count += parseInt(currentInput);
+            if (currentStationIndex < stations.length) {
+                // 입력된 숫자가 있으면 그 값을, 없으면 0을 추가
+                const inputValue = currentInput ? parseInt(currentInput) : 0;
+                stations[currentStationIndex].count += inputValue;
                 currentInput = '';
                 document.getElementById('number-display').textContent = '0';
                 
