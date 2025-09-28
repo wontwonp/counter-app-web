@@ -699,24 +699,17 @@
             });
         }
 
-        // 햅틱 피드백 함수 (iOS 최적화)
+        // 햅틱 피드백 함수 (진동)
         function hapticFeedback(pattern = 50) {
-            // iOS에서 햅틱 피드백 시도
+            // 진동 지원 확인
             if (navigator.vibrate) {
-                navigator.vibrate(pattern);
-            }
-            
-            // iOS Safari/PWA에서 추가 시도
-            if (window.navigator && window.navigator.userAgent.includes('iPhone')) {
-                // iOS에서 터치 피드백을 위한 시각적 효과
-                const event = new Event('touchstart');
-                document.dispatchEvent(event);
-                
-                // 짧은 지연 후 touchend 이벤트
-                setTimeout(() => {
-                    const endEvent = new Event('touchend');
-                    document.dispatchEvent(endEvent);
-                }, 50);
+                try {
+                    navigator.vibrate(pattern);
+                } catch (e) {
+                    console.log('진동 지원하지 않음');
+                }
+            } else {
+                console.log('navigator.vibrate 지원하지 않음');
             }
         }
 
