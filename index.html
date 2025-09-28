@@ -246,15 +246,25 @@
             background: rgba(255, 255, 255, 0.2);
             color: white;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.1s ease;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
+            -webkit-tap-highlight-color: rgba(255, 255, 255, 0.3);
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .keypad-btn:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .keypad-btn:active {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-1px) scale(0.95);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .keypad-btn:active {
@@ -271,7 +281,11 @@
             background: #4CAF50;
             color: white;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.1s ease;
+            -webkit-tap-highlight-color: rgba(76, 175, 80, 0.3);
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .enter-btn:hover {
@@ -281,7 +295,9 @@
         }
 
         .enter-btn:active {
-            transform: translateY(-1px);
+            background: #3d8b40;
+            transform: translateY(-1px) scale(0.95);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         /* 정류장 요약 */
@@ -687,11 +703,24 @@
             });
         }
 
-        // 햅틱 피드백 함수
+        // 햅틱 피드백 함수 (iOS 최적화)
         function hapticFeedback(pattern = 50) {
-            // Safari와 모바일 기기에서만 햅틱 피드백 제공
-            if (navigator.vibrate && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            // iOS에서 햅틱 피드백 시도
+            if (navigator.vibrate) {
                 navigator.vibrate(pattern);
+            }
+            
+            // iOS Safari/PWA에서 추가 시도
+            if (window.navigator && window.navigator.userAgent.includes('iPhone')) {
+                // iOS에서 터치 피드백을 위한 시각적 효과
+                const event = new Event('touchstart');
+                document.dispatchEvent(event);
+                
+                // 짧은 지연 후 touchend 이벤트
+                setTimeout(() => {
+                    const endEvent = new Event('touchend');
+                    document.dispatchEvent(endEvent);
+                }, 50);
             }
         }
 
