@@ -477,7 +477,7 @@
         <div id="keypad-page" class="hidden">
             <div class="current-station">
                 <h2 id="current-station-name">현재 정류장: </h2>
-                <p id="current-station-count">합계 카운트: 0</p>
+                <p id="current-station-count">총 탑승자수: 0</p>
             </div>
 
             <div class="clock-display">
@@ -573,9 +573,12 @@
         function submitStationCount() {
             stationCount = parseInt(document.getElementById('station-count').value) || 0;
             if (stationCount > 0) {
+                // 저장된 정류장 이름 불러오기
+                const savedStations = JSON.parse(localStorage.getItem('savedStations') || '[]');
+                
                 stations = Array.from({ length: stationCount }, (_, index) => ({
                     id: index,
-                    name: '',
+                    name: savedStations[index] || '',
                     count: 0
                 }));
                 stationNames = new Array(stationCount).fill('');
@@ -605,6 +608,11 @@
         function updateStationName(index, name) {
             stationNames[index] = name;
             stations[index].name = name;
+            
+            // 정류장 이름을 localStorage에 저장
+            const savedStations = stations.map(station => station.name);
+            localStorage.setItem('savedStations', JSON.stringify(savedStations));
+            
             checkAllNamesFilled();
         }
 
@@ -659,8 +667,8 @@
         // 키패드 페이지 업데이트
         function updateKeypadPage() {
             const totalCount = stations.reduce((sum, station) => sum + station.count, 0);
-            document.getElementById('current-station-name').textContent = `현재 정류장: ${stations[currentStationIndex].name}`;
-            document.getElementById('current-station-count').textContent = `합계 카운트: ${totalCount}`;
+            document.getElementById('current-station-name').textContent = stations[currentStationIndex].name;
+            document.getElementById('current-station-count').textContent = `총 탑승자수: ${totalCount}`;
             updateSummary();
         }
 
@@ -767,6 +775,10 @@
             stationNames = [];
             currentStationIndex = 0;
             currentInput = '';
+            
+            // 저장된 정류장 이름 삭제
+            localStorage.removeItem('savedStations');
+            
             document.getElementById('station-count').value = '';
             document.getElementById('count-submit').disabled = true;
             
