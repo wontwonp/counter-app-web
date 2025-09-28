@@ -625,6 +625,9 @@
         // 카운팅 시작
         function startCounting() {
             if (stations.every(station => station.name.trim() !== '')) {
+                // 정류장 개수도 localStorage에 저장
+                localStorage.setItem('savedStationCount', stationCount.toString());
+                
                 currentStationIndex = 0;
                 updateKeypadPage();
                 document.getElementById('station-names-page').classList.add('hidden');
@@ -684,12 +687,18 @@
             });
         }
 
+        // 햅틱 피드백 함수
+        function hapticFeedback(pattern = 50) {
+            // Safari와 모바일 기기에서만 햅틱 피드백 제공
+            if (navigator.vibrate && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                navigator.vibrate(pattern);
+            }
+        }
+
         // 숫자 입력
         function inputDigit(digit) {
             // 햅틱 피드백
-            if (navigator.vibrate) {
-                navigator.vibrate(50); // 50ms 진동
-            }
+            hapticFeedback(50);
             
             currentInput += digit;
             document.getElementById('number-display').textContent = currentInput || '0';
@@ -698,9 +707,7 @@
         // 입력 초기화
         function clearInput() {
             // 햅틱 피드백
-            if (navigator.vibrate) {
-                navigator.vibrate(30); // 30ms 진동
-            }
+            hapticFeedback(30);
             
             currentInput = '';
             document.getElementById('number-display').textContent = '0';
@@ -709,9 +716,7 @@
         // 백스페이스
         function backspace() {
             // 햅틱 피드백
-            if (navigator.vibrate) {
-                navigator.vibrate(30); // 30ms 진동
-            }
+            hapticFeedback(30);
             
             currentInput = currentInput.slice(0, -1);
             document.getElementById('number-display').textContent = currentInput || '0';
@@ -720,9 +725,7 @@
         // 엔터 (숫자 입력 완료)
         function enterNumber() {
             // 햅틱 피드백 (더 강한 진동)
-            if (navigator.vibrate) {
-                navigator.vibrate([50, 30, 50]); // 패턴 진동
-            }
+            hapticFeedback([50, 30, 50]);
             
             if (currentStationIndex < stations.length) {
                 // 입력된 숫자가 있으면 그 값을, 없으면 0을 추가
@@ -796,8 +799,9 @@
             currentStationIndex = 0;
             currentInput = '';
             
-            // 저장된 정류장 이름 삭제
+            // 저장된 정류장 이름과 개수 삭제
             localStorage.removeItem('savedStations');
+            localStorage.removeItem('savedStationCount');
             
             document.getElementById('station-count').value = '';
             document.getElementById('count-submit').disabled = true;
@@ -829,7 +833,35 @@
         // 페이지 로드 시 초기화
         window.addEventListener('load', function() {
             loadTheme();
+            loadSavedStations();
         });
+
+        // 저장된 정류장 정보 불러오기
+        function loadSavedStations() {
+            const savedStations = JSON.parse(localStorage.getItem('savedStations') || '[]');
+            const savedStationCount = localStorage.getItem('savedStationCount');
+            
+            if (savedStationCount && savedStations.length > 0) {
+                // 저장된 정류장 개수와 이름이 있으면 자동으로 키패드 페이지로 이동
+                stationCount = parseInt(savedStationCount);
+                stations = Array.from({ length: stationCount }, (_, index) => ({
+                    id: index,
+                    name: savedStations[index] || '',
+                    count: 0
+                }));
+                
+                // 키패드 페이지로 바로 이동
+                document.getElementById('station-count-page').classList.add('hidden');
+                document.getElementById('station-names-page').classList.add('hidden');
+                document.getElementById('keypad-page').classList.remove('hidden');
+                
+                // 시계 시작
+                updateClock();
+                setInterval(updateClock, 1000);
+                
+                updateKeypadPage();
+            }
+        }
     </script>
 </body>
 </html>
