@@ -686,24 +686,44 @@
 
         // 숫자 입력
         function inputDigit(digit) {
+            // 햅틱 피드백
+            if (navigator.vibrate) {
+                navigator.vibrate(50); // 50ms 진동
+            }
+            
             currentInput += digit;
             document.getElementById('number-display').textContent = currentInput || '0';
         }
 
         // 입력 초기화
         function clearInput() {
+            // 햅틱 피드백
+            if (navigator.vibrate) {
+                navigator.vibrate(30); // 30ms 진동
+            }
+            
             currentInput = '';
             document.getElementById('number-display').textContent = '0';
         }
 
         // 백스페이스
         function backspace() {
+            // 햅틱 피드백
+            if (navigator.vibrate) {
+                navigator.vibrate(30); // 30ms 진동
+            }
+            
             currentInput = currentInput.slice(0, -1);
             document.getElementById('number-display').textContent = currentInput || '0';
         }
 
         // 엔터 (숫자 입력 완료)
         function enterNumber() {
+            // 햅틱 피드백 (더 강한 진동)
+            if (navigator.vibrate) {
+                navigator.vibrate([50, 30, 50]); // 패턴 진동
+            }
+            
             if (currentStationIndex < stations.length) {
                 // 입력된 숫자가 있으면 그 값을, 없으면 0을 추가
                 const inputValue = currentInput ? parseInt(currentInput) : 0;
