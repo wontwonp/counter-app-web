@@ -705,11 +705,12 @@
             if (navigator.vibrate) {
                 try {
                     navigator.vibrate(pattern);
+                    console.log('진동 실행됨:', pattern + 'ms');
                 } catch (e) {
-                    console.log('진동 지원하지 않음');
+                    console.log('진동 실행 실패:', e);
                 }
             } else {
-                console.log('navigator.vibrate 지원하지 않음');
+                console.log('이 기기는 진동을 지원하지 않습니다 (데스크톱/노트북)');
             }
         }
 
