@@ -699,9 +699,9 @@
             });
         }
 
-        // 햅틱 피드백 함수 (진동)
+        // 햅틱 피드백 함수 (진동 + 시각적 피드백)
         function hapticFeedback(pattern = 50) {
-            // 진동 지원 확인
+            // 진동 시도
             if (navigator.vibrate) {
                 try {
                     navigator.vibrate(pattern);
@@ -710,7 +710,16 @@
                     console.log('진동 실행 실패:', e);
                 }
             } else {
-                console.log('이 기기는 진동을 지원하지 않습니다 (데스크톱/노트북)');
+                console.log('이 기기는 진동을 지원하지 않습니다');
+            }
+            
+            // iOS Safari/PWA에서 진동이 안 될 때 시각적 피드백
+            if (window.navigator && window.navigator.userAgent.includes('iPhone')) {
+                // 화면 전체에 짧은 플래시 효과
+                document.body.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                setTimeout(() => {
+                    document.body.style.backgroundColor = '';
+                }, 100);
             }
         }
 
