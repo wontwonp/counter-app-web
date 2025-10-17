@@ -1928,6 +1928,10 @@
                 document.getElementById('station-names-page').classList.remove('hidden');
                 createStationInputs();
                 
+                // 버튼 상태 업데이트
+                document.getElementById('start-counting').disabled = stationCount <= 0 || routeName === '';
+                document.getElementById('save-route').disabled = stationCount <= 0 || routeName === '';
+                
                 console.log(`"${routeData.name}" 노선을 불러왔습니다.`);
             }
         }
