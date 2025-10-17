@@ -1607,18 +1607,21 @@
             }
         });
 
-        // 카운트 초기화 함수
+        // 카운트 초기화 함수 (오전 카운팅 보존)
         function resetAllCounts() {
             if (stations && stations.length > 0) {
                 stations.forEach(station => {
-                    station.count = 0;
-                    station.morningCount = 0;
+                    // 오전 카운팅은 보존하고 오후 카운팅만 초기화
                     station.afternoonCount = 0;
+                    // 기존 count는 오전 카운팅으로 설정
+                    station.count = station.morningCount || 0;
                 });
                 currentStationIndex = 0;
                 currentInput = '';
+                enableKeypad();
                 updateKeypadPage();
-                console.log('모든 카운트가 초기화되었습니다.');
+                localStorage.setItem('savedStations', JSON.stringify(stations));
+                console.log('오후 카운팅이 초기화되었습니다. 오전 카운팅은 보존됩니다.');
             }
         }
 
@@ -1658,21 +1661,21 @@
         // 페이지 가시성 변경 이벤트 (휴대폰 백그라운드/포그라운드)
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible') {
-                // 페이지가 다시 보이게 될 때 카운트 초기화
-                console.log('페이지가 다시 보이게 됨 - 카운트 초기화');
+                // 페이지가 다시 보이게 될 때 오후 카운팅만 초기화 (오전 카운팅 보존)
+                console.log('페이지가 다시 보이게 됨 - 오후 카운팅 초기화');
                 resetAllCounts();
             }
         });
 
         // 페이지 포커스 이벤트 (브라우저 탭 전환)
         window.addEventListener('focus', function() {
-            console.log('페이지 포커스 - 카운트 초기화');
+            console.log('페이지 포커스 - 오후 카운팅 초기화');
             resetAllCounts();
         });
 
         // 페이지 언로드 전 이벤트 (새로고침, 탭 닫기)
         window.addEventListener('beforeunload', function() {
-            console.log('페이지 언로드 - 카운트 초기화');
+            console.log('페이지 언로드 - 오후 카운팅 초기화');
             resetAllCounts();
         });
     </script>
