@@ -1262,9 +1262,9 @@
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // 캔버스 크기 설정 (메인 헤더 제거로 높이 감소)
+            // 캔버스 크기 설정 (샘플 이미지와 동일하게)
             canvas.width = 1200;
-            canvas.height = 350 + (stations.length * 40); // 메인 헤더 높이만큼 감소
+            canvas.height = 400 + (stations.length * 40); // 메인 헤더 포함
             
             // 배경색 설정
             ctx.fillStyle = '#ffffff';
@@ -1275,6 +1275,7 @@
             const tableY = 50;
             const tableWidth = 1100;
             const rowHeight = 40;
+            const headerHeight = 50;
             
             // 컬럼 너비 설정 (번호란을 줄임)
             const colWidths = [60, 400, 150, 150, 150, 150]; // 번호란을 60으로 줄임
@@ -1282,10 +1283,20 @@
             // 테이블 테두리
             ctx.strokeStyle = '#000000';
             ctx.lineWidth = 1;
-            ctx.strokeRect(tableX, tableY, tableWidth, rowHeight + (stations.length * rowHeight) + rowHeight);
+            ctx.strokeRect(tableX, tableY, tableWidth, headerHeight + rowHeight + (stations.length * rowHeight) + rowHeight);
+            
+            // 메인 헤더 (주황색 배경) - 샘플 이미지와 동일하게
+            ctx.fillStyle = '#FF8C00';
+            ctx.fillRect(tableX, tableY, tableWidth, headerHeight);
+            
+            // 노선이름 텍스트 (메인 헤더에 표시)
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(routeName, tableX + tableWidth/2, tableY + headerHeight/2 + 7);
             
             // 컬럼 헤더 행 (주황색/노란색 배경)
-            const headerRowY = tableY;
+            const headerRowY = tableY + headerHeight;
             
             // 컬럼 헤더 배경색
             let currentX = tableX;
@@ -1315,10 +1326,7 @@
             currentX = tableX;
             const headers = ['', '', '출발시간', '승차인원', '출발시간', '승차인원'];
             for (let i = 0; i < headers.length; i++) {
-                if (i === 1) {
-                    // 두 번째 컬럼에 노선이름 표시
-                    ctx.fillText(routeName, currentX + colWidths[i]/2, headerRowY + rowHeight/2 + 5);
-                } else if (headers[i]) { // 빈 문자열이 아닌 경우만 텍스트 표시
+                if (headers[i]) { // 빈 문자열이 아닌 경우만 텍스트 표시
                     ctx.fillText(headers[i], currentX + colWidths[i]/2, headerRowY + rowHeight/2 + 5);
                 }
                 currentX += colWidths[i];
