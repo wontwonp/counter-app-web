@@ -1,0 +1,333 @@
+.App {
+  text-align: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.App-header {
+  background-color: transparent;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  padding: 20px;
+}
+
+h1 {
+  margin-bottom: 30px;
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+h2 {
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+}
+
+h3 {
+  margin-bottom: 15px;
+  font-size: 1.4rem;
+}
+
+/* 정류장 개수 입력 페이지 */
+.station-count-input {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 40px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.number-input {
+  font-size: 1.5rem;
+  padding: 15px 20px;
+  margin: 20px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  text-align: center;
+  width: 200px;
+}
+
+.submit-btn {
+  font-size: 1.2rem;
+  padding: 15px 30px;
+  margin: 20px;
+  border: none;
+  border-radius: 10px;
+  background: #4CAF50;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #45a049;
+  transform: translateY(-2px);
+}
+
+.submit-btn:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
+
+/* 정류장 이름 입력 페이지 */
+.station-names-input {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 40px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  width: 100%;
+}
+
+.station-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.station-input-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.station-input-group label {
+  min-width: 100px;
+  text-align: left;
+  font-size: 1.1rem;
+}
+
+.station-name-input {
+  flex: 1;
+  font-size: 1.1rem;
+  padding: 12px 15px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+}
+
+.button-group {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.start-btn, .reset-btn {
+  font-size: 1.2rem;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.start-btn {
+  background: #4CAF50;
+  color: white;
+}
+
+.start-btn:hover:not(:disabled) {
+  background: #45a049;
+  transform: translateY(-2px);
+}
+
+.start-btn:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
+
+.reset-btn {
+  background: #f44336;
+  color: white;
+}
+
+.reset-btn:hover {
+  background: #da190b;
+  transform: translateY(-2px);
+}
+
+/* 키패드 페이지 */
+.current-station {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.input-display {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.number-display {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.keypad {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.keypad-row {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.keypad-btn {
+  width: 80px;
+  height: 80px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.keypad-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.keypad-btn:active {
+  transform: translateY(-1px);
+}
+
+.enter-btn {
+  width: 255px;
+  height: 80px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 15px;
+  background: #4CAF50;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.enter-btn:hover {
+  background: #45a049;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.enter-btn:active {
+  transform: translateY(-1px);
+}
+
+/* 정류장 요약 */
+.station-summary {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 400px;
+  width: 100%;
+}
+
+.summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.summary-item {
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.summary-item.current {
+  background: rgba(76, 175, 80, 0.3);
+  border: 2px solid #4CAF50;
+  font-weight: bold;
+}
+
+.reset-app-btn {
+  font-size: 1.1rem;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 10px;
+  background: #f44336;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.reset-app-btn:hover {
+  background: #da190b;
+  transform: translateY(-2px);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .App-header {
+    padding: 10px;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  .station-count-input, .station-names-input {
+    padding: 20px;
+  }
+  
+  .station-input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .station-input-group label {
+    text-align: center;
+    min-width: auto;
+  }
+  
+  .keypad-btn {
+    width: 60px;
+    height: 60px;
+    font-size: 1.2rem;
+  }
+  
+  .enter-btn {
+    width: 195px;
+    height: 60px;
+    font-size: 1.2rem;
+  }
+  
+  .number-display {
+    font-size: 2.5rem;
+  }
+}
