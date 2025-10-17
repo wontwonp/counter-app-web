@@ -1261,9 +1261,9 @@
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // 캔버스 크기 설정 (원본과 동일하게)
-            canvas.width = 800;
-            canvas.height = 1000;
+            // 캔버스 크기 설정 (더 크게)
+            canvas.width = 1200;
+            canvas.height = 1200;
             
             // 배경색 설정
             ctx.fillStyle = '#ffffff';
@@ -1275,7 +1275,7 @@
             
             // 제목 텍스트 - 노선이름만 표시
             ctx.fillStyle = '#000000';
-            ctx.font = 'bold 16px Arial';
+            ctx.font = 'bold 24px Arial';
             ctx.textAlign = 'left';
             ctx.fillText(`${routeName}`, 20, 30);
             
@@ -1285,15 +1285,15 @@
             
             // 테이블 헤더 텍스트
             ctx.fillStyle = '#000000';
-            ctx.font = 'bold 14px Arial';
+            ctx.font = 'bold 18px Arial';
             ctx.textAlign = 'left';
             
-            // 컬럼 헤더들 - 번호 노선명 통합
-            ctx.fillText('번호 노선명', 20, 65);
-            ctx.fillText('출발시간', 200, 65);
-            ctx.fillText('승차인원', 280, 65);
-            ctx.fillText('출발시간', 360, 65);
-            ctx.fillText('승차인원', 440, 65);
+            // 컬럼 헤더들 - 첫 번째 컬럼은 노선이름, 나머지는 출발시간/승차인원
+            ctx.fillText(routeName, 20, 65);
+            ctx.fillText('출발시간', 300, 65);
+            ctx.fillText('승차인원', 450, 65);
+            ctx.fillText('출발시간', 600, 65);
+            ctx.fillText('승차인원', 750, 65);
             
             // 테이블 내용
             let y = 90;
@@ -1313,56 +1313,56 @@
                 ctx.lineTo(canvas.width, y - rowHeight);
                 ctx.stroke();
                 
-                // 세로줄 (칸 구분) - 원본과 동일한 위치
+                // 세로줄 (칸 구분) - 새로운 컬럼 위치에 맞게
                 ctx.beginPath();
-                ctx.moveTo(40, y - rowHeight);
-                ctx.lineTo(40, y);
+                ctx.moveTo(250, y - rowHeight);
+                ctx.lineTo(250, y);
                 ctx.stroke();
                 
                 ctx.beginPath();
-                ctx.moveTo(180, y - rowHeight);
-                ctx.lineTo(180, y);
+                ctx.moveTo(375, y - rowHeight);
+                ctx.lineTo(375, y);
                 ctx.stroke();
                 
                 ctx.beginPath();
-                ctx.moveTo(260, y - rowHeight);
-                ctx.lineTo(260, y);
+                ctx.moveTo(525, y - rowHeight);
+                ctx.lineTo(525, y);
                 ctx.stroke();
                 
                 ctx.beginPath();
-                ctx.moveTo(340, y - rowHeight);
-                ctx.lineTo(340, y);
+                ctx.moveTo(675, y - rowHeight);
+                ctx.lineTo(675, y);
                 ctx.stroke();
                 
                 ctx.beginPath();
-                ctx.moveTo(420, y - rowHeight);
-                ctx.lineTo(420, y);
+                ctx.moveTo(825, y - rowHeight);
+                ctx.lineTo(825, y);
                 ctx.stroke();
                 
-                // 번호와 노선명 통합 표시
+                // 첫 번째 컬럼에 노선이름 표시
                 ctx.fillStyle = '#000000';
-                ctx.font = 'bold 12px Arial';
+                ctx.font = 'bold 16px Arial';
                 ctx.textAlign = 'left';
-                ctx.fillText(`${index + 1}. ${routeName}`, 20, y - 10);
+                ctx.fillText(routeName, 20, y - 10);
                 
                 // 오전 출발시간
                 const morningHour = station.departureTime?.morningHour || 8;
                 const morningMinute = station.departureTime?.minute || 0;
                 const morningTimeStr = `${morningHour}:${String(morningMinute).padStart(2, '0')}`;
                 ctx.textAlign = 'center';
-                ctx.fillText(morningTimeStr, 240, y - 10);
+                ctx.fillText(morningTimeStr, 375, y - 10);
                 
                 // 오전 승차인원
-                ctx.fillText(station.morningCount?.toString() || '', 320, y - 10);
+                ctx.fillText(station.morningCount?.toString() || '', 525, y - 10);
                 
                 // 오후 출발시간
                 const afternoonHour = station.departureTime?.afternoonHour || 17;
                 const afternoonMinute = station.departureTime?.minute || 0;
                 const afternoonTimeStr = `${afternoonHour}:${String(afternoonMinute).padStart(2, '0')}`;
-                ctx.fillText(afternoonTimeStr, 400, y - 10);
+                ctx.fillText(afternoonTimeStr, 675, y - 10);
                 
                 // 오후 승차인원
-                ctx.fillText(station.afternoonCount?.toString() || '', 480, y - 10);
+                ctx.fillText(station.afternoonCount?.toString() || '', 825, y - 10);
                 
                 ctx.textAlign = 'left';
                 y += rowHeight;
@@ -1373,18 +1373,18 @@
             ctx.fillRect(0, y - 30, canvas.width, 30);
             
             ctx.fillStyle = '#000000';
-            ctx.font = 'bold 12px Arial';
+            ctx.font = 'bold 16px Arial';
             ctx.textAlign = 'left';
             ctx.fillText('계', 20, y - 10);
             
             // 오전 총계
             const morningTotal = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
             ctx.textAlign = 'center';
-            ctx.fillText(morningTotal.toString(), 320, y - 10);
+            ctx.fillText(morningTotal.toString(), 525, y - 10);
             
             // 오후 총계
             const afternoonTotal = stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
-            ctx.fillText(afternoonTotal.toString(), 480, y - 10);
+            ctx.fillText(afternoonTotal.toString(), 825, y - 10);
             
             return canvas.toDataURL('image/png');
         }
