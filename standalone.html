@@ -1240,9 +1240,9 @@
                 stations = Array.from({ length: stationCount }, (_, index) => ({
                     id: index,
                     name: savedStations[index] || '',
-                    count: 0,
-                    morningCount: 0,
-                    afternoonCount: 0,
+                    count: 0, // 카운트는 항상 0으로 초기화
+                    morningCount: 0, // 오전 카운트도 항상 0으로 초기화
+                    afternoonCount: 0, // 오후 카운트도 항상 0으로 초기화
                     departureTime: savedDepartureTimes[index] || { 
                         morningHour: 8, 
                         afternoonHour: 17, 
@@ -1269,6 +1269,7 @@
         // 이미지 생성 함수 (샘플 이미지와 동일한 구조)
         function generateResultImage() {
             console.log('이미지 생성 시작, routeName:', routeName);
+            console.log('현재 선택된 시간대:', selectedTimePeriod);
             
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -1287,8 +1288,8 @@
             const tableWidth = 1100;
             const rowHeight = 40;
             
-            // 컬럼 너비 설정 (5개 컬럼으로 변경, 마지막 빈칸 제거)
-            const colWidths = [460, 150, 150, 150, 150]; // 첫 번째 컬럼에 노선이름 통합
+            // 컬럼 너비 설정 (6개 컬럼으로 변경, 마지막 빈칸 추가)
+            const colWidths = [460, 150, 150, 150, 150, 100]; // 마지막 빈칸 컬럼 추가
             
             // 테이블 테두리
             ctx.strokeStyle = '#000000';
@@ -1331,7 +1332,7 @@
             ctx.textAlign = 'center';
             
             currentX = tableX;
-            const headers = ['', '출발시간', '승차인원', '출발시간', '승차인원'];
+            const headers = ['', '출발시간', '승차인원', '출발시간', '승차인원', ''];
             for (let i = 0; i < headers.length; i++) {
                 if (i === 0) {
                     // 첫 번째 컬럼에 노선이름 표시 (검은색 텍스트)
@@ -1387,28 +1388,42 @@
                 ctx.fillStyle = '#000000';
                 ctx.fillText(`${index + 1}. ${station.name}`, tableX + 10, dataRowY + rowHeight/2 + 5);
                 
-                // 오전 출발시간 (2열)
-                const morningHour = station.departureTime?.morningHour || 8;
-                const morningMinute = station.departureTime?.minute || 0;
-                const morningTimeStr = `${morningHour}:${String(morningMinute).padStart(2, '0')}`;
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#000000';
-                ctx.fillText(morningTimeStr, tableX + colWidths[0] + colWidths[1]/2, dataRowY + rowHeight/2 + 5);
-                
-                // 오전 승차인원 (3열)
-                ctx.fillStyle = '#000000';
-                ctx.fillText(station.morningCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, dataRowY + rowHeight/2 + 5);
-                
-                // 오후 출발시간 (4열)
-                const afternoonHour = station.departureTime?.afternoonHour || 17;
-                const afternoonMinute = station.departureTime?.minute || 0;
-                const afternoonTimeStr = `${afternoonHour}:${String(afternoonMinute).padStart(2, '0')}`;
-                ctx.fillStyle = '#000000';
-                ctx.fillText(afternoonTimeStr, tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3]/2, dataRowY + rowHeight/2 + 5);
-                
-                // 오후 승차인원 (5열)
-                ctx.fillStyle = '#000000';
-                ctx.fillText(station.afternoonCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, dataRowY + rowHeight/2 + 5);
+                // 현재 선택된 시간대에 따라 데이터 표시
+                if (selectedTimePeriod === 'morning') {
+                    // 오전 운행 데이터만 표시
+                    const morningHour = station.departureTime?.morningHour || 8;
+                    const morningMinute = station.departureTime?.minute || 0;
+                    const morningTimeStr = `${morningHour}:${String(morningMinute).padStart(2, '0')}`;
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = '#000000';
+                    ctx.fillText(morningTimeStr, tableX + colWidths[0] + colWidths[1]/2, dataRowY + rowHeight/2 + 5);
+                    
+                    // 오전 승차인원 (3열)
+                    ctx.fillStyle = '#000000';
+                    ctx.fillText(station.morningCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, dataRowY + rowHeight/2 + 5);
+                    
+                    // 오후 컬럼은 빈칸으로 표시
+                    ctx.fillStyle = '#000000';
+                    ctx.fillText('', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3]/2, dataRowY + rowHeight/2 + 5);
+                    ctx.fillText('', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, dataRowY + rowHeight/2 + 5);
+                } else {
+                    // 오후 운행 데이터만 표시
+                    const afternoonHour = station.departureTime?.afternoonHour || 17;
+                    const afternoonMinute = station.departureTime?.minute || 0;
+                    const afternoonTimeStr = `${afternoonHour}:${String(afternoonMinute).padStart(2, '0')}`;
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = '#000000';
+                    ctx.fillText(afternoonTimeStr, tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3]/2, dataRowY + rowHeight/2 + 5);
+                    
+                    // 오후 승차인원 (5열)
+                    ctx.fillStyle = '#000000';
+                    ctx.fillText(station.afternoonCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, dataRowY + rowHeight/2 + 5);
+                    
+                    // 오전 컬럼은 빈칸으로 표시
+                    ctx.fillStyle = '#000000';
+                    ctx.fillText('', tableX + colWidths[0] + colWidths[1]/2, dataRowY + rowHeight/2 + 5);
+                    ctx.fillText('', tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, dataRowY + rowHeight/2 + 5);
+                }
                 
                 ctx.textAlign = 'left';
             });
@@ -1434,13 +1449,17 @@
             ctx.textAlign = 'left';
             ctx.fillText('계', tableX + 10, totalRowY + rowHeight/2 + 5);
             
-            // 총계 계산 및 표시
-            const morningTotal = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
-            const afternoonTotal = stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
-            
+            // 총계 계산 및 표시 (현재 선택된 시간대에 따라)
             ctx.textAlign = 'center';
-            ctx.fillText(morningTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, totalRowY + rowHeight/2 + 5);
-            ctx.fillText(afternoonTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, totalRowY + rowHeight/2 + 5);
+            if (selectedTimePeriod === 'morning') {
+                const morningTotal = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
+                ctx.fillText(morningTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, totalRowY + rowHeight/2 + 5);
+                ctx.fillText('', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, totalRowY + rowHeight/2 + 5);
+            } else {
+                const afternoonTotal = stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
+                ctx.fillText('', tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, totalRowY + rowHeight/2 + 5);
+                ctx.fillText(afternoonTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, totalRowY + rowHeight/2 + 5);
+            }
             
             return canvas.toDataURL('image/png');
         }
@@ -1531,12 +1550,48 @@
             }
         });
 
+        // 카운트 초기화 함수
+        function resetAllCounts() {
+            if (stations && stations.length > 0) {
+                stations.forEach(station => {
+                    station.count = 0;
+                    station.morningCount = 0;
+                    station.afternoonCount = 0;
+                });
+                currentStationIndex = 0;
+                currentInput = '';
+                updateKeypadPage();
+                console.log('모든 카운트가 초기화되었습니다.');
+            }
+        }
+
         // 페이지 로드 시 초기화
         window.addEventListener('load', function() {
             loadTheme();
             loadSavedStations();
             loadSavedTimePeriod();
             setKoreanInputMode();
+        });
+
+        // 페이지 가시성 변경 이벤트 (휴대폰 백그라운드/포그라운드)
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') {
+                // 페이지가 다시 보이게 될 때 카운트 초기화
+                console.log('페이지가 다시 보이게 됨 - 카운트 초기화');
+                resetAllCounts();
+            }
+        });
+
+        // 페이지 포커스 이벤트 (브라우저 탭 전환)
+        window.addEventListener('focus', function() {
+            console.log('페이지 포커스 - 카운트 초기화');
+            resetAllCounts();
+        });
+
+        // 페이지 언로드 전 이벤트 (새로고침, 탭 닫기)
+        window.addEventListener('beforeunload', function() {
+            console.log('페이지 언로드 - 카운트 초기화');
+            resetAllCounts();
         });
     </script>
 </body>
