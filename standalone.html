@@ -908,8 +908,9 @@
         // 카운팅 시작
         function startCounting() {
             if (stations.every(station => station.name.trim() !== '')) {
-                // 정류장 개수도 localStorage에 저장
+                // 정류장 개수와 노선이름을 localStorage에 저장
                 localStorage.setItem('savedStationCount', stationCount.toString());
+                localStorage.setItem('savedRouteName', routeName);
                 
                 currentStationIndex = 0;
                 updateKeypadPage();
@@ -1220,7 +1221,7 @@
             const savedStations = JSON.parse(localStorage.getItem('savedStations') || '[]');
             const savedStationCount = localStorage.getItem('savedStationCount');
             const savedDepartureTimes = JSON.parse(localStorage.getItem('savedDepartureTimes') || '[]');
-            const savedRouteName = localStorage.getItem('routeName');
+            const savedRouteName = localStorage.getItem('savedRouteName');
             
             if (savedStationCount && savedStations.length > 0) {
                 // 저장된 정류장 개수와 이름이 있으면 자동으로 키패드 페이지로 이동
@@ -1306,9 +1307,9 @@
                 currentX += colWidths[i];
             }
             
-            // 컬럼 헤더 텍스트
+            // 컬럼 헤더 텍스트 (글자 크기 증가)
             ctx.fillStyle = '#000000';
-            ctx.font = 'bold 14px Arial';
+            ctx.font = 'bold 18px Arial';
             ctx.textAlign = 'center';
             
             currentX = tableX;
@@ -1323,8 +1324,8 @@
                 currentX += colWidths[i];
             }
             
-            // 데이터 행들
-            ctx.font = '14px Arial';
+            // 데이터 행들 (글자 크기 증가)
+            ctx.font = '16px Arial';
             ctx.textAlign = 'left';
             
             stations.forEach((station, index) => {
@@ -1368,9 +1369,9 @@
             ctx.fillStyle = '#FF8C00';
             ctx.fillRect(tableX, totalRowY, tableWidth, rowHeight);
             
-            // "계" 텍스트
+            // "계" 텍스트 (글자 크기 증가)
             ctx.fillStyle = '#000000';
-            ctx.font = 'bold 14px Arial';
+            ctx.font = 'bold 18px Arial';
             ctx.textAlign = 'left';
             ctx.fillText('계', tableX + 10, totalRowY + rowHeight/2 + 5);
             
