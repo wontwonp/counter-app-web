@@ -754,37 +754,34 @@
             document.getElementById('count-submit').disabled = stationCount <= 0 || routeName === '';
         }
 
-        // 시간대 선택 함수
+        // 현재 시간에 따라 자동으로 시간대 선택
+        function autoSelectTimePeriod() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            
+            // 오전: 6시~12시, 오후: 13시~22시
+            if (currentHour >= 6 && currentHour < 12) {
+                selectedTimePeriod = 'morning';
+            } else if (currentHour >= 13 && currentHour < 22) {
+                selectedTimePeriod = 'afternoon';
+            } else {
+                // 새벽이나 밤 시간대는 오전으로 기본 설정
+                selectedTimePeriod = 'morning';
+            }
+            
+            console.log(`현재 시간: ${currentHour}시, 자동 선택된 시간대: ${selectedTimePeriod}`);
+            
+            // 버튼 업데이트
+            updateTimePeriodButtons();
+            
+            // localStorage에 저장
+            localStorage.setItem('selectedTimePeriod', selectedTimePeriod);
+        }
+
+        // 시간대 선택 함수 (수동 선택용)
         function selectTimePeriod(period) {
             selectedTimePeriod = period;
-            
-            // 초기 화면 버튼 업데이트 (있는 경우)
-            const morningBtn = document.getElementById('morning-btn');
-            const afternoonBtn = document.getElementById('afternoon-btn');
-            if (morningBtn && afternoonBtn) {
-                morningBtn.classList.remove('active');
-                afternoonBtn.classList.remove('active');
-                
-                if (period === 'morning') {
-                    morningBtn.classList.add('active');
-                } else {
-                    afternoonBtn.classList.add('active');
-                }
-            }
-            
-            // 키패드 화면 버튼 업데이트
-            const morningBtnKeypad = document.getElementById('morning-btn-keypad');
-            const afternoonBtnKeypad = document.getElementById('afternoon-btn-keypad');
-            if (morningBtnKeypad && afternoonBtnKeypad) {
-                morningBtnKeypad.classList.remove('active');
-                afternoonBtnKeypad.classList.remove('active');
-                
-                if (period === 'morning') {
-                    morningBtnKeypad.classList.add('active');
-                } else {
-                    afternoonBtnKeypad.classList.add('active');
-                }
-            }
+            updateTimePeriodButtons();
             
             // 키패드 페이지 업데이트 (시간 표시 변경)
             if (!document.getElementById('keypad-page').classList.contains('hidden')) {
@@ -793,6 +790,23 @@
             
             // localStorage에 저장
             localStorage.setItem('selectedTimePeriod', period);
+        }
+
+        // 시간대 버튼 업데이트 함수
+        function updateTimePeriodButtons() {
+            // 키패드 화면 버튼 업데이트
+            const morningBtnKeypad = document.getElementById('morning-btn-keypad');
+            const afternoonBtnKeypad = document.getElementById('afternoon-btn-keypad');
+            if (morningBtnKeypad && afternoonBtnKeypad) {
+                morningBtnKeypad.classList.remove('active');
+                afternoonBtnKeypad.classList.remove('active');
+                
+                if (selectedTimePeriod === 'morning') {
+                    morningBtnKeypad.classList.add('active');
+                } else {
+                    afternoonBtnKeypad.classList.add('active');
+                }
+            }
         }
 
         // 정류장 개수 제출 함수
@@ -1105,16 +1119,27 @@
             inputDisplay.style.fontSize = '3rem';
         }
 
-        // 정류장 명수만 초기화
+        // 정류장 명수만 초기화 (오전 카운팅 유지, 오후만 초기화)
         function resetCounts() {
-            if (confirm('모든 정류장의 카운트를 초기화하시겠습니까?')) {
+            // 오후 마지막 정류장 출발시간 50분 후인지 확인
+            if (!checkAfternoonResetAvailability()) {
+                alert('오후 마지막 정류장 출발시간 50분 후에만 초기화 가능합니다.');
+                return;
+            }
+            
+            if (confirm('오후 카운팅을 초기화하시겠습니까? (오전 카운팅은 유지됩니다)')) {
                 stations.forEach(station => {
-                    station.count = 0;
+                    station.afternoonCount = 0;
+                    // 기존 count는 오전+오후 합계로 유지
+                    station.count = station.morningCount;
                 });
                 currentStationIndex = 0;
                 currentInput = '';
                 enableKeypad(); // 키패드 다시 활성화
                 updateKeypadPage();
+                localStorage.setItem('savedStations', JSON.stringify(stations));
+                
+                console.log('오후 카운팅이 초기화되었습니다. 오전 카운팅은 유지됩니다.');
             }
         }
 
@@ -1207,12 +1232,39 @@
             });
         }
 
+        // 오후 마지막 정류장 출발시간 50분 후 초기화 가능 여부 확인
+        function checkAfternoonResetAvailability() {
+            if (stations.length === 0) return false;
+            
+            const lastStation = stations[stations.length - 1];
+            const afternoonHour = lastStation.departureTime?.afternoonHour || 17;
+            const afternoonMinute = lastStation.departureTime?.minute || 0;
+            
+            // 오후 마지막 정류장 출발시간 + 50분
+            const resetTime = new Date();
+            resetTime.setHours(afternoonHour, afternoonMinute + 50, 0, 0);
+            
+            const now = new Date();
+            const canReset = now >= resetTime;
+            
+            console.log(`오후 마지막 정류장 출발시간: ${afternoonHour}:${String(afternoonMinute).padStart(2, '0')}`);
+            console.log(`초기화 가능 시간: ${resetTime.getHours()}:${String(resetTime.getMinutes()).padStart(2, '0')}`);
+            console.log(`현재 시간: ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`);
+            console.log(`초기화 가능: ${canReset}`);
+            
+            return canReset;
+        }
+
         // 저장된 시간대 설정 불러오기
         function loadSavedTimePeriod() {
+            // 자동 시간대 선택 먼저 실행
+            autoSelectTimePeriod();
+            
+            // 저장된 설정이 있으면 덮어쓰기 (수동 선택 우선)
             const savedPeriod = localStorage.getItem('selectedTimePeriod');
             if (savedPeriod) {
                 selectedTimePeriod = savedPeriod;
-                selectTimePeriod(savedPeriod);
+                updateTimePeriodButtons();
             }
         }
 
@@ -1388,42 +1440,32 @@
                 ctx.fillStyle = '#000000';
                 ctx.fillText(`${index + 1}. ${station.name}`, tableX + 10, dataRowY + rowHeight/2 + 5);
                 
-                // 현재 선택된 시간대에 따라 데이터 표시
-                if (selectedTimePeriod === 'morning') {
-                    // 오전 운행 데이터만 표시
-                    const morningHour = station.departureTime?.morningHour || 8;
-                    const morningMinute = station.departureTime?.minute || 0;
-                    const morningTimeStr = `${morningHour}:${String(morningMinute).padStart(2, '0')}`;
-                    ctx.textAlign = 'center';
-                    ctx.fillStyle = '#000000';
-                    ctx.fillText(morningTimeStr, tableX + colWidths[0] + colWidths[1]/2, dataRowY + rowHeight/2 + 5);
-                    
-                    // 오전 승차인원 (3열)
-                    ctx.fillStyle = '#000000';
-                    ctx.fillText(station.morningCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, dataRowY + rowHeight/2 + 5);
-                    
-                    // 오후 컬럼은 빈칸으로 표시
-                    ctx.fillStyle = '#000000';
-                    ctx.fillText('', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3]/2, dataRowY + rowHeight/2 + 5);
-                    ctx.fillText('', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, dataRowY + rowHeight/2 + 5);
-                } else {
-                    // 오후 운행 데이터만 표시
-                    const afternoonHour = station.departureTime?.afternoonHour || 17;
-                    const afternoonMinute = station.departureTime?.minute || 0;
-                    const afternoonTimeStr = `${afternoonHour}:${String(afternoonMinute).padStart(2, '0')}`;
-                    ctx.textAlign = 'center';
-                    ctx.fillStyle = '#000000';
-                    ctx.fillText(afternoonTimeStr, tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3]/2, dataRowY + rowHeight/2 + 5);
-                    
-                    // 오후 승차인원 (5열)
-                    ctx.fillStyle = '#000000';
-                    ctx.fillText(station.afternoonCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, dataRowY + rowHeight/2 + 5);
-                    
-                    // 오전 컬럼은 빈칸으로 표시
-                    ctx.fillStyle = '#000000';
-                    ctx.fillText('', tableX + colWidths[0] + colWidths[1]/2, dataRowY + rowHeight/2 + 5);
-                    ctx.fillText('', tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, dataRowY + rowHeight/2 + 5);
-                }
+                // 오전/오후 모든 데이터 표시
+                const morningHour = station.departureTime?.morningHour || 8;
+                const morningMinute = station.departureTime?.minute || 0;
+                const morningTimeStr = `${morningHour}:${String(morningMinute).padStart(2, '0')}`;
+                
+                const afternoonHour = station.departureTime?.afternoonHour || 17;
+                const afternoonMinute = station.departureTime?.minute || 0;
+                const afternoonTimeStr = `${afternoonHour}:${String(afternoonMinute).padStart(2, '0')}`;
+                
+                ctx.textAlign = 'center';
+                
+                // 오전 출발시간 (2열)
+                ctx.fillStyle = '#000000';
+                ctx.fillText(morningTimeStr, tableX + colWidths[0] + colWidths[1]/2, dataRowY + rowHeight/2 + 5);
+                
+                // 오전 승차인원 (3열)
+                ctx.fillStyle = '#000000';
+                ctx.fillText(station.morningCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, dataRowY + rowHeight/2 + 5);
+                
+                // 오후 출발시간 (4열)
+                ctx.fillStyle = '#000000';
+                ctx.fillText(afternoonTimeStr, tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3]/2, dataRowY + rowHeight/2 + 5);
+                
+                // 오후 승차인원 (5열)
+                ctx.fillStyle = '#000000';
+                ctx.fillText(station.afternoonCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, dataRowY + rowHeight/2 + 5);
                 
                 ctx.textAlign = 'left';
             });
@@ -1449,17 +1491,16 @@
             ctx.textAlign = 'left';
             ctx.fillText('계', tableX + 10, totalRowY + rowHeight/2 + 5);
             
-            // 총계 계산 및 표시 (현재 선택된 시간대에 따라)
+            // 총계 계산 및 표시 (오전/오후 모든 데이터)
             ctx.textAlign = 'center';
-            if (selectedTimePeriod === 'morning') {
-                const morningTotal = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
-                ctx.fillText(morningTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, totalRowY + rowHeight/2 + 5);
-                ctx.fillText('', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, totalRowY + rowHeight/2 + 5);
-            } else {
-                const afternoonTotal = stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
-                ctx.fillText('', tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, totalRowY + rowHeight/2 + 5);
-                ctx.fillText(afternoonTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, totalRowY + rowHeight/2 + 5);
-            }
+            const morningTotal = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
+            const afternoonTotal = stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
+            
+            // 오전 총계 (3열)
+            ctx.fillText(morningTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, totalRowY + rowHeight/2 + 5);
+            
+            // 오후 총계 (5열)
+            ctx.fillText(afternoonTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, totalRowY + rowHeight/2 + 5);
             
             return canvas.toDataURL('image/png');
         }
