@@ -1357,11 +1357,11 @@
                     if (i === 0) {
                         // 첫 번째 컬럼 (노선이름/번호/정류장명) - 흰색
                         ctx.fillStyle = '#FFFFFF';
-                    } else if (i === 1) {
-                        // 첫 번째 출발시간 컬럼 - 노란색
+                    } else if (i === 1 || i === 3) {
+                        // 출발시간 컬럼들 (오전, 오후) - 노란색
                         ctx.fillStyle = '#FFFF00';
                     } else {
-                        // 나머지 컬럼들 - 흰색
+                        // 승차인원 컬럼들 - 흰색
                         ctx.fillStyle = '#FFFFFF';
                     }
                     ctx.fillRect(currentX, dataRowY, colWidths[i], rowHeight);
@@ -1384,6 +1384,7 @@
                 }
                 
                 // 번호와 정류장명 표시 (1열에 통합)
+                ctx.fillStyle = '#000000';
                 ctx.fillText(`${index + 1}. ${station.name}`, tableX + 10, dataRowY + rowHeight/2 + 5);
                 
                 // 오전 출발시간 (2열)
@@ -1391,18 +1392,22 @@
                 const morningMinute = station.departureTime?.minute || 0;
                 const morningTimeStr = `${morningHour}:${String(morningMinute).padStart(2, '0')}`;
                 ctx.textAlign = 'center';
+                ctx.fillStyle = '#000000';
                 ctx.fillText(morningTimeStr, tableX + colWidths[0] + colWidths[1]/2, dataRowY + rowHeight/2 + 5);
                 
                 // 오전 승차인원 (3열)
+                ctx.fillStyle = '#000000';
                 ctx.fillText(station.morningCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, dataRowY + rowHeight/2 + 5);
                 
                 // 오후 출발시간 (4열)
                 const afternoonHour = station.departureTime?.afternoonHour || 17;
                 const afternoonMinute = station.departureTime?.minute || 0;
                 const afternoonTimeStr = `${afternoonHour}:${String(afternoonMinute).padStart(2, '0')}`;
+                ctx.fillStyle = '#000000';
                 ctx.fillText(afternoonTimeStr, tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3]/2, dataRowY + rowHeight/2 + 5);
                 
                 // 오후 승차인원 (5열)
+                ctx.fillStyle = '#000000';
                 ctx.fillText(station.afternoonCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, dataRowY + rowHeight/2 + 5);
                 
                 ctx.textAlign = 'left';
