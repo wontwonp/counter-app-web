@@ -754,8 +754,49 @@
             document.getElementById('count-submit').disabled = stationCount <= 0 || routeName === '';
         }
 
+        // 날짜 변경 확인 및 완전 초기화
+        function checkDateChangeAndReset() {
+            const now = new Date();
+            const currentDate = now.toDateString(); // "Mon Jan 01 2024" 형식
+            const savedDate = localStorage.getItem('lastResetDate');
+            
+            if (savedDate && savedDate !== currentDate) {
+                console.log(`날짜 변경 감지: ${savedDate} → ${currentDate}`);
+                console.log('24시가 지나 완전 초기화를 실행합니다.');
+                
+                // 완전 초기화 실행
+                completeReset();
+                
+                // 새로운 날짜 저장
+                localStorage.setItem('lastResetDate', currentDate);
+            } else if (!savedDate) {
+                // 처음 실행하는 경우 현재 날짜 저장
+                localStorage.setItem('lastResetDate', currentDate);
+            }
+        }
+
+        // 완전 초기화 함수
+        function completeReset() {
+            if (stations && stations.length > 0) {
+                stations.forEach(station => {
+                    station.count = 0;
+                    station.morningCount = 0;
+                    station.afternoonCount = 0;
+                });
+                currentStationIndex = 0;
+                currentInput = '';
+                enableKeypad();
+                updateKeypadPage();
+                localStorage.setItem('savedStations', JSON.stringify(stations));
+                console.log('24시 경과로 인한 완전 초기화가 완료되었습니다.');
+            }
+        }
+
         // 현재 시간에 따라 자동으로 시간대 선택
         function autoSelectTimePeriod() {
+            // 먼저 날짜 변경 확인
+            checkDateChangeAndReset();
+            
             const now = new Date();
             const currentHour = now.getHours();
             
@@ -780,6 +821,9 @@
 
         // 시간대 선택 함수 (수동 선택용)
         function selectTimePeriod(period) {
+            // 날짜 변경 확인
+            checkDateChangeAndReset();
+            
             const previousPeriod = selectedTimePeriod;
             selectedTimePeriod = period;
             updateTimePeriodButtons();
@@ -1651,6 +1695,9 @@
             loadSavedStations();
             loadSavedTimePeriod();
             setKoreanInputMode();
+            
+            // 날짜 변경 확인 (페이지 로드 시)
+            checkDateChangeAndReset();
             
             // 키패드 상태 복원
             setTimeout(() => {
