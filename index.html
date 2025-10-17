@@ -801,7 +801,6 @@
             routeName = document.getElementById('route-name').value.trim();
             
             if (routeName === '') {
-                alert('노선 이름을 입력해주세요.');
                 return;
             }
             
@@ -1125,7 +1124,6 @@
         // 직전 정류장 삭제 함수
         function deletePreviousStation() {
             if (currentStationIndex === 0) {
-                alert('첫 번째 정류장입니다. 삭제할 수 없습니다.');
                 return;
             }
             
@@ -1359,7 +1357,6 @@
         // 이미지 생성 및 공유
         function generateAndShareImage() {
             if (stations.length === 0) {
-                alert('카운트할 정류장이 없습니다.');
                 return;
             }
             
@@ -1380,14 +1377,12 @@
                 }, 1000);
             } catch (error) {
                 console.error('이미지 생성 오류:', error);
-                alert('이미지 생성 중 오류가 발생했습니다.');
             }
         }
 
         // 카카오톡 공유 함수
         function shareToKakao() {
             if (!generatedImageDataUrl) {
-                alert('이미지를 먼저 생성해주세요.');
                 return;
             }
             
@@ -1423,7 +1418,6 @@
         // 이미지 다운로드 함수
         function downloadImage() {
             if (!generatedImageDataUrl) {
-                alert('이미지를 먼저 생성해주세요.');
                 return;
             }
             
