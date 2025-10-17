@@ -1559,10 +1559,10 @@
                 if (i === 0) {
                     // 첫 번째 컬럼에 노선이름 표시 (검은색 텍스트)
                     ctx.fillStyle = '#000000';
-                    ctx.fillText(routeName, currentX + colWidths[i]/2, headerRowY + rowHeight/2 + 5);
+                    ctx.fillText(routeName, currentX + colWidths[i]/2, headerRowY + rowHeight/2 + 8);
                 } else if (headers[i]) { // 빈 문자열이 아닌 경우만 텍스트 표시
                     ctx.fillStyle = '#000000';
-                    ctx.fillText(headers[i], currentX + colWidths[i]/2, headerRowY + rowHeight/2 + 5);
+                    ctx.fillText(headers[i], currentX + colWidths[i]/2, headerRowY + rowHeight/2 + 8);
                 }
                 currentX += colWidths[i];
             }
@@ -1608,7 +1608,7 @@
                 
                 // 번호와 정류장명 표시 (1열에 통합)
                 ctx.fillStyle = '#000000';
-                ctx.fillText(`${index + 1}. ${station.name}`, tableX + 10, dataRowY + rowHeight/2 + 5);
+                ctx.fillText(`${index + 1}. ${station.name}`, tableX + 10, dataRowY + rowHeight/2 + 8);
                 
                 // 오전/오후 모든 데이터 표시
                 const morningHour = station.departureTime?.morningHour || 8;
@@ -1623,19 +1623,19 @@
                 
                 // 오전 출발시간 (2열)
                 ctx.fillStyle = '#000000';
-                ctx.fillText(morningTimeStr, tableX + colWidths[0] + colWidths[1]/2, dataRowY + rowHeight/2 + 5);
+                ctx.fillText(morningTimeStr, tableX + colWidths[0] + colWidths[1]/2, dataRowY + rowHeight/2 + 8);
                 
                 // 오전 승차인원 (3열)
                 ctx.fillStyle = '#000000';
-                ctx.fillText(station.morningCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, dataRowY + rowHeight/2 + 5);
+                ctx.fillText(station.morningCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, dataRowY + rowHeight/2 + 8);
                 
                 // 오후 출발시간 (4열)
                 ctx.fillStyle = '#000000';
-                ctx.fillText(afternoonTimeStr, tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3]/2, dataRowY + rowHeight/2 + 5);
+                ctx.fillText(afternoonTimeStr, tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3]/2, dataRowY + rowHeight/2 + 8);
                 
                 // 오후 승차인원 (5열)
                 ctx.fillStyle = '#000000';
-                ctx.fillText(station.afternoonCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, dataRowY + rowHeight/2 + 5);
+                ctx.fillText(station.afternoonCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, dataRowY + rowHeight/2 + 8);
                 
                 ctx.textAlign = 'left';
             });
@@ -1667,7 +1667,7 @@
             ctx.fillStyle = '#000000';
             ctx.font = 'bold 28px Arial';
             ctx.textAlign = 'left';
-            ctx.fillText('계', tableX + 10, totalRowY + rowHeight/2 + 5);
+            ctx.fillText('계', tableX + 10, totalRowY + rowHeight/2 + 8);
             
             // 총계 계산 및 표시 (오전/오후 모든 데이터)
             ctx.textAlign = 'center';
@@ -1675,10 +1675,10 @@
             const afternoonTotal = stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
             
             // 오전 총계 (3열)
-            ctx.fillText(morningTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, totalRowY + rowHeight/2 + 5);
+            ctx.fillText(morningTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, totalRowY + rowHeight/2 + 8);
             
             // 오후 총계 (5열)
-            ctx.fillText(afternoonTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, totalRowY + rowHeight/2 + 5);
+            ctx.fillText(afternoonTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, totalRowY + rowHeight/2 + 8);
             
             return canvas.toDataURL('image/png');
         }
