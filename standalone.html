@@ -565,10 +565,14 @@
 
         /* 공유 버튼 스타일 */
         .share-buttons {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 15px;
             justify-content: center;
             margin-top: 20px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .share-btn, .download-btn {
@@ -702,7 +706,6 @@
                 <div class="button-group">
                     <button id="start-counting" class="start-btn" onclick="startCounting()" disabled>카운팅 시작</button>
                     <button id="save-route" class="save-btn" onclick="saveRoute()" disabled>노선 저장</button>
-                    <button id="reset-setup" class="reset-btn" onclick="resetSetup()">다시 설정</button>
                 </div>
             </div>
         </div>
@@ -771,6 +774,9 @@
             <div class="share-buttons">
                 <button onclick="generateAndShareImage()" class="share-btn" id="kakao-share-btn">
                     📱 카카오톡 공유
+                </button>
+                <button onclick="resetSetup()" class="reset-btn" id="reset-to-start">
+                    처음으로
                 </button>
             </div>
         </div>
@@ -969,6 +975,9 @@
                 createStationInputs();
                 document.getElementById('station-count-page').classList.add('hidden');
                 document.getElementById('station-names-page').classList.remove('hidden');
+                
+                // 버튼 상태 업데이트
+                document.getElementById('count-submit').disabled = stationCount <= 0 || routeName === '';
             }
         }
 

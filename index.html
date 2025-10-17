@@ -969,6 +969,9 @@
                 createStationInputs();
                 document.getElementById('station-count-page').classList.add('hidden');
                 document.getElementById('station-names-page').classList.remove('hidden');
+                
+                // 버튼 상태 업데이트
+                document.getElementById('count-submit').disabled = stationCount <= 0 || routeName === '';
             }
         }
 
