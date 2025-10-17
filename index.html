@@ -184,6 +184,16 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+        .current-station h2 {
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        .current-station p {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
         .clock-display {
             background: rgba(0, 0, 0, 0.3);
             padding: 12px;
@@ -267,10 +277,6 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
-        .keypad-btn:active {
-            transform: translateY(-1px);
-        }
-
         .enter-btn {
             width: 285px;
             height: 90px;
@@ -348,6 +354,22 @@
             color: white;
             cursor: pointer;
             transition: all 0.3s ease;
+        }
+
+        .delete-previous-btn {
+            font-size: 1.1rem;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #9C27B0;
+        }
+
+        .delete-previous-btn:hover {
+            background: #7B1FA2;
+            transform: translateY(-2px);
         }
 
         .reset-counts-btn {
@@ -461,6 +483,118 @@
         body.dark-mode .keypad-btn:hover {
             background: rgba(0, 0, 0, 0.5);
         }
+
+        /* 공유 버튼 스타일 */
+        .share-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .share-btn, .download-btn {
+            font-size: 1.1rem;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .share-btn {
+            background: #FEE500;
+            color: #3C1E1E;
+        }
+
+        .share-btn:hover {
+            background: #FFD700;
+            transform: translateY(-2px);
+        }
+
+        .download-btn {
+            background: #2196F3;
+        }
+
+        .download-btn:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        /* 이미지 미리보기 모달 */
+        .image-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .image-modal.show {
+            display: flex;
+        }
+
+        .image-modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+        }
+
+        .image-modal img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* 시간대 선택 버튼 스타일 */
+        .time-period-btn {
+            font-size: 1.1rem;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .time-period-btn.active {
+            background: #4CAF50;
+            border: 2px solid #4CAF50;
+            transform: translateY(-2px);
+        }
+
+        .time-period-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .time-period-btn.active:hover {
+            background: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -471,7 +605,12 @@
         <!-- 정류장 개수 입력 페이지 -->
         <div id="station-count-page">
             <div class="station-count-input">
-                <h2>정류장 개수를 입력하세요</h2>
+                <h2>노선 정보를 입력하세요</h2>
+                <div style="margin-bottom: 20px;">
+                    <label for="route-name" style="display: block; margin-bottom: 10px; font-size: 1.1rem;">노선 이름:</label>
+                    <input type="text" id="route-name" placeholder="예: 명지2 노선" class="number-input" style="width: 300px;" lang="ko" ime-mode="active">
+                </div>
+                <h3>정류장 개수를 입력하세요</h3>
                 <input type="number" id="station-count" min="1" max="20" placeholder="정류장 개수" class="number-input" oninput="updateStationCount()">
                 <button id="count-submit" class="submit-btn" onclick="submitStationCount()" disabled>확인</button>
             </div>
@@ -494,6 +633,14 @@
             <div class="current-station">
                 <h2 id="current-station-name">현재 정류장: </h2>
                 <p id="current-station-count">총 탑승자수: 0</p>
+            </div>
+
+            <!-- 시간대 토글 버튼 -->
+            <div style="margin-bottom: 15px;">
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button id="morning-btn-keypad" class="time-period-btn active" onclick="selectTimePeriod('morning')">오전 운행</button>
+                    <button id="afternoon-btn-keypad" class="time-period-btn" onclick="selectTimePeriod('afternoon')">오후 운행</button>
+                </div>
             </div>
 
             <div class="clock-display">
@@ -537,9 +684,27 @@
             </div>
 
             <div class="reset-buttons">
+                <button onclick="deletePreviousStation()" class="delete-previous-btn">직전 정류장 삭제</button>
                 <button onclick="resetCounts()" class="reset-counts-btn">정류장 명수 초기화</button>
                 <button onclick="resetApp()" class="reset-app-btn">처음으로</button>
             </div>
+
+            <div class="share-buttons">
+                <button onclick="generateAndShareImage()" class="share-btn" id="kakao-share-btn">
+                    📱 카카오톡 공유
+                </button>
+                <button onclick="downloadImage()" class="download-btn">
+                    💾 이미지 저장
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 이미지 미리보기 모달 -->
+    <div id="image-modal" class="image-modal">
+        <button class="modal-close" onclick="closeImageModal()">&times;</button>
+        <div class="image-modal-content">
+            <img id="generated-image" src="" alt="생성된 이미지">
         </div>
     </div>
 
@@ -551,6 +716,9 @@
         let currentInput = '';
         let stationCount = 0;
         let isDarkMode = false;
+        let routeName = '';
+        let stationDepartureTimes = [];
+        let selectedTimePeriod = 'morning'; // 'morning' 또는 'afternoon'
 
         // 다크모드 토글 함수
         function toggleTheme() {
@@ -582,22 +750,78 @@
         // 정류장 개수 업데이트 함수
         function updateStationCount() {
             stationCount = parseInt(document.getElementById('station-count').value) || 0;
-            document.getElementById('count-submit').disabled = stationCount <= 0;
+            routeName = document.getElementById('route-name').value.trim();
+            document.getElementById('count-submit').disabled = stationCount <= 0 || routeName === '';
+        }
+
+        // 시간대 선택 함수
+        function selectTimePeriod(period) {
+            selectedTimePeriod = period;
+            
+            // 초기 화면 버튼 업데이트 (있는 경우)
+            const morningBtn = document.getElementById('morning-btn');
+            const afternoonBtn = document.getElementById('afternoon-btn');
+            if (morningBtn && afternoonBtn) {
+                morningBtn.classList.remove('active');
+                afternoonBtn.classList.remove('active');
+                
+                if (period === 'morning') {
+                    morningBtn.classList.add('active');
+                } else {
+                    afternoonBtn.classList.add('active');
+                }
+            }
+            
+            // 키패드 화면 버튼 업데이트
+            const morningBtnKeypad = document.getElementById('morning-btn-keypad');
+            const afternoonBtnKeypad = document.getElementById('afternoon-btn-keypad');
+            if (morningBtnKeypad && afternoonBtnKeypad) {
+                morningBtnKeypad.classList.remove('active');
+                afternoonBtnKeypad.classList.remove('active');
+                
+                if (period === 'morning') {
+                    morningBtnKeypad.classList.add('active');
+                } else {
+                    afternoonBtnKeypad.classList.add('active');
+                }
+            }
+            
+            // 키패드 페이지 업데이트 (시간 표시 변경)
+            if (!document.getElementById('keypad-page').classList.contains('hidden')) {
+                updateKeypadPage();
+            }
+            
+            // localStorage에 저장
+            localStorage.setItem('selectedTimePeriod', period);
         }
 
         // 정류장 개수 제출 함수
         function submitStationCount() {
             stationCount = parseInt(document.getElementById('station-count').value) || 0;
+            routeName = document.getElementById('route-name').value.trim();
+            
+            if (routeName === '') {
+                alert('노선 이름을 입력해주세요.');
+                return;
+            }
+            
             if (stationCount > 0) {
                 // 저장된 정류장 이름 불러오기
                 const savedStations = JSON.parse(localStorage.getItem('savedStations') || '[]');
+                const savedDepartureTimes = JSON.parse(localStorage.getItem('savedDepartureTimes') || '[]');
                 
                 stations = Array.from({ length: stationCount }, (_, index) => ({
                     id: index,
                     name: savedStations[index] || '',
-                    count: 0
+                    count: 0,
+                    departureTime: savedDepartureTimes[index] || { 
+                        morningHour: 8, 
+                        afternoonHour: 5, 
+                        minute: Math.min(index * 5, 59) 
+                    }
                 }));
                 stationNames = new Array(stationCount).fill('');
+                stationDepartureTimes = new Array(stationCount).fill({ hour: 8, minute: 0, ampm: 'AM' });
                 createStationInputs();
                 document.getElementById('station-count-page').classList.add('hidden');
                 document.getElementById('station-names-page').classList.remove('hidden');
@@ -611,10 +835,33 @@
             stations.forEach((station, index) => {
                 const inputGroup = document.createElement('div');
                 inputGroup.className = 'station-input-group';
+                inputGroup.style.flexDirection = 'column';
+                inputGroup.style.alignItems = 'stretch';
+                inputGroup.style.gap = '10px';
                 inputGroup.innerHTML = `
-                    <label>정류장 ${index + 1}:</label>
-                    <input type="text" class="station-name-input" placeholder="정류장 ${index + 1} 이름" 
-                           onchange="updateStationName(${index}, this.value)">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">정류장 ${index + 1}:</label>
+                        <input type="text" class="station-name-input" placeholder="정류장 ${index + 1} 이름" 
+                               value="${station.name}" onchange="updateStationName(${index}, this.value)" lang="ko" ime-mode="active">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">오전시간:</label>
+                        <input type="number" min="1" max="12" placeholder="시" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
+                               value="${station.departureTime.morningHour || 8}" onchange="updateDepartureTime(${index}, 'morningHour', this.value)">
+                        <span style="color: white;">시</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">오후시간:</label>
+                        <input type="number" min="1" max="12" placeholder="시" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
+                               value="${station.departureTime.afternoonHour || 5}" onchange="updateDepartureTime(${index}, 'afternoonHour', this.value)">
+                        <span style="color: white;">시</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">분:</label>
+                        <input type="number" min="0" max="59" placeholder="분" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
+                               value="${station.departureTime.minute || 0}" onchange="updateDepartureTime(${index}, 'minute', this.value)">
+                        <span style="color: white;">분</span>
+                    </div>
                 `;
                 stationInputs.appendChild(inputGroup);
             });
@@ -630,6 +877,25 @@
             localStorage.setItem('savedStations', JSON.stringify(savedStations));
             
             checkAllNamesFilled();
+        }
+
+        // 출발 시간 업데이트
+        function updateDepartureTime(index, type, value) {
+            if (!stations[index].departureTime) {
+                stations[index].departureTime = { morningHour: 8, afternoonHour: 5, minute: 0 };
+            }
+            
+            if (type === 'morningHour') {
+                stations[index].departureTime.morningHour = parseInt(value) || 8;
+            } else if (type === 'afternoonHour') {
+                stations[index].departureTime.afternoonHour = parseInt(value) || 5;
+            } else if (type === 'minute') {
+                stations[index].departureTime.minute = parseInt(value) || 0;
+            }
+            
+            // 출발 시간을 localStorage에 저장
+            const savedDepartureTimes = stations.map(station => station.departureTime);
+            localStorage.setItem('savedDepartureTimes', JSON.stringify(savedDepartureTimes));
         }
 
         // 모든 정류장 이름이 입력되었는지 확인
@@ -686,7 +952,20 @@
         // 키패드 페이지 업데이트
         function updateKeypadPage() {
             const totalCount = stations.reduce((sum, station) => sum + station.count, 0);
-            document.getElementById('current-station-name').textContent = stations[currentStationIndex].name;
+            const currentStation = stations[currentStationIndex];
+            
+            // 현재 정류장 이름과 운행 시간 표시
+            let timeDisplay = '';
+            if (currentStation && currentStation.departureTime) {
+                const hour = selectedTimePeriod === 'morning' ? 
+                    (currentStation.departureTime.morningHour || 8) : 
+                    (currentStation.departureTime.afternoonHour || 5);
+                const minute = currentStation.departureTime.minute || 0;
+                const timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                timeDisplay = ` (${timeStr})`;
+            }
+            
+            document.getElementById('current-station-name').textContent = `${currentStation.name}${timeDisplay}`;
             document.getElementById('current-station-count').textContent = `총 탑승자수: ${totalCount}`;
             updateSummary();
         }
@@ -843,6 +1122,26 @@
             document.getElementById('station-count-page').classList.remove('hidden');
         }
 
+        // 직전 정류장 삭제 함수
+        function deletePreviousStation() {
+            if (currentStationIndex === 0) {
+                alert('첫 번째 정류장입니다. 삭제할 수 없습니다.');
+                return;
+            }
+            
+            if (confirm('직전 정류장의 카운트를 삭제하시겠습니까?')) {
+                // 직전 정류장의 카운트를 0으로 초기화
+                stations[currentStationIndex - 1].count = 0;
+                
+                // 현재 정류장을 직전 정류장으로 이동
+                currentStationIndex--;
+                
+                // 키패드 페이지 업데이트
+                updateKeypadPage();
+            }
+        }
+
+
         // 키보드 이벤트
         document.addEventListener('keydown', function(event) {
             if (document.getElementById('keypad-page').classList.contains('hidden')) return;
@@ -865,21 +1164,64 @@
         // 페이지 로드 시 초기화
         window.addEventListener('load', function() {
             loadTheme();
+            loadSavedTimePeriod();
             loadSavedStations();
+            setKoreanInputMode();
+            
+            // 공유 버튼 이벤트 리스너 추가
+            const kakaoShareBtn = document.getElementById('kakao-share-btn');
+            if (kakaoShareBtn) {
+                kakaoShareBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('카카오톡 공유 버튼 클릭됨');
+                    generateAndShareImage();
+                });
+            }
         });
+
+        // 한글 입력 모드 자동 설정
+        function setKoreanInputMode() {
+            // 모든 텍스트 입력 필드에 한글 입력 모드 설정
+            const textInputs = document.querySelectorAll('input[type="text"]');
+            textInputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    // 한글 입력 모드 활성화
+                    this.setAttribute('lang', 'ko');
+                    this.style.imeMode = 'active';
+                });
+            });
+        }
+
+        // 저장된 시간대 설정 불러오기
+        function loadSavedTimePeriod() {
+            const savedPeriod = localStorage.getItem('selectedTimePeriod');
+            if (savedPeriod) {
+                selectedTimePeriod = savedPeriod;
+                selectTimePeriod(savedPeriod);
+            }
+        }
 
         // 저장된 정류장 정보 불러오기
         function loadSavedStations() {
             const savedStations = JSON.parse(localStorage.getItem('savedStations') || '[]');
             const savedStationCount = localStorage.getItem('savedStationCount');
+            const savedDepartureTimes = JSON.parse(localStorage.getItem('savedDepartureTimes') || '[]');
+            const savedRouteName = localStorage.getItem('routeName');
             
             if (savedStationCount && savedStations.length > 0) {
                 // 저장된 정류장 개수와 이름이 있으면 자동으로 키패드 페이지로 이동
                 stationCount = parseInt(savedStationCount);
+                routeName = savedRouteName || '';
+                
                 stations = Array.from({ length: stationCount }, (_, index) => ({
                     id: index,
                     name: savedStations[index] || '',
-                    count: 0
+                    count: 0,
+                    departureTime: savedDepartureTimes[index] || { 
+                        morningHour: 8, 
+                        afternoonHour: 17, 
+                        minute: Math.min(index * 5, 59) 
+                    }
                 }));
                 
                 // 키패드 페이지로 바로 이동
@@ -894,6 +1236,202 @@
                 updateKeypadPage();
             }
         }
+
+        // 이미지 생성 및 공유 기능
+        let generatedImageDataUrl = null;
+
+        // 이미지 생성 함수 (원본 이미지 스타일 복사)
+        function generateResultImage() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 캔버스 크기 설정 (원본과 비슷한 비율)
+            canvas.width = 900;
+            canvas.height = 1200;
+            
+            // 배경색 설정
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 제목 영역 (주황색 배경) - 원본과 동일한 색상
+            ctx.fillStyle = '#FF8C00';
+            ctx.fillRect(0, 0, canvas.width, 80);
+            
+            // 제목 텍스트 - 노선이름 표시
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`${routeName}`, 20, 45);
+            
+            // 테이블 헤더 (주황색 배경)
+            ctx.fillStyle = '#FF8C00';
+            ctx.fillRect(0, 70, canvas.width, 30);
+            
+            // 테이블 헤더 텍스트
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'left';
+            
+            // 컬럼 헤더들 - 선택된 시간대에 따라 표시
+            ctx.fillText(`${routeName}`, 20, 90);
+            
+            // 선택된 시간대에 맞는 출발시간 표시
+            ctx.fillText('출발시간', 400, 90);
+            ctx.fillText('승차인원', 500, 90);
+            
+            // 테이블 내용
+            let y = 120;
+            let totalPassengers = 0;
+            
+            stations.forEach((station, index) => {
+                // 행 높이
+                const rowHeight = 35;
+                
+                // 테두리 그리기
+                ctx.strokeStyle = '#cccccc';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(0, y - rowHeight, canvas.width, rowHeight);
+                
+                // 정류장명만 표시 (번호 제거)
+                ctx.fillText(station.name, 20, y - 8);
+                
+                // 출발시간과 승차인원 - 선택된 시간대에 따라 표시
+                if (selectedTimePeriod === 'morning') {
+                    const hour = station.departureTime?.morningHour || 8;
+                    const minute = station.departureTime?.minute || 0;
+                    const timeStr = `${hour}:${String(minute).padStart(2, '0')}`;
+                    ctx.fillText(timeStr, 400, y - 8);
+                    
+                    ctx.textAlign = 'center';
+                    ctx.fillText(station.count.toString(), 550, y - 8);
+                    totalPassengers += station.count;
+                } else {
+                    // 오후 시간은 입력한 오후시간 그대로 사용 (12시간 추가하지 않음)
+                    const hour = station.departureTime?.afternoonHour || 17;
+                    const minute = station.departureTime?.minute || 0;
+                    const timeStr = `${hour}:${String(minute).padStart(2, '0')}`;
+                    ctx.fillText(timeStr, 400, y - 8);
+                    
+                    ctx.textAlign = 'center';
+                    ctx.fillText(station.count.toString(), 550, y - 8);
+                    totalPassengers += station.count;
+                }
+                
+                ctx.textAlign = 'left';
+                y += rowHeight;
+            });
+            
+            // 총계 행 (주황색 배경)
+            ctx.fillStyle = '#FF8C00';
+            ctx.fillRect(0, y - 35, canvas.width, 35);
+            
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 11px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('계', 20, y - 8);
+            ctx.textAlign = 'center';
+            ctx.fillText(totalPassengers.toString(), 550, y - 8);
+            
+            return canvas.toDataURL('image/png');
+        }
+
+        // 이미지 생성 및 공유
+        function generateAndShareImage() {
+            if (stations.length === 0) {
+                alert('카운트할 정류장이 없습니다.');
+                return;
+            }
+            
+            try {
+                generatedImageDataUrl = generateResultImage();
+                
+                // 이미지 미리보기 표시
+                const modal = document.getElementById('image-modal');
+                const img = document.getElementById('generated-image');
+                img.src = generatedImageDataUrl;
+                modal.classList.add('show');
+                
+                console.log('이미지 생성 완료:', generatedImageDataUrl ? '성공' : '실패');
+                
+                // 카카오톡 공유 시도
+                setTimeout(() => {
+                    shareToKakao();
+                }, 1000);
+            } catch (error) {
+                console.error('이미지 생성 오류:', error);
+                alert('이미지 생성 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 카카오톡 공유 함수
+        function shareToKakao() {
+            if (!generatedImageDataUrl) {
+                alert('이미지를 먼저 생성해주세요.');
+                return;
+            }
+            
+            console.log('공유 시도 중...');
+            
+            // Web Share API 사용 (모바일에서 카카오톡 공유 가능)
+            if (navigator.share) {
+                console.log('Web Share API 지원됨');
+                
+                // 이미지를 Blob으로 변환
+                fetch(generatedImageDataUrl)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        console.log('Blob 생성 완료:', blob.size, 'bytes');
+                        const file = new File([blob], 'bus-count-result.png', { type: 'image/png' });
+                        
+                        navigator.share({
+                            title: '정류장 승객 카운트 결과',
+                            text: '버스 운행 승객 카운트 결과입니다.',
+                            files: [file]
+                        }).then(() => {
+                            console.log('공유 성공');
+                        }).catch(err => {
+                            console.log('공유 실패:', err);
+                            // 공유 실패 시 다운로드로 대체
+                            downloadImage();
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Blob 생성 실패:', err);
+                        downloadImage();
+                    });
+            } else {
+                console.log('Web Share API 미지원');
+                // Web Share API를 지원하지 않는 경우 다운로드로 대체
+                alert('카카오톡 공유는 모바일 브라우저에서만 지원됩니다. 이미지를 다운로드해주세요.');
+                downloadImage();
+            }
+        }
+
+        // 이미지 다운로드 함수
+        function downloadImage() {
+            if (!generatedImageDataUrl) {
+                alert('이미지를 먼저 생성해주세요.');
+                return;
+            }
+            
+            const link = document.createElement('a');
+            link.download = `bus-count-result-${new Date().toISOString().slice(0, 10)}.png`;
+            link.href = generatedImageDataUrl;
+            link.click();
+        }
+
+        // 이미지 모달 닫기
+        function closeImageModal() {
+            const modal = document.getElementById('image-modal');
+            modal.classList.remove('show');
+        }
+
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('image-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImageModal();
+            }
+        });
     </script>
 </body>
 </html>
