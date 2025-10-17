@@ -1893,6 +1893,21 @@
             if (saveToLocalStorage('savedRoutes', JSON.stringify(savedRoutes))) {
                 alert(`"${routeName}" 노선이 저장되었습니다.`);
                 updateSavedRoutesDisplay();
+                
+                // 입력 필드 초기화
+                routeName = '';
+                stationCount = 0;
+                stations = [];
+                stationNames = [];
+                currentStationIndex = 0;
+                currentInput = '';
+                
+                // UI 초기화
+                document.getElementById('route-name').value = '';
+                document.getElementById('station-count').value = '';
+                document.getElementById('station-count-page').classList.remove('hidden');
+                document.getElementById('station-names-page').classList.add('hidden');
+                document.getElementById('count-submit').disabled = true;
             }
         }
 
