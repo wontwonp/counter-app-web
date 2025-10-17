@@ -1290,7 +1290,7 @@
             
             // 컬럼 헤더들 - 원본과 동일하게 오전/오후 모두 표시
             ctx.fillText('번호', 20, 65);
-            ctx.fillText('정류장명', 50, 65);
+            ctx.fillText('노선명', 50, 65);
             ctx.fillText('출발시간', 200, 65);
             ctx.fillText('승차인원', 280, 65);
             ctx.fillText('출발시간', 360, 65);
@@ -1346,29 +1346,26 @@
                 ctx.textAlign = 'center';
                 ctx.fillText((index + 1).toString(), 30, y - 10);
                 
-                // 정류장명
-                ctx.textAlign = 'left';
-                ctx.fillText(station.name, 50, y - 10);
+                // 노선이름 (정류장명 대신)
+                ctx.textAlign = 'center';
+                ctx.fillText(routeName, 110, y - 10);
                 
                 // 오전 출발시간
                 const morningHour = station.departureTime?.morningHour || 8;
                 const morningMinute = station.departureTime?.minute || 0;
                 const morningTimeStr = `${morningHour}:${String(morningMinute).padStart(2, '0')}`;
-                ctx.fillText(morningTimeStr, 200, y - 10);
+                ctx.fillText(morningTimeStr, 220, y - 10);
                 
                 // 오전 승차인원
-                ctx.textAlign = 'center';
                 ctx.fillText(station.morningCount?.toString() || '', 320, y - 10);
                 
                 // 오후 출발시간
-                ctx.textAlign = 'left';
                 const afternoonHour = station.departureTime?.afternoonHour || 17;
                 const afternoonMinute = station.departureTime?.minute || 0;
                 const afternoonTimeStr = `${afternoonHour}:${String(afternoonMinute).padStart(2, '0')}`;
-                ctx.fillText(afternoonTimeStr, 360, y - 10);
+                ctx.fillText(afternoonTimeStr, 380, y - 10);
                 
                 // 오후 승차인원
-                ctx.textAlign = 'center';
                 ctx.fillText(station.afternoonCount?.toString() || '', 480, y - 10);
                 
                 ctx.textAlign = 'left';
@@ -1381,12 +1378,11 @@
             
             ctx.fillStyle = '#000000';
             ctx.font = 'bold 12px Arial';
-            ctx.textAlign = 'left';
-            ctx.fillText('계', 50, y - 10);
+            ctx.textAlign = 'center';
+            ctx.fillText('계', 110, y - 10);
             
             // 오전 총계
             const morningTotal = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
-            ctx.textAlign = 'center';
             ctx.fillText(morningTotal.toString(), 320, y - 10);
             
             // 오후 총계
