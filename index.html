@@ -830,13 +830,15 @@
             
             // 키패드 페이지 업데이트 (시간 표시 변경)
             if (!document.getElementById('keypad-page').classList.contains('hidden')) {
-                updateKeypadPage();
-                
-                // 오전에서 오후로 전환하거나 오후에서 오전으로 전환할 때 키패드 재활성화
+                // 오전에서 오후로 전환하거나 오후에서 오전으로 전환할 때 키패드 재활성화 및 첫 번째 정류장으로 이동
                 if (previousPeriod !== period) {
                     enableKeypad();
-                    console.log(`${previousPeriod}에서 ${period}로 전환 - 키패드 재활성화`);
+                    currentStationIndex = 0; // 첫 번째 정류장부터 시작
+                    currentInput = ''; // 입력 초기화
+                    console.log(`${previousPeriod}에서 ${period}로 전환 - 키패드 재활성화, 첫 번째 정류장으로 이동`);
                 }
+                
+                updateKeypadPage();
             }
             
             // localStorage에 저장
