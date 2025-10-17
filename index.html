@@ -1143,8 +1143,8 @@
                 
                 updateKeypadPage();
                 
-                // localStorage에 저장
-                localStorage.setItem('savedStations', JSON.stringify(stations));
+                // localStorage에 저장 (오류 처리 포함)
+                saveToLocalStorage('savedStations', JSON.stringify(stations));
             }
         }
 
@@ -1164,7 +1164,7 @@
             inputDisplay.style.fontSize = '2rem';
             
             // 키패드 비활성화 상태 저장
-            localStorage.setItem('keypadDisabled', 'true');
+            saveToLocalStorage('keypadDisabled', 'true');
         }
 
         // 키패드 활성화 함수
@@ -1183,7 +1183,7 @@
             inputDisplay.style.fontSize = '3rem';
             
             // 키패드 활성화 상태 저장
-            localStorage.setItem('keypadDisabled', 'false');
+            saveToLocalStorage('keypadDisabled', 'false');
         }
 
         // 정류장 명수만 초기화 (수동 초기화: 오전/오후 모두 초기화)
@@ -1331,10 +1331,10 @@
 
         // 저장된 정류장 정보 불러오기
         function loadSavedStations() {
-            const savedStations = JSON.parse(localStorage.getItem('savedStations') || '[]');
-            const savedStationCount = localStorage.getItem('savedStationCount');
-            const savedDepartureTimes = JSON.parse(localStorage.getItem('savedDepartureTimes') || '[]');
-            const savedRouteName = localStorage.getItem('savedRouteName');
+            const savedStations = JSON.parse(loadFromLocalStorage('savedStations') || '[]');
+            const savedStationCount = loadFromLocalStorage('savedStationCount');
+            const savedDepartureTimes = JSON.parse(loadFromLocalStorage('savedDepartureTimes') || '[]');
+            const savedRouteName = loadFromLocalStorage('savedRouteName');
             
             console.log('로드된 데이터:', {
                 savedStations: savedStations.length,
@@ -1726,6 +1726,38 @@
 
         // 공유 중인지 확인하는 변수
         let isSharing = false;
+
+        // localStorage 저장 함수 (오류 처리 포함)
+        function saveToLocalStorage(key, value) {
+            try {
+                localStorage.setItem(key, value);
+                console.log(`저장 성공: ${key}`);
+                return true;
+            } catch (error) {
+                console.error(`저장 실패: ${key}`, error);
+                // 저장 실패 시 사용자에게 알림
+                if (error.name === 'QuotaExceededError') {
+                    alert('저장 공간이 부족합니다. 브라우저 데이터를 정리해주세요.');
+                } else if (error.name === 'SecurityError') {
+                    alert('보안 설정으로 인해 저장할 수 없습니다. 브라우저 설정을 확인해주세요.');
+                } else {
+                    alert('데이터 저장에 실패했습니다. 페이지를 새로고침하지 마세요.');
+                }
+                return false;
+            }
+        }
+
+        // localStorage 불러오기 함수 (오류 처리 포함)
+        function loadFromLocalStorage(key, defaultValue = null) {
+            try {
+                const value = localStorage.getItem(key);
+                console.log(`불러오기 성공: ${key}`, value);
+                return value;
+            } catch (error) {
+                console.error(`불러오기 실패: ${key}`, error);
+                return defaultValue;
+            }
+        }
 
         // 페이지 가시성 변경 이벤트 (휴대폰 백그라운드/포그라운드)
         document.addEventListener('visibilitychange', function() {
