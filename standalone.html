@@ -1766,6 +1766,10 @@
                    window.innerWidth <= 768;
         }
 
+        // 자동 초기화 이벤트 제거 - 모바일과 컴퓨터 동일하게 처리
+        // 수동 초기화만 가능 ("정류장 명수 초기화" 버튼)
+        
+        /*
         // 페이지 가시성 변경 이벤트 (모바일에서만 작동)
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible' && !isSharing && isMobileDevice()) {
@@ -1790,6 +1794,7 @@
                 resetAllCounts();
             }
         });
+        */
     </script>
 </body>
 </html>
