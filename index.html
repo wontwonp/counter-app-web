@@ -1323,9 +1323,11 @@
             ctx.textAlign = 'center';
             
             currentX = tableX;
-            const headers = ['번호', '정류장명', '출발시간', '승차인원', '출발시간', '승차인원'];
+            const headers = ['', '', '출발시간', '승차인원', '출발시간', '승차인원'];
             for (let i = 0; i < headers.length; i++) {
-                ctx.fillText(headers[i], currentX + colWidths[i]/2, headerRowY + rowHeight/2 + 5);
+                if (headers[i]) { // 빈 문자열이 아닌 경우만 텍스트 표시
+                    ctx.fillText(headers[i], currentX + colWidths[i]/2, headerRowY + rowHeight/2 + 5);
+                }
                 currentX += colWidths[i];
             }
             
