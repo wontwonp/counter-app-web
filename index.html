@@ -1184,19 +1184,13 @@
             localStorage.setItem('keypadDisabled', 'false');
         }
 
-        // 정류장 명수만 초기화 (오전 카운팅 유지, 오후만 초기화)
+        // 정류장 명수만 초기화 (수동 초기화: 오전/오후 모두 초기화)
         function resetCounts() {
-            // 오후 마지막 정류장 출발시간 50분 후인지 확인
-            if (!checkAfternoonResetAvailability()) {
-                alert('오후 마지막 정류장 출발시간 50분 후에만 초기화 가능합니다.');
-                return;
-            }
-            
-            if (confirm('오후 카운팅을 초기화하시겠습니까? (오전 카운팅은 유지됩니다)')) {
+            if (confirm('정류장별 카운트를 초기화하시겠습니까?\n(오전/오후 모든 카운팅이 초기화됩니다)')) {
                 stations.forEach(station => {
+                    station.count = 0;
+                    station.morningCount = 0;
                     station.afternoonCount = 0;
-                    // 기존 count는 오전+오후 합계로 유지
-                    station.count = station.morningCount;
                 });
                 currentStationIndex = 0;
                 currentInput = '';
@@ -1204,7 +1198,7 @@
                 updateKeypadPage();
                 localStorage.setItem('savedStations', JSON.stringify(stations));
                 
-                console.log('오후 카운팅이 초기화되었습니다. 오전 카운팅은 유지됩니다.');
+                console.log('수동 초기화: 오전/오후 모든 카운팅이 초기화되었습니다.');
             }
         }
 
@@ -1609,6 +1603,9 @@
             
             console.log('공유 시도 중...');
             
+            // 공유 시작
+            isSharing = true;
+            
             // Web Share API 사용 (모바일에서 카카오톡 공유 가능)
             if (navigator.share) {
                 console.log('Web Share API 지원됨');
@@ -1624,15 +1621,22 @@
                             files: [file]
                         }).then(() => {
                             console.log('공유 성공');
+                            // 공유 완료 후 3초 뒤 플래그 해제
+                            setTimeout(() => {
+                                isSharing = false;
+                            }, 3000);
                         }).catch(err => {
                             console.log('공유 실패:', err);
+                            isSharing = false;
                         });
                     })
                     .catch(err => {
                         console.error('Blob 생성 실패:', err);
+                        isSharing = false;
                     });
             } else {
                 console.log('Web Share API 미지원');
+                isSharing = false;
             }
         }
 
@@ -1661,21 +1665,24 @@
             }
         });
 
-        // 카운트 초기화 함수 (오전 카운팅 보존)
+        // 자동 카운트 초기화 함수 (오후 마지막 정류장 출발시간 50분 후)
         function resetAllCounts() {
             if (stations && stations.length > 0) {
-                stations.forEach(station => {
-                    // 오전 카운팅은 보존하고 오후 카운팅만 초기화
-                    station.afternoonCount = 0;
-                    // 기존 count는 오전 카운팅으로 설정
-                    station.count = station.morningCount || 0;
-                });
-                currentStationIndex = 0;
-                currentInput = '';
-                enableKeypad();
-                updateKeypadPage();
-                localStorage.setItem('savedStations', JSON.stringify(stations));
-                console.log('오후 카운팅이 초기화되었습니다. 오전 카운팅은 보존됩니다.');
+                // 오후 마지막 정류장 출발시간 50분 후인지 확인
+                if (checkAfternoonResetAvailability()) {
+                    stations.forEach(station => {
+                        // 오전/오후 모든 카운팅 초기화
+                        station.count = 0;
+                        station.morningCount = 0;
+                        station.afternoonCount = 0;
+                    });
+                    currentStationIndex = 0;
+                    currentInput = '';
+                    enableKeypad();
+                    updateKeypadPage();
+                    localStorage.setItem('savedStations', JSON.stringify(stations));
+                    console.log('자동 초기화: 오후 마지막 정류장 출발시간 50분 경과로 오전/오후 모든 카운팅이 초기화되었습니다.');
+                }
             }
         }
 
@@ -1715,10 +1722,13 @@
             }, 100);
         });
 
+        // 공유 중인지 확인하는 변수
+        let isSharing = false;
+
         // 페이지 가시성 변경 이벤트 (휴대폰 백그라운드/포그라운드)
         document.addEventListener('visibilitychange', function() {
-            if (document.visibilityState === 'visible') {
-                // 페이지가 다시 보이게 될 때 오후 카운팅만 초기화 (오전 카운팅 보존)
+            if (document.visibilityState === 'visible' && !isSharing) {
+                // 공유 중이 아닐 때만 오후 카운팅 초기화 (오전 카운팅 보존)
                 console.log('페이지가 다시 보이게 됨 - 오후 카운팅 초기화');
                 resetAllCounts();
             }
@@ -1726,14 +1736,18 @@
 
         // 페이지 포커스 이벤트 (브라우저 탭 전환)
         window.addEventListener('focus', function() {
-            console.log('페이지 포커스 - 오후 카운팅 초기화');
-            resetAllCounts();
+            if (!isSharing) {
+                console.log('페이지 포커스 - 오후 카운팅 초기화');
+                resetAllCounts();
+            }
         });
 
         // 페이지 언로드 전 이벤트 (새로고침, 탭 닫기)
         window.addEventListener('beforeunload', function() {
-            console.log('페이지 언로드 - 오후 카운팅 초기화');
-            resetAllCounts();
+            if (!isSharing) {
+                console.log('페이지 언로드 - 오후 카운팅 초기화');
+                resetAllCounts();
+            }
         });
     </script>
 </body>
