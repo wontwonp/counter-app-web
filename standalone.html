@@ -1357,9 +1357,9 @@
                     return {
                         id: index,
                         name: stationName,
-                        count: 0, // 카운트는 항상 0으로 초기화
-                        morningCount: 0, // 오전 카운트도 항상 0으로 초기화
-                        afternoonCount: 0, // 오후 카운트도 항상 0으로 초기화
+                        count: savedStation?.count || 0, // 저장된 카운트 불러오기
+                        morningCount: savedStation?.morningCount || 0, // 저장된 오전 카운트 불러오기
+                        afternoonCount: savedStation?.afternoonCount || 0, // 저장된 오후 카운트 불러오기
                         departureTime: savedDepartureTimes[index] || { 
                             morningHour: 8, 
                             afternoonHour: 17, 
