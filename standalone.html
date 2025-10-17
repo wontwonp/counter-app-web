@@ -1354,18 +1354,23 @@
                 
                 console.log('설정된 routeName:', routeName);
                 
-                stations = Array.from({ length: stationCount }, (_, index) => ({
-                    id: index,
-                    name: savedStations[index] || '',
-                    count: 0, // 카운트는 항상 0으로 초기화
-                    morningCount: 0, // 오전 카운트도 항상 0으로 초기화
-                    afternoonCount: 0, // 오후 카운트도 항상 0으로 초기화
-                    departureTime: savedDepartureTimes[index] || { 
-                        morningHour: 8, 
-                        afternoonHour: 17, 
-                        minute: Math.min(index * 5, 59) 
-                    }
-                }));
+                stations = Array.from({ length: stationCount }, (_, index) => {
+                    const savedStation = savedStations[index];
+                    const stationName = typeof savedStation === 'string' ? savedStation : (savedStation?.name || '');
+                    
+                    return {
+                        id: index,
+                        name: stationName,
+                        count: 0, // 카운트는 항상 0으로 초기화
+                        morningCount: 0, // 오전 카운트도 항상 0으로 초기화
+                        afternoonCount: 0, // 오후 카운트도 항상 0으로 초기화
+                        departureTime: savedDepartureTimes[index] || { 
+                            morningHour: 8, 
+                            afternoonHour: 17, 
+                            minute: Math.min(index * 5, 59) 
+                        }
+                    };
+                });
                 
                 // 키패드 페이지로 바로 이동
                 document.getElementById('station-count-page').classList.add('hidden');
