@@ -1256,135 +1256,141 @@
         // 이미지 생성 및 공유 기능
         let generatedImageDataUrl = null;
 
-        // 이미지 생성 함수 (원본 이미지 스타일 복사)
+        // 이미지 생성 함수 (엑셀 표 구조 복사)
         function generateResultImage() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // 캔버스 크기 설정 (화면에 꽉차게)
-            canvas.width = 1600;
-            canvas.height = 1600;
+            // 캔버스 크기 설정 (엑셀 표에 맞게)
+            canvas.width = 1000;
+            canvas.height = 600;
             
             // 배경색 설정
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // 제목 영역 (주황색 배경) - 더 크게
+            // 테이블 설정
+            const tableX = 50;
+            const tableY = 50;
+            const tableWidth = 900;
+            const tableHeight = 500;
+            const rowHeight = tableHeight / 11; // 11행
+            const colWidth = tableWidth / 6; // 6열
+            
+            // 테이블 테두리
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(tableX, tableY, tableWidth, tableHeight);
+            
+            // 행 구분선 그리기
+            for (let i = 1; i < 11; i++) {
+                const y = tableY + (i * rowHeight);
+                ctx.beginPath();
+                ctx.moveTo(tableX, y);
+                ctx.lineTo(tableX + tableWidth, y);
+                ctx.stroke();
+            }
+            
+            // 열 구분선 그리기
+            for (let i = 1; i < 6; i++) {
+                const x = tableX + (i * colWidth);
+                ctx.beginPath();
+                ctx.moveTo(x, tableY);
+                ctx.lineTo(x, tableY + tableHeight);
+                ctx.stroke();
+            }
+            
+            // 1행: 메인 헤더 (주황색 배경)
             ctx.fillStyle = '#FF8C00';
-            ctx.fillRect(0, 0, canvas.width, 80);
+            ctx.fillRect(tableX, tableY, tableWidth, rowHeight);
             
-            // 제목 텍스트 - 노선이름만 표시 (폰트 크기 대폭 증가)
+            // "노선이름" 텍스트 (2열에 걸쳐 표시)
             ctx.fillStyle = '#000000';
-            ctx.font = 'bold 48px Arial';
-            ctx.textAlign = 'left';
-            ctx.fillText(`${routeName}`, 40, 50);
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(routeName, tableX + colWidth, tableY + rowHeight/2 + 8);
             
-            // 테이블 헤더 (주황색 배경) - 더 크게
+            // 2행: 서브 헤더
             ctx.fillStyle = '#FF8C00';
-            ctx.fillRect(0, 70, canvas.width, 50);
+            ctx.fillRect(tableX, tableY + rowHeight, tableWidth, rowHeight);
             
-            // 테이블 헤더 텍스트 (폰트 크기 대폭 증가)
+            // "출발시간" 셀들 (노란색)
+            ctx.fillStyle = '#FFFF00';
+            ctx.fillRect(tableX + colWidth * 2, tableY + rowHeight, colWidth, rowHeight);
+            ctx.fillRect(tableX + colWidth * 4, tableY + rowHeight, colWidth, rowHeight);
+            
+            // 서브 헤더 텍스트
             ctx.fillStyle = '#000000';
-            ctx.font = 'bold 32px Arial';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            
+            // 첫 번째 "출발시간"
+            ctx.fillText('출발시간', tableX + colWidth * 2.5, tableY + rowHeight + rowHeight/2 + 6);
+            
+            // 첫 번째 "승차인원"
+            ctx.fillText('승차인원', tableX + colWidth * 3.5, tableY + rowHeight + rowHeight/2 + 6);
+            
+            // 두 번째 "출발시간"
+            ctx.fillText('출발시간', tableX + colWidth * 4.5, tableY + rowHeight + rowHeight/2 + 6);
+            
+            // 두 번째 "승차인원"
+            ctx.fillText('승차인원', tableX + colWidth * 5.5, tableY + rowHeight + rowHeight/2 + 6);
+            
+            // 데이터 행들 (3-10행)
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'left';
-            
-            // 컬럼 헤더들 - 첫 번째 컬럼은 노선이름, 나머지는 출발시간/승차인원
-            ctx.fillText(routeName, 40, 100);
-            ctx.fillText('출발시간', 400, 100);
-            ctx.fillText('승차인원', 600, 100);
-            ctx.fillText('출발시간', 800, 100);
-            ctx.fillText('승차인원', 1000, 100);
-            
-            // 테이블 내용
-            let y = 150;
-            let totalPassengers = 0;
             
             stations.forEach((station, index) => {
-                // 행 높이 (더 크게)
-                const rowHeight = 60;
+                const rowIndex = index + 3; // 3행부터 시작
+                const y = tableY + (rowIndex * rowHeight);
                 
-                // 테두리 그리기 (세로줄 포함)
-                ctx.strokeStyle = '#000000';
-                ctx.lineWidth = 1;
+                // 번호 표시 (1열)
+                ctx.fillText((index + 1).toString(), tableX + 10, y + rowHeight/2 + 5);
                 
-                // 가로줄
-                ctx.beginPath();
-                ctx.moveTo(0, y - rowHeight);
-                ctx.lineTo(canvas.width, y - rowHeight);
-                ctx.stroke();
+                // 노선이름 표시 (2열)
+                ctx.fillText(routeName, tableX + colWidth + 10, y + rowHeight/2 + 5);
                 
-                // 세로줄 (칸 구분) - 새로운 컬럼 위치에 맞게
-                ctx.beginPath();
-                ctx.moveTo(300, y - rowHeight);
-                ctx.lineTo(300, y);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(500, y - rowHeight);
-                ctx.lineTo(500, y);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(700, y - rowHeight);
-                ctx.lineTo(700, y);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(900, y - rowHeight);
-                ctx.lineTo(900, y);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(1100, y - rowHeight);
-                ctx.lineTo(1100, y);
-                ctx.stroke();
-                
-                // 첫 번째 컬럼에 노선이름 표시 (폰트 크기 대폭 증가)
-                ctx.fillStyle = '#000000';
-                ctx.font = 'bold 28px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText(routeName, 40, y - 20);
-                
-                // 오전 출발시간
+                // 오전 출발시간 (3열)
                 const morningHour = station.departureTime?.morningHour || 8;
                 const morningMinute = station.departureTime?.minute || 0;
                 const morningTimeStr = `${morningHour}:${String(morningMinute).padStart(2, '0')}`;
                 ctx.textAlign = 'center';
-                ctx.fillText(morningTimeStr, 600, y - 20);
+                ctx.fillText(morningTimeStr, tableX + colWidth * 2.5, y + rowHeight/2 + 5);
                 
-                // 오전 승차인원
-                ctx.fillText(station.morningCount?.toString() || '', 800, y - 20);
+                // 오전 승차인원 (4열)
+                ctx.fillText(station.morningCount?.toString() || '0', tableX + colWidth * 3.5, y + rowHeight/2 + 5);
                 
-                // 오후 출발시간
+                // 오후 출발시간 (5열)
                 const afternoonHour = station.departureTime?.afternoonHour || 17;
                 const afternoonMinute = station.departureTime?.minute || 0;
                 const afternoonTimeStr = `${afternoonHour}:${String(afternoonMinute).padStart(2, '0')}`;
-                ctx.fillText(afternoonTimeStr, 1000, y - 20);
+                ctx.fillText(afternoonTimeStr, tableX + colWidth * 4.5, y + rowHeight/2 + 5);
                 
-                // 오후 승차인원
-                ctx.fillText(station.afternoonCount?.toString() || '', 1200, y - 20);
+                // 오후 승차인원 (6열)
+                ctx.fillText(station.afternoonCount?.toString() || '0', tableX + colWidth * 5.5, y + rowHeight/2 + 5);
                 
                 ctx.textAlign = 'left';
-                y += rowHeight;
             });
             
-            // 총계 행 (주황색 배경) - 더 크게
+            // 11행: 총계 행 (주황색 배경)
+            const totalRowY = tableY + (10 * rowHeight);
             ctx.fillStyle = '#FF8C00';
-            ctx.fillRect(0, y - 60, canvas.width, 60);
+            ctx.fillRect(tableX, totalRowY, tableWidth, rowHeight);
             
+            // "계" 텍스트
             ctx.fillStyle = '#000000';
-            ctx.font = 'bold 28px Arial';
+            ctx.font = 'bold 16px Arial';
             ctx.textAlign = 'left';
-            ctx.fillText('계', 40, y - 20);
+            ctx.fillText('계', tableX + 10, totalRowY + rowHeight/2 + 6);
             
-            // 오전 총계
+            // 총계 계산 및 표시
             const morningTotal = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
-            ctx.textAlign = 'center';
-            ctx.fillText(morningTotal.toString(), 800, y - 20);
-            
-            // 오후 총계
             const afternoonTotal = stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
-            ctx.fillText(afternoonTotal.toString(), 1200, y - 20);
+            
+            ctx.textAlign = 'center';
+            ctx.fillText(morningTotal.toString(), tableX + colWidth * 3.5, totalRowY + rowHeight/2 + 6);
+            ctx.fillText(afternoonTotal.toString(), tableX + colWidth * 5.5, totalRowY + rowHeight/2 + 6);
             
             return canvas.toDataURL('image/png');
         }
