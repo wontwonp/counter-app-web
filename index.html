@@ -1273,11 +1273,11 @@
             ctx.textAlign = 'left';
             
             // 컬럼 헤더들 - 선택된 시간대에 따라 표시
-            ctx.fillText('정류장명', 20, 50);
+            ctx.fillText('정류장명', 20, 47);
             
             // 선택된 시간대에 맞는 출발시간 표시
-            ctx.fillText('출발시간', 300, 50);
-            ctx.fillText('승차인원', 450, 50);
+            ctx.fillText('출발시간', 300, 47);
+            ctx.fillText('승차인원', 450, 47);
             
             // 테이블 내용
             let y = 70;
@@ -1312,7 +1312,7 @@
                 ctx.fillStyle = '#000000';
                 ctx.font = 'bold 12px Arial';
                 ctx.textAlign = 'left';
-                ctx.fillText(`${index + 1}. ${station.name}`, 20, y - 8);
+                ctx.fillText(`${index + 1}. ${station.name}`, 20, y - 10);
                 
                 // 출발시간과 승차인원 - 선택된 시간대에 따라 표시
                 if (selectedTimePeriod === 'morning') {
@@ -1320,10 +1320,10 @@
                     const minute = station.departureTime?.minute || 0;
                     const timeStr = `${hour}:${String(minute).padStart(2, '0')}`;
                     ctx.font = 'bold 12px Arial';
-                    ctx.fillText(timeStr, 300, y - 8);
+                    ctx.fillText(timeStr, 300, y - 10);
                     
                     ctx.textAlign = 'center';
-                    ctx.fillText(station.count.toString(), 490, y - 8);
+                    ctx.fillText(station.count.toString(), 490, y - 10);
                     totalPassengers += station.count;
                 } else {
                     // 오후 시간은 입력한 오후시간 그대로 사용 (12시간 추가하지 않음)
@@ -1331,10 +1331,10 @@
                     const minute = station.departureTime?.minute || 0;
                     const timeStr = `${hour}:${String(minute).padStart(2, '0')}`;
                     ctx.font = 'bold 12px Arial';
-                    ctx.fillText(timeStr, 300, y - 8);
+                    ctx.fillText(timeStr, 300, y - 10);
                     
                     ctx.textAlign = 'center';
-                    ctx.fillText(station.count.toString(), 490, y - 8);
+                    ctx.fillText(station.count.toString(), 490, y - 10);
                     totalPassengers += station.count;
                 }
                 
@@ -1349,9 +1349,9 @@
             ctx.fillStyle = '#000000';
             ctx.font = 'bold 12px Arial';
             ctx.textAlign = 'left';
-            ctx.fillText('계', 20, y - 8);
+            ctx.fillText('계', 20, y - 10);
             ctx.textAlign = 'center';
-            ctx.fillText(totalPassengers.toString(), 490, y - 8);
+            ctx.fillText(totalPassengers.toString(), 490, y - 10);
             
             return canvas.toDataURL('image/png');
         }
