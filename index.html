@@ -594,15 +594,6 @@
             transform: translateY(-2px);
         }
 
-        .download-btn {
-            background: #2196F3;
-        }
-
-        .download-btn:hover {
-            background: #1976D2;
-            transform: translateY(-2px);
-        }
-
         /* 이미지 미리보기 모달 */
         .image-modal {
             position: fixed;
@@ -780,9 +771,6 @@
             <div class="share-buttons">
                 <button onclick="generateAndShareImage()" class="share-btn" id="kakao-share-btn">
                     📱 카카오톡 공유
-                </button>
-                <button onclick="downloadImage()" class="download-btn">
-                    💾 이미지 저장
                 </button>
             </div>
         </div>
@@ -1747,18 +1735,6 @@
                 console.log('Web Share API 미지원');
                 isSharing = false;
             }
-        }
-
-        // 이미지 다운로드 함수
-        function downloadImage() {
-            if (!generatedImageDataUrl) {
-                return;
-            }
-            
-            const link = document.createElement('a');
-            link.download = `bus-count-result-${new Date().toISOString().slice(0, 10)}.png`;
-            link.href = generatedImageDataUrl;
-            link.click();
         }
 
         // 이미지 모달 닫기
