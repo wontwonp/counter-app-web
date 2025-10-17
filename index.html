@@ -1911,6 +1911,10 @@
                     departureTime: station.departureTime
                 }));
                 
+                // 카운팅 상태 초기화
+                currentStationIndex = 0;
+                currentInput = '';
+                
                 // 입력 필드 업데이트
                 document.getElementById('route-name').value = routeName;
                 document.getElementById('station-count').value = stationCount;
