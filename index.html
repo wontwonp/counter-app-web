@@ -435,6 +435,85 @@
             display: none;
         }
 
+        /* 저장된 노선 관련 스타일 */
+        .saved-route-item {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .saved-route-btn {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .saved-route-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .route-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .route-info {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .delete-route-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: none;
+            background: #f44336;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .delete-route-btn:hover {
+            background: #d32f2f;
+            transform: scale(1.1);
+        }
+
+        .save-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .save-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .save-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* 다크모드 토글 버튼 */
         .theme-toggle {
             position: fixed;
@@ -604,6 +683,14 @@
         
         <!-- 정류장 개수 입력 페이지 -->
         <div id="station-count-page">
+            <!-- 저장된 노선 목록 -->
+            <div class="station-count-input" style="margin-bottom: 20px;">
+                <h2>저장된 노선</h2>
+                <div id="saved-routes-container">
+                    <p style="color: #999; text-align: center; margin: 10px 0;">저장된 노선이 없습니다.</p>
+                </div>
+            </div>
+            
             <div class="station-count-input">
                 <h2>노선 정보를 입력하세요</h2>
                 <div style="margin-bottom: 20px;">
@@ -623,6 +710,7 @@
                 <div id="station-inputs" class="station-inputs"></div>
                 <div class="button-group">
                     <button id="start-counting" class="start-btn" onclick="startCounting()" disabled>카운팅 시작</button>
+                    <button id="save-route" class="save-btn" onclick="saveRoute()" disabled>노선 저장</button>
                     <button id="reset-setup" class="reset-btn" onclick="resetSetup()">다시 설정</button>
                 </div>
             </div>
@@ -970,6 +1058,7 @@
         function checkAllNamesFilled() {
             const allFilled = stations.every(station => station.name.trim() !== '');
             document.getElementById('start-counting').disabled = !allFilled;
+            document.getElementById('save-route').disabled = !allFilled;
         }
 
         // 카운팅 시작
@@ -1733,6 +1822,9 @@
             loadSavedTimePeriod();
             setKoreanInputMode();
             
+            // 저장된 노선 목록 표시
+            updateSavedRoutesDisplay();
+            
             // 날짜 변경 확인 (페이지 로드 시)
             checkDateChangeAndReset();
             
@@ -1782,6 +1874,113 @@
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
                    (navigator.maxTouchPoints && navigator.maxTouchPoints > 2) ||
                    window.innerWidth <= 768;
+        }
+
+        // 노선 저장 함수
+        function saveRoute() {
+            if (!routeName || stations.length === 0) {
+                alert('저장할 노선 정보가 없습니다.');
+                return;
+            }
+            
+            const routeData = {
+                name: routeName,
+                stationCount: stationCount,
+                stations: stations.map(station => ({
+                    name: station.name,
+                    departureTime: station.departureTime
+                })),
+                savedAt: new Date().toISOString()
+            };
+            
+            const savedRoutes = JSON.parse(loadFromLocalStorage('savedRoutes') || '[]');
+            savedRoutes.push(routeData);
+            
+            if (saveToLocalStorage('savedRoutes', JSON.stringify(savedRoutes))) {
+                alert(`"${routeName}" 노선이 저장되었습니다.`);
+                updateSavedRoutesDisplay();
+            }
+        }
+
+        // 저장된 노선 불러오기 함수
+        function loadRoute(routeData) {
+            if (confirm(`"${routeData.name}" 노선을 불러오시겠습니까?`)) {
+                routeName = routeData.name;
+                stationCount = routeData.stationCount;
+                
+                // 정류장 데이터 복원
+                stations = routeData.stations.map(station => ({
+                    name: station.name,
+                    count: 0,
+                    morningCount: 0,
+                    afternoonCount: 0,
+                    departureTime: station.departureTime
+                }));
+                
+                // 입력 필드 업데이트
+                document.getElementById('route-name').value = routeName;
+                document.getElementById('station-count').value = stationCount;
+                
+                // 정류장 이름 입력 페이지로 이동
+                document.getElementById('station-count-page').classList.add('hidden');
+                document.getElementById('station-names-page').classList.remove('hidden');
+                createStationInputs();
+                
+                console.log(`"${routeData.name}" 노선을 불러왔습니다.`);
+            }
+        }
+
+        // 저장된 노선 목록 표시 업데이트
+        function updateSavedRoutesDisplay() {
+            const savedRoutes = JSON.parse(loadFromLocalStorage('savedRoutes') || '[]');
+            const routesContainer = document.getElementById('saved-routes-container');
+            
+            if (!routesContainer) return;
+            
+            routesContainer.innerHTML = '';
+            
+            if (savedRoutes.length === 0) {
+                routesContainer.innerHTML = '<p style="color: #999; text-align: center; margin: 10px 0;">저장된 노선이 없습니다.</p>';
+                return;
+            }
+            
+            savedRoutes.forEach((route, index) => {
+                const routeButton = document.createElement('button');
+                routeButton.className = 'saved-route-btn';
+                routeButton.innerHTML = `
+                    <div class="route-name">${route.name}</div>
+                    <div class="route-info">${route.stationCount}개 정류장</div>
+                `;
+                routeButton.onclick = () => loadRoute(route);
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-route-btn';
+                deleteButton.innerHTML = '×';
+                deleteButton.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteRoute(index);
+                };
+                
+                const routeItem = document.createElement('div');
+                routeItem.className = 'saved-route-item';
+                routeItem.appendChild(routeButton);
+                routeItem.appendChild(deleteButton);
+                
+                routesContainer.appendChild(routeItem);
+            });
+        }
+
+        // 노선 삭제 함수
+        function deleteRoute(index) {
+            const savedRoutes = JSON.parse(loadFromLocalStorage('savedRoutes') || '[]');
+            const route = savedRoutes[index];
+            
+            if (confirm(`"${route.name}" 노선을 삭제하시겠습니까?`)) {
+                savedRoutes.splice(index, 1);
+                saveToLocalStorage('savedRoutes', JSON.stringify(savedRoutes));
+                updateSavedRoutesDisplay();
+                alert(`"${route.name}" 노선이 삭제되었습니다.`);
+            }
         }
 
         // 자동 초기화 이벤트 제거 - 모바일과 컴퓨터 동일하게 처리
