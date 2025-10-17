@@ -1245,27 +1245,27 @@
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // 캔버스 크기 설정 (원본과 비슷한 비율)
-            canvas.width = 900;
-            canvas.height = 1200;
+            // 캔버스 크기 설정 (컴팩트하게)
+            canvas.width = 600;
+            canvas.height = 400;
             
             // 배경색 설정
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // 제목 영역 (주황색 배경) - 원본과 동일한 색상
+            // 제목 영역 (주황색 배경) - 컴팩트하게
             ctx.fillStyle = '#FF8C00';
-            ctx.fillRect(0, 0, canvas.width, 80);
+            ctx.fillRect(0, 0, canvas.width, 40);
             
             // 제목 텍스트 - 노선이름 표시
             ctx.fillStyle = '#000000';
-            ctx.font = 'bold 20px Arial';
+            ctx.font = 'bold 16px Arial';
             ctx.textAlign = 'left';
-            ctx.fillText(`${routeName}`, 20, 45);
+            ctx.fillText(`${routeName}`, 20, 25);
             
             // 테이블 헤더 (주황색 배경)
             ctx.fillStyle = '#FF8C00';
-            ctx.fillRect(0, 70, canvas.width, 30);
+            ctx.fillRect(0, 35, canvas.width, 25);
             
             // 테이블 헤더 텍스트
             ctx.fillStyle = '#000000';
@@ -1273,26 +1273,45 @@
             ctx.textAlign = 'left';
             
             // 컬럼 헤더들 - 선택된 시간대에 따라 표시
-            ctx.fillText(`${routeName}`, 20, 90);
+            ctx.fillText('정류장명', 20, 50);
             
             // 선택된 시간대에 맞는 출발시간 표시
-            ctx.fillText('출발시간', 400, 90);
-            ctx.fillText('승차인원', 500, 90);
+            ctx.fillText('출발시간', 300, 50);
+            ctx.fillText('승차인원', 450, 50);
             
             // 테이블 내용
-            let y = 120;
+            let y = 70;
             let totalPassengers = 0;
             
             stations.forEach((station, index) => {
-                // 행 높이
-                const rowHeight = 35;
+                // 행 높이 (컴팩트하게)
+                const rowHeight = 25;
                 
-                // 테두리 그리기
-                ctx.strokeStyle = '#cccccc';
+                // 테두리 그리기 (세로줄 포함)
+                ctx.strokeStyle = '#000000';
                 ctx.lineWidth = 1;
-                ctx.strokeRect(0, y - rowHeight, canvas.width, rowHeight);
+                
+                // 가로줄
+                ctx.beginPath();
+                ctx.moveTo(0, y - rowHeight);
+                ctx.lineTo(canvas.width, y - rowHeight);
+                ctx.stroke();
+                
+                // 세로줄 (칸 구분)
+                ctx.beginPath();
+                ctx.moveTo(280, y - rowHeight);
+                ctx.lineTo(280, y);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(430, y - rowHeight);
+                ctx.lineTo(430, y);
+                ctx.stroke();
                 
                 // 정류장명만 표시 (번호 제거)
+                ctx.fillStyle = '#000000';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'left';
                 ctx.fillText(station.name, 20, y - 8);
                 
                 // 출발시간과 승차인원 - 선택된 시간대에 따라 표시
@@ -1300,20 +1319,20 @@
                     const hour = station.departureTime?.morningHour || 8;
                     const minute = station.departureTime?.minute || 0;
                     const timeStr = `${hour}:${String(minute).padStart(2, '0')}`;
-                    ctx.fillText(timeStr, 400, y - 8);
+                    ctx.fillText(timeStr, 300, y - 8);
                     
                     ctx.textAlign = 'center';
-                    ctx.fillText(station.count.toString(), 550, y - 8);
+                    ctx.fillText(station.count.toString(), 490, y - 8);
                     totalPassengers += station.count;
                 } else {
                     // 오후 시간은 입력한 오후시간 그대로 사용 (12시간 추가하지 않음)
                     const hour = station.departureTime?.afternoonHour || 17;
                     const minute = station.departureTime?.minute || 0;
                     const timeStr = `${hour}:${String(minute).padStart(2, '0')}`;
-                    ctx.fillText(timeStr, 400, y - 8);
+                    ctx.fillText(timeStr, 300, y - 8);
                     
                     ctx.textAlign = 'center';
-                    ctx.fillText(station.count.toString(), 550, y - 8);
+                    ctx.fillText(station.count.toString(), 490, y - 8);
                     totalPassengers += station.count;
                 }
                 
@@ -1323,14 +1342,14 @@
             
             // 총계 행 (주황색 배경)
             ctx.fillStyle = '#FF8C00';
-            ctx.fillRect(0, y - 35, canvas.width, 35);
+            ctx.fillRect(0, y - 25, canvas.width, 25);
             
             ctx.fillStyle = '#000000';
-            ctx.font = 'bold 11px Arial';
+            ctx.font = 'bold 10px Arial';
             ctx.textAlign = 'left';
             ctx.fillText('계', 20, y - 8);
             ctx.textAlign = 'center';
-            ctx.fillText(totalPassengers.toString(), 550, y - 8);
+            ctx.fillText(totalPassengers.toString(), 490, y - 8);
             
             return canvas.toDataURL('image/png');
         }
