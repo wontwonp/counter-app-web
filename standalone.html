@@ -1231,14 +1231,21 @@
             }
             
             if (confirm('직전 정류장의 카운트를 삭제하시겠습니까?')) {
-                // 직전 정류장의 카운트를 0으로 초기화
+                // 직전 정류장의 모든 카운트를 0으로 초기화
                 stations[currentStationIndex - 1].count = 0;
+                stations[currentStationIndex - 1].morningCount = 0;
+                stations[currentStationIndex - 1].afternoonCount = 0;
                 
                 // 현재 정류장을 직전 정류장으로 이동
                 currentStationIndex--;
                 
+                // localStorage에 저장
+                saveToLocalStorage('savedStations', JSON.stringify(stations));
+                
                 // 키패드 페이지 업데이트
                 updateKeypadPage();
+                
+                console.log('직전 정류장 카운트 삭제 완료');
             }
         }
 
