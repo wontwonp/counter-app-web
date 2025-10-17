@@ -1259,7 +1259,7 @@
             
             // 제목 텍스트 - 노선이름 표시
             ctx.fillStyle = '#000000';
-            ctx.font = 'bold 16px Arial';
+            ctx.font = 'bold 18px Arial';
             ctx.textAlign = 'left';
             ctx.fillText(`${routeName}`, 20, 25);
             
@@ -1269,7 +1269,7 @@
             
             // 테이블 헤더 텍스트
             ctx.fillStyle = '#000000';
-            ctx.font = 'bold 12px Arial';
+            ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'left';
             
             // 컬럼 헤더들 - 선택된 시간대에 따라 표시
@@ -1308,17 +1308,18 @@
                 ctx.lineTo(430, y);
                 ctx.stroke();
                 
-                // 정류장명만 표시 (번호 제거)
+                // 정류장명 앞에 번호 추가
                 ctx.fillStyle = '#000000';
-                ctx.font = '10px Arial';
+                ctx.font = 'bold 12px Arial';
                 ctx.textAlign = 'left';
-                ctx.fillText(station.name, 20, y - 8);
+                ctx.fillText(`${index + 1}. ${station.name}`, 20, y - 8);
                 
                 // 출발시간과 승차인원 - 선택된 시간대에 따라 표시
                 if (selectedTimePeriod === 'morning') {
                     const hour = station.departureTime?.morningHour || 8;
                     const minute = station.departureTime?.minute || 0;
                     const timeStr = `${hour}:${String(minute).padStart(2, '0')}`;
+                    ctx.font = 'bold 12px Arial';
                     ctx.fillText(timeStr, 300, y - 8);
                     
                     ctx.textAlign = 'center';
@@ -1329,6 +1330,7 @@
                     const hour = station.departureTime?.afternoonHour || 17;
                     const minute = station.departureTime?.minute || 0;
                     const timeStr = `${hour}:${String(minute).padStart(2, '0')}`;
+                    ctx.font = 'bold 12px Arial';
                     ctx.fillText(timeStr, 300, y - 8);
                     
                     ctx.textAlign = 'center';
@@ -1345,7 +1347,7 @@
             ctx.fillRect(0, y - 25, canvas.width, 25);
             
             ctx.fillStyle = '#000000';
-            ctx.font = 'bold 10px Arial';
+            ctx.font = 'bold 12px Arial';
             ctx.textAlign = 'left';
             ctx.fillText('계', 20, y - 8);
             ctx.textAlign = 'center';
