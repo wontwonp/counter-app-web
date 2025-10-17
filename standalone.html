@@ -1304,8 +1304,11 @@
                 if (i === 0) {
                     // 첫 번째 컬럼 (노선이름 통합) - 주황색
                     ctx.fillStyle = '#FF8C00';
-                } else if (i === 1 || i === 3) {
-                    // 출발시간 컬럼 - 연두색
+                } else if (i === 1) {
+                    // 첫 번째 출발시간 컬럼 - 노란색
+                    ctx.fillStyle = '#FFFF00';
+                } else if (i === 3) {
+                    // 두 번째 출발시간 컬럼 - 연두색
                     ctx.fillStyle = '#C6E0B4';
                 } else {
                     // 승차인원 컬럼 - 연두색
