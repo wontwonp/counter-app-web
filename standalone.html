@@ -1041,14 +1041,19 @@
             updateSummary();
         }
 
-        // 요약 업데이트
+        // 요약 업데이트 (오전/오후 카운트 분리 표시)
         function updateSummary() {
             const summaryList = document.getElementById('summary-list');
             summaryList.innerHTML = '';
             stations.forEach((station, index) => {
                 const summaryItem = document.createElement('div');
                 summaryItem.className = `summary-item ${index === currentStationIndex ? 'current' : ''}`;
-                summaryItem.textContent = `${index + 1}. ${station.name}: ${station.count}`;
+                
+                // 오전/오후 카운트를 분리하여 표시
+                const morningCount = station.morningCount || 0;
+                const afternoonCount = station.afternoonCount || 0;
+                summaryItem.textContent = `${index + 1}. ${station.name}: 오전 ${morningCount}명, 오후 ${afternoonCount}명`;
+                
                 summaryList.appendChild(summaryItem);
             });
         }
