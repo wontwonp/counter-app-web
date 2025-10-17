@@ -1287,8 +1287,8 @@
             const tableWidth = 1100;
             const rowHeight = 40;
             
-            // 컬럼 너비 설정 (6개 컬럼을 5개로 줄임)
-            const colWidths = [60, 400, 150, 150, 150]; // 마지막 빈 공간 제거
+            // 컬럼 너비 설정 (6개 컬럼으로 복원)
+            const colWidths = [60, 400, 150, 150, 150, 150];
             
             // 테이블 테두리
             ctx.strokeStyle = '#000000';
@@ -1298,7 +1298,7 @@
             // 컬럼 헤더 행 (주황색/연두색 배경)
             const headerRowY = tableY;
             
-            // 컬럼 헤더 배경색 (5개 컬럼)
+            // 컬럼 헤더 배경색 (6개 컬럼)
             let currentX = tableX;
             for (let i = 0; i < colWidths.length; i++) {
                 if (i === 0) {
@@ -1318,13 +1318,23 @@
                 currentX += colWidths[i];
             }
             
+            // 헤더 세로선 그리기
+            currentX = tableX;
+            for (let i = 0; i < colWidths.length; i++) {
+                currentX += colWidths[i];
+                ctx.beginPath();
+                ctx.moveTo(currentX, headerRowY);
+                ctx.lineTo(currentX, headerRowY + rowHeight);
+                ctx.stroke();
+            }
+            
             // 컬럼 헤더 텍스트 (글자 크기 증가)
             ctx.fillStyle = '#000000';
             ctx.font = 'bold 25px Arial';
             ctx.textAlign = 'center';
             
             currentX = tableX;
-            const headers = ['', '', '출발시간', '승차인원', '출발시간'];
+            const headers = ['', '', '출발시간', '승차인원', '출발시간', '승차인원'];
             for (let i = 0; i < headers.length; i++) {
                 if (i === 1) {
                     // 두 번째 컬럼에 노선이름 표시 (검은색 텍스트로 변경)
@@ -1349,6 +1359,16 @@
                 ctx.lineWidth = 1;
                 ctx.strokeRect(tableX, dataRowY, tableWidth, rowHeight);
                 
+                // 세로선 그리기
+                let currentX = tableX;
+                for (let i = 0; i < colWidths.length; i++) {
+                    currentX += colWidths[i];
+                    ctx.beginPath();
+                    ctx.moveTo(currentX, dataRowY);
+                    ctx.lineTo(currentX, dataRowY + rowHeight);
+                    ctx.stroke();
+                }
+                
                 // 번호 표시 (1열)
                 ctx.fillText((index + 1).toString(), tableX + 10, dataRowY + rowHeight/2 + 5);
                 
@@ -1371,6 +1391,9 @@
                 const afternoonTimeStr = `${afternoonHour}:${String(afternoonMinute).padStart(2, '0')}`;
                 ctx.fillText(afternoonTimeStr, tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, dataRowY + rowHeight/2 + 5);
                 
+                // 오후 승차인원 (6열)
+                ctx.fillText(station.afternoonCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4] + colWidths[5]/2, dataRowY + rowHeight/2 + 5);
+                
                 ctx.textAlign = 'left';
             });
             
@@ -1378,6 +1401,16 @@
             const totalRowY = headerRowY + rowHeight + (stations.length * rowHeight);
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(tableX, totalRowY, tableWidth, rowHeight);
+            
+            // 총계 행 세로선 그리기
+            currentX = tableX;
+            for (let i = 0; i < colWidths.length; i++) {
+                currentX += colWidths[i];
+                ctx.beginPath();
+                ctx.moveTo(currentX, totalRowY);
+                ctx.lineTo(currentX, totalRowY + rowHeight);
+                ctx.stroke();
+            }
             
             // "계" 텍스트 (글자 크기 증가)
             ctx.fillStyle = '#000000';
@@ -1391,7 +1424,7 @@
             
             ctx.textAlign = 'center';
             ctx.fillText(morningTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3]/2, totalRowY + rowHeight/2 + 5);
-            ctx.fillText(afternoonTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, totalRowY + rowHeight/2 + 5);
+            ctx.fillText(afternoonTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4] + colWidths[5]/2, totalRowY + rowHeight/2 + 5);
             
             return canvas.toDataURL('image/png');
         }
