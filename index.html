@@ -1226,14 +1226,18 @@
 
         // 직전 정류장 삭제 함수
         function deletePreviousStation() {
-            // 키패드가 비활성화된 상태(완료 상태)에서는 삭제 불가
+            // 완료 상태 확인: 마지막 정류장에 있고 키패드가 비활성화된 경우
+            const isCompleted = (currentStationIndex === stations.length - 1);
             const enterBtn = document.querySelector('.enter-btn');
-            if (enterBtn && enterBtn.disabled) {
+            const isKeypadDisabled = enterBtn && enterBtn.disabled;
+            
+            if (isCompleted && isKeypadDisabled) {
                 alert('모든 정류장 카운팅이 완료된 상태에서는 삭제할 수 없습니다.');
                 return;
             }
             
             if (currentStationIndex === 0) {
+                alert('첫 번째 정류장은 삭제할 수 없습니다.');
                 return;
             }
             
