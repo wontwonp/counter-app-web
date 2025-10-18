@@ -868,6 +868,7 @@
         let stationDepartureTimes = [];
         let selectedTimePeriod = 'morning'; // 'morning' 또는 'afternoon'
         let isLoadedRoute = false; // 불러온 노선인지 추적
+        let completedTimePeriods = { morning: false, afternoon: false }; // 완료된 운행 시간대 추적
 
         // 다크모드 토글 함수
         function toggleTheme() {
@@ -972,6 +973,12 @@
         function selectTimePeriod(period) {
             // 날짜 변경 확인
             checkDateChangeAndReset();
+            
+            // 완료된 운행 시간대로 전환하려는 경우 경고
+            if (completedTimePeriods[period]) {
+                alert(`${period === 'morning' ? '오전' : '오후'}운행이 이미 완료되었습니다. 카운팅을 다시 시작할 수 없습니다.`);
+                return;
+            }
             
             const previousPeriod = selectedTimePeriod;
             selectedTimePeriod = period;
@@ -1317,6 +1324,10 @@
             inputDisplay.style.color = '#4CAF50';
             inputDisplay.style.fontSize = '2rem';
             
+            // 현재 운행 시간대를 완료 상태로 표시
+            completedTimePeriods[selectedTimePeriod] = true;
+            console.log(`${selectedTimePeriod === 'morning' ? '오전' : '오후'}운행 완료`);
+            
             // 키패드 비활성화 상태 저장
             saveToLocalStorage('keypadDisabled', 'true');
         }
@@ -1350,6 +1361,10 @@
                 });
                 currentStationIndex = 0;
                 currentInput = '';
+                
+                // 완료 상태 초기화
+                completedTimePeriods = { morning: false, afternoon: false };
+                
                 enableKeypad(); // 키패드 다시 활성화
                 updateKeypadPage();
                 localStorage.setItem('savedStations', JSON.stringify(stations));
@@ -1846,6 +1861,10 @@
                     });
                     currentStationIndex = 0;
                     currentInput = '';
+                    
+                    // 완료 상태 초기화
+                    completedTimePeriods = { morning: false, afternoon: false };
+                    
                     enableKeypad();
                     updateKeypadPage();
                     localStorage.setItem('savedStations', JSON.stringify(stations));
