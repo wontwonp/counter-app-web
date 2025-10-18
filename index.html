@@ -1167,6 +1167,9 @@
             
             document.getElementById('clock-time').textContent = `${hours}:${minutes}:${seconds}`;
             document.getElementById('clock-date').textContent = `${year}년 ${month}월 ${day}일 ${weekday}`;
+            
+            // 자정 체크 (매초마다 확인)
+            checkMidnightReset();
         }
 
         // 키패드 페이지 업데이트
@@ -1459,27 +1462,6 @@
         }
 
         // 오후 마지막 정류장 출발시간 50분 후 초기화 가능 여부 확인
-        function checkAfternoonResetAvailability() {
-            if (stations.length === 0) return false;
-            
-            const lastStation = stations[stations.length - 1];
-            const afternoonHour = lastStation.departureTime?.afternoonHour || 17;
-            const afternoonMinute = lastStation.departureTime?.minute || 0;
-            
-            // 오후 마지막 정류장 출발시간 + 50분
-            const resetTime = new Date();
-            resetTime.setHours(afternoonHour, afternoonMinute + 50, 0, 0);
-            
-            const now = new Date();
-            const canReset = now >= resetTime;
-            
-            console.log(`오후 마지막 정류장 출발시간: ${afternoonHour}:${String(afternoonMinute).padStart(2, '0')}`);
-            console.log(`초기화 가능 시간: ${resetTime.getHours()}:${String(resetTime.getMinutes()).padStart(2, '0')}`);
-            console.log(`현재 시간: ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`);
-            console.log(`초기화 가능: ${canReset}`);
-            
-            return canReset;
-        }
 
         // 저장된 시간대 설정 불러오기
         function loadSavedTimePeriod() {
@@ -1837,13 +1819,17 @@
             }
         });
 
-        // 자동 카운트 초기화 함수 (오후 마지막 정류장 출발시간 50분 후)
-        function resetAllCounts() {
-            if (stations && stations.length > 0) {
-                // 오후 마지막 정류장 출발시간 50분 후인지 확인
-                if (checkAfternoonResetAvailability()) {
+        // 자정 자동 카운트 초기화 함수
+        function checkMidnightReset() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            
+            // 자정(00:00)인지 확인
+            if (currentHour === 0 && currentMinute === 0) {
+                if (stations && stations.length > 0) {
+                    // 모든 카운트 초기화
                     stations.forEach(station => {
-                        // 오전/오후 모든 카운팅 초기화
                         station.count = 0;
                         station.morningCount = 0;
                         station.afternoonCount = 0;
@@ -1853,7 +1839,10 @@
                     enableKeypad();
                     updateKeypadPage();
                     localStorage.setItem('savedStations', JSON.stringify(stations));
-                    console.log('자동 초기화: 오후 마지막 정류장 출발시간 50분 경과로 오전/오후 모든 카운팅이 초기화되었습니다.');
+                    
+                    // 사용자에게 알림 표시
+                    alert('자정이 되었습니다. 모든 카운트가 자동으로 초기화되었습니다.');
+                    console.log('자정 자동 초기화: 모든 카운팅이 초기화되었습니다.');
                 }
             }
         }
