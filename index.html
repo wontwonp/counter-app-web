@@ -4,22 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>정류장 카운터</title>
-    
-    <!-- PWA 설정 -->
-    <meta name="theme-color" content="#4CAF50">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="정류장 카운터">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="정류장 카운터">
-    
-    <!-- 매니페스트 링크 -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- 아이콘 링크 -->
-    <link rel="icon" type="image/svg+xml" sizes="192x192" href="icons/icon-192x192.svg">
-    <link rel="icon" type="image/svg+xml" sizes="512x512" href="icons/icon-512x512.svg">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.svg">
     <style>
         * {
             margin: 0;
@@ -788,7 +772,7 @@
                 <div class="button-group">
                     <button id="start-counting" class="start-btn" onclick="startCounting()" disabled>카운팅 시작</button>
                     <button id="save-route" class="save-btn" onclick="saveRoute()" disabled>노선 저장</button>
-                    <button onclick="resetSetup()" class="reset-btn">처음으로</button>
+                    <button id="reset-setup" class="reset-btn" onclick="resetSetup()">처음으로</button>
                 </div>
             </div>
         </div>
@@ -1868,26 +1852,35 @@
             
             // 자정(00:00)인지 확인
             if (currentHour === 0 && currentMinute === 0) {
-                if (stations && stations.length > 0) {
-                    // 모든 카운트 초기화
-                    stations.forEach(station => {
-                        station.count = 0;
-                        station.morningCount = 0;
-                        station.afternoonCount = 0;
-                    });
-                    currentStationIndex = 0;
-                    currentInput = '';
-                    
-                    // 완료 상태 초기화
-                    completedTimePeriods = { morning: false, afternoon: false };
-                    
-                    enableKeypad();
-                    updateKeypadPage();
-                    localStorage.setItem('savedStations', JSON.stringify(stations));
-                    
-                    // 사용자에게 알림 표시
-                    alert('자정이 되었습니다. 모든 카운트가 자동으로 초기화되었습니다.');
-                    console.log('자정 자동 초기화: 모든 카운팅이 초기화되었습니다.');
+                // 마지막 초기화 날짜 확인
+                const today = now.toDateString();
+                const lastResetDate = localStorage.getItem('lastResetDate');
+                
+                if (lastResetDate !== today) {
+                    if (stations && stations.length > 0) {
+                        // 모든 카운트 초기화
+                        stations.forEach(station => {
+                            station.count = 0;
+                            station.morningCount = 0;
+                            station.afternoonCount = 0;
+                        });
+                        currentStationIndex = 0;
+                        currentInput = '';
+                        
+                        // 완료 상태 초기화
+                        completedTimePeriods = { morning: false, afternoon: false };
+                        
+                        enableKeypad();
+                        updateKeypadPage();
+                        localStorage.setItem('savedStations', JSON.stringify(stations));
+                        
+                        // 오늘 초기화했다고 기록
+                        localStorage.setItem('lastResetDate', today);
+                        
+                        // 사용자에게 알림 표시
+                        alert('자정이 되었습니다. 모든 카운트가 자동으로 초기화되었습니다.');
+                        console.log('자정 자동 초기화: 모든 카운팅이 초기화되었습니다.');
+                    }
                 }
             }
         }
@@ -2147,54 +2140,6 @@
             }
         });
         */
-        
-        // PWA 설치 및 서비스 워커 등록
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('sw.js')
-                    .then(function(registration) {
-                        console.log('서비스 워커 등록 성공:', registration.scope);
-                    })
-                    .catch(function(error) {
-                        console.log('서비스 워커 등록 실패:', error);
-                    });
-            });
-        }
-        
-        // PWA 설치 프롬프트
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // 설치 버튼 표시 (선택사항)
-            const installButton = document.createElement('button');
-            installButton.textContent = '앱 설치';
-            installButton.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 80px;
-                background: #4CAF50;
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 5px;
-                cursor: pointer;
-                z-index: 1000;
-                font-size: 14px;
-            `;
-            installButton.onclick = () => {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('사용자가 앱 설치를 수락했습니다');
-                    }
-                    deferredPrompt = null;
-                    installButton.remove();
-                });
-            };
-            document.body.appendChild(installButton);
-        });
     </script>
 </body>
 </html>

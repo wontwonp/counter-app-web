@@ -1868,26 +1868,35 @@
             
             // 자정(00:00)인지 확인
             if (currentHour === 0 && currentMinute === 0) {
-                if (stations && stations.length > 0) {
-                    // 모든 카운트 초기화
-                    stations.forEach(station => {
-                        station.count = 0;
-                        station.morningCount = 0;
-                        station.afternoonCount = 0;
-                    });
-                    currentStationIndex = 0;
-                    currentInput = '';
-                    
-                    // 완료 상태 초기화
-                    completedTimePeriods = { morning: false, afternoon: false };
-                    
-                    enableKeypad();
-                    updateKeypadPage();
-                    localStorage.setItem('savedStations', JSON.stringify(stations));
-                    
-                    // 사용자에게 알림 표시
-                    alert('자정이 되었습니다. 모든 카운트가 자동으로 초기화되었습니다.');
-                    console.log('자정 자동 초기화: 모든 카운팅이 초기화되었습니다.');
+                // 마지막 초기화 날짜 확인
+                const today = now.toDateString();
+                const lastResetDate = localStorage.getItem('lastResetDate');
+                
+                if (lastResetDate !== today) {
+                    if (stations && stations.length > 0) {
+                        // 모든 카운트 초기화
+                        stations.forEach(station => {
+                            station.count = 0;
+                            station.morningCount = 0;
+                            station.afternoonCount = 0;
+                        });
+                        currentStationIndex = 0;
+                        currentInput = '';
+                        
+                        // 완료 상태 초기화
+                        completedTimePeriods = { morning: false, afternoon: false };
+                        
+                        enableKeypad();
+                        updateKeypadPage();
+                        localStorage.setItem('savedStations', JSON.stringify(stations));
+                        
+                        // 오늘 초기화했다고 기록
+                        localStorage.setItem('lastResetDate', today);
+                        
+                        // 사용자에게 알림 표시
+                        alert('자정이 되었습니다. 모든 카운트가 자동으로 초기화되었습니다.');
+                        console.log('자정 자동 초기화: 모든 카운팅이 초기화되었습니다.');
+                    }
                 }
             }
         }
@@ -2160,41 +2169,6 @@
                     });
             });
         }
-        
-        // PWA 설치 프롬프트
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // 설치 버튼 표시 (선택사항)
-            const installButton = document.createElement('button');
-            installButton.textContent = '앱 설치';
-            installButton.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 80px;
-                background: #4CAF50;
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 5px;
-                cursor: pointer;
-                z-index: 1000;
-                font-size: 14px;
-            `;
-            installButton.onclick = () => {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('사용자가 앱 설치를 수락했습니다');
-                    }
-                    deferredPrompt = null;
-                    installButton.remove();
-                });
-            };
-            document.body.appendChild(installButton);
-        });
     </script>
 </body>
 </html>

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">정류장 카운터</string>
+    <string name="title_activity_main">정류장 카운터</string>
+    <string name="package_name">com.wontwonp.buscounter</string>
+    <string name="custom_url_scheme">com.wontwonp.buscounter</string>
+</resources>

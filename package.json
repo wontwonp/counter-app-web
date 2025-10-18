@@ -1,0 +1,25 @@
+{
+  "name": "counter-app-web",
+  "version": "1.0.0",
+  "description": "버스 운행 중 각 정류장별 승객 수를 카운트하는 웹 애플리케이션입니다.",
+  "main": "bundle.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wontwonp/counter-app-web.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wontwonp/counter-app-web/issues"
+  },
+  "homepage": "https://github.com/wontwonp/counter-app-web#readme",
+  "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3"
+  }
+}
