@@ -1504,9 +1504,9 @@
                     return {
                         id: index,
                         name: stationName,
-                        count: savedStation?.count || 0, // 저장된 카운트 불러오기
-                        morningCount: savedStation?.morningCount || 0, // 저장된 오전 카운트 불러오기
-                        afternoonCount: savedStation?.afternoonCount || 0, // 저장된 오후 카운트 불러오기
+                        count: 0, // 항상 0으로 초기화
+                        morningCount: 0, // 항상 0으로 초기화
+                        afternoonCount: 0, // 항상 0으로 초기화
                         departureTime: savedDepartureTimes[index] || { 
                             morningHour: 8, 
                             afternoonHour: 17, 
@@ -1514,6 +1514,10 @@
                         }
                     };
                 });
+                
+                // 카운팅 상태 초기화
+                currentStationIndex = 0;
+                currentInput = '';
                 
                 // 키패드 페이지로 바로 이동
                 document.getElementById('station-count-page').classList.add('hidden');
@@ -1524,6 +1528,8 @@
                 updateClock();
                 setInterval(updateClock, 1000);
                 
+                // 키패드 활성화 상태로 설정
+                enableKeypad();
                 updateKeypadPage();
             }
         }
