@@ -949,17 +949,14 @@
             }
             
             if (stationCount > 0) {
-                // 저장된 정류장 이름 불러오기
-                const savedStations = JSON.parse(localStorage.getItem('savedStations') || '[]');
-                const savedDepartureTimes = JSON.parse(localStorage.getItem('savedDepartureTimes') || '[]');
-                
+                // 새로운 노선을 위한 완전 초기화
                 stations = Array.from({ length: stationCount }, (_, index) => ({
                     id: index,
-                    name: savedStations[index] || '',
+                    name: '',
                     count: 0,
                     morningCount: 0,
                     afternoonCount: 0,
-                    departureTime: savedDepartureTimes[index] || { 
+                    departureTime: { 
                         morningHour: 8, 
                         afternoonHour: 17, 
                         minute: Math.min(index * 5, 59) 
