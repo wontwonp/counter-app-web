@@ -797,6 +797,7 @@
         let routeName = '';
         let stationDepartureTimes = [];
         let selectedTimePeriod = 'morning'; // 'morning' 또는 'afternoon'
+        let isLoadedRoute = false; // 불러온 노선인지 추적
 
         // 다크모드 토글 함수
         function toggleTheme() {
@@ -944,6 +945,7 @@
         function submitStationCount() {
             stationCount = parseInt(document.getElementById('station-count').value) || 0;
             routeName = document.getElementById('route-name').value.trim();
+            isLoadedRoute = false; // 새로운 노선임을 표시
             
             if (routeName === '') {
                 return;
@@ -1885,26 +1887,40 @@
             };
             
             const savedRoutes = JSON.parse(loadFromLocalStorage('savedRoutes') || '[]');
-            savedRoutes.push(routeData);
             
-            if (saveToLocalStorage('savedRoutes', JSON.stringify(savedRoutes))) {
-                alert(`"${routeName}" 노선이 저장되었습니다.`);
-                updateSavedRoutesDisplay();
-                
-                // 입력 필드 초기화
-                routeName = '';
-                stationCount = 0;
-                stations = [];
-                stationNames = [];
-                currentStationIndex = 0;
-                currentInput = '';
-                
-                // UI 초기화
-                document.getElementById('route-name').value = '';
-                document.getElementById('station-count').value = '';
-                document.getElementById('station-count-page').classList.remove('hidden');
-                document.getElementById('station-names-page').classList.add('hidden');
-                document.getElementById('count-submit').disabled = true;
+            if (isLoadedRoute) {
+                // 불러온 노선인 경우 기존 노선 업데이트
+                const existingIndex = savedRoutes.findIndex(route => route.name === routeName);
+                if (existingIndex !== -1) {
+                    savedRoutes[existingIndex] = routeData;
+                    if (saveToLocalStorage('savedRoutes', JSON.stringify(savedRoutes))) {
+                        alert(`"${routeName}" 노선이 업데이트되었습니다.`);
+                        updateSavedRoutesDisplay();
+                    }
+                }
+            } else {
+                // 새로운 노선인 경우 추가
+                savedRoutes.push(routeData);
+                if (saveToLocalStorage('savedRoutes', JSON.stringify(savedRoutes))) {
+                    alert(`"${routeName}" 노선이 저장되었습니다.`);
+                    updateSavedRoutesDisplay();
+                    
+                    // 입력 필드 초기화
+                    routeName = '';
+                    stationCount = 0;
+                    stations = [];
+                    stationNames = [];
+                    currentStationIndex = 0;
+                    currentInput = '';
+                    isLoadedRoute = false;
+
+                    // UI 초기화
+                    document.getElementById('route-name').value = '';
+                    document.getElementById('station-count').value = '';
+                    document.getElementById('station-count-page').classList.remove('hidden');
+                    document.getElementById('station-names-page').classList.add('hidden');
+                    document.getElementById('count-submit').disabled = true;
+                }
             }
         }
 
@@ -1913,6 +1929,7 @@
             if (confirm(`"${routeData.name}" 노선을 불러오시겠습니까?`)) {
                 routeName = routeData.name;
                 stationCount = routeData.stationCount;
+                isLoadedRoute = true; // 불러온 노선임을 표시
                 
                 // 정류장 데이터 복원
                 stations = routeData.stations.map(station => ({
