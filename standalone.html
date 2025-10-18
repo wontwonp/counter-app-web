@@ -990,7 +990,7 @@
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">정류장 ${index + 1}:</label>
                         <input type="text" class="station-name-input" placeholder="정류장 ${index + 1} 이름" 
-                               value="${station.name}" onchange="updateStationName(${index}, this.value)" lang="ko" ime-mode="active">
+                               value="${station.name || ''}" onchange="updateStationName(${index}, this.value)" lang="ko" ime-mode="active">
                     </div>
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">오전시간:</label>
