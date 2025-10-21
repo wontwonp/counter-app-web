@@ -27,15 +27,35 @@
             box-sizing: border-box;
         }
 
+        /* 모바일 화면 최적화 */
+        @media screen and (max-width: 768px) {
+            body {
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+            
+            .container {
+                padding: 5px;
+            }
+            
+            .station-count-input, .station-names-input, .keypad-container {
+                margin: 5px;
+                padding: 10px;
+            }
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
             color: white;
             transition: all 0.3s ease;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            overflow-x: hidden;
         }
 
         body.dark-mode {
@@ -44,9 +64,11 @@
 
         .container {
             text-align: center;
-            padding: 20px;
-            max-width: 600px;
+            padding: 10px;
+            max-width: 100%;
             width: 100%;
+            margin: 0 auto;
+            box-sizing: border-box;
         }
 
         h1 {
@@ -585,6 +607,8 @@
             gap: 15px;
             justify-content: center;
             margin-top: 20px;
+            margin-bottom: 80px;
+            padding-bottom: 20px;
         }
 
         .share-btn, .download-btn {
@@ -756,7 +780,6 @@
 <body>
     <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">🌙</button>
     <div class="container">
-        <h1>정류장 카운터</h1>
         
         <!-- 정류장 개수 입력 페이지 -->
         <div id="station-count-page">
@@ -954,6 +977,7 @@
                 enableKeypad();
                 updateKeypadPage();
                 localStorage.setItem('savedStations', JSON.stringify(stations));
+                saveToLocalStorage('currentStationIndex', '0');
                 console.log('24시 경과로 인한 완전 초기화가 완료되었습니다.');
             }
         }
@@ -1007,6 +1031,7 @@
                     enableKeypad();
                     currentStationIndex = 0; // 첫 번째 정류장부터 시작
                     currentInput = ''; // 입력 초기화
+                    saveToLocalStorage('currentStationIndex', '0');
                     console.log(`${previousPeriod}에서 ${period}로 전환 - 키패드 재활성화, 첫 번째 정류장으로 이동`);
                 }
                 
@@ -1113,9 +1138,8 @@
             stationNames[index] = name;
             stations[index].name = name;
             
-            // 정류장 이름을 localStorage에 저장
-            const savedStations = stations.map(station => station.name);
-            localStorage.setItem('savedStations', JSON.stringify(savedStations));
+            // 정류장 이름과 카운팅 데이터를 모두 localStorage에 저장
+            localStorage.setItem('savedStations', JSON.stringify(stations));
             
             checkAllNamesFilled();
         }
@@ -1154,6 +1178,7 @@
                 localStorage.setItem('savedRouteName', routeName);
                 
                 currentStationIndex = 0;
+                saveToLocalStorage('currentStationIndex', '0');
                 updateKeypadPage();
                 document.getElementById('station-names-page').classList.add('hidden');
                 document.getElementById('keypad-page').classList.remove('hidden');
@@ -1169,6 +1194,10 @@
             stationCount = 0;
             stations = [];
             stationNames = [];
+            currentStationIndex = 0;
+            currentInput = '';
+            saveToLocalStorage('currentStationIndex', '0');
+            
             document.getElementById('station-count').value = '';
             document.getElementById('count-submit').disabled = true;
             document.getElementById('station-names-page').classList.add('hidden');
@@ -1322,6 +1351,7 @@
                 
                 // localStorage에 저장 (오류 처리 포함)
                 saveToLocalStorage('savedStations', JSON.stringify(stations));
+                saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
             }
         }
 
@@ -1384,6 +1414,7 @@
                 enableKeypad(); // 키패드 다시 활성화
                 updateKeypadPage();
                 localStorage.setItem('savedStations', JSON.stringify(stations));
+                saveToLocalStorage('currentStationIndex', '0');
                 
                 console.log('수동 초기화: 오전/오후 모든 카운팅이 초기화되었습니다.');
             }
@@ -1396,6 +1427,12 @@
             stationNames = [];
             currentStationIndex = 0;
             currentInput = '';
+            
+            // localStorage 초기화
+            localStorage.removeItem('savedStations');
+            localStorage.removeItem('savedStationCount');
+            localStorage.removeItem('savedRouteName');
+            localStorage.removeItem('currentStationIndex');
             
             document.getElementById('station-count').value = '';
             document.getElementById('count-submit').disabled = true;
@@ -1433,6 +1470,7 @@
                 
                 // localStorage에 저장
                 saveToLocalStorage('savedStations', JSON.stringify(stations));
+                saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
                 
                 // 키패드 페이지 업데이트
                 updateKeypadPage();
@@ -1532,12 +1570,17 @@
                     const savedStation = savedStations[index];
                     const stationName = typeof savedStation === 'string' ? savedStation : (savedStation?.name || '');
                     
+                    // 저장된 카운팅 데이터가 있으면 복원, 없으면 0으로 초기화
+                    const savedCount = typeof savedStation === 'object' ? (savedStation?.count || 0) : 0;
+                    const savedMorningCount = typeof savedStation === 'object' ? (savedStation?.morningCount || 0) : 0;
+                    const savedAfternoonCount = typeof savedStation === 'object' ? (savedStation?.afternoonCount || 0) : 0;
+                    
                     return {
                         id: index,
                         name: stationName,
-                        count: 0, // 항상 0으로 초기화
-                        morningCount: 0, // 항상 0으로 초기화
-                        afternoonCount: 0, // 항상 0으로 초기화
+                        count: savedCount, // 저장된 카운트 복원
+                        morningCount: savedMorningCount, // 저장된 오전 카운트 복원
+                        afternoonCount: savedAfternoonCount, // 저장된 오후 카운트 복원
                         departureTime: savedDepartureTimes[index] || { 
                             morningHour: 8, 
                             afternoonHour: 17, 
@@ -1546,8 +1589,9 @@
                     };
                 });
                 
-                // 카운팅 상태 초기화
-                currentStationIndex = 0;
+                // 카운팅 상태 복원 (저장된 상태가 있으면 복원, 없으면 초기화)
+                const savedCurrentStationIndex = loadFromLocalStorage('currentStationIndex');
+                currentStationIndex = savedCurrentStationIndex ? parseInt(savedCurrentStationIndex) : 0;
                 currentInput = '';
                 
                 // 키패드 페이지로 바로 이동
@@ -1889,6 +1933,7 @@
                         enableKeypad();
                         updateKeypadPage();
                         localStorage.setItem('savedStations', JSON.stringify(stations));
+                        saveToLocalStorage('currentStationIndex', '0');
                         
                         // 오늘 초기화했다고 기록
                         localStorage.setItem('lastResetDate', today);
@@ -1918,6 +1963,13 @@
                     // 다른 시간대로 전환 가능하므로 키패드 활성화
                     enableKeypad();
                 }
+            }
+            
+            // 현재 정류장 인덱스 복원
+            const savedCurrentStationIndex = loadFromLocalStorage('currentStationIndex');
+            if (savedCurrentStationIndex) {
+                currentStationIndex = parseInt(savedCurrentStationIndex);
+                updateKeypadPage();
             }
         }
 
@@ -2026,6 +2078,7 @@
                     currentStationIndex = 0;
                     currentInput = '';
                     isLoadedRoute = false;
+                    saveToLocalStorage('currentStationIndex', '0');
 
                     // UI 초기화
                     document.getElementById('route-name').value = '';
@@ -2056,6 +2109,7 @@
                 // 카운팅 상태 초기화
                 currentStationIndex = 0;
                 currentInput = '';
+                saveToLocalStorage('currentStationIndex', '0');
                 
                 // 입력 필드 업데이트
                 document.getElementById('route-name').value = routeName;

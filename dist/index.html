@@ -27,15 +27,35 @@
             box-sizing: border-box;
         }
 
+        /* 모바일 화면 최적화 */
+        @media screen and (max-width: 768px) {
+            body {
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+            
+            .container {
+                padding: 5px;
+            }
+            
+            .station-count-input, .station-names-input, .keypad-container {
+                margin: 5px;
+                padding: 10px;
+            }
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
             color: white;
             transition: all 0.3s ease;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            overflow-x: hidden;
         }
 
         body.dark-mode {
@@ -44,9 +64,11 @@
 
         .container {
             text-align: center;
-            padding: 20px;
-            max-width: 600px;
+            padding: 10px;
+            max-width: 100%;
             width: 100%;
+            margin: 0 auto;
+            box-sizing: border-box;
         }
 
         h1 {
@@ -585,6 +607,8 @@
             gap: 15px;
             justify-content: center;
             margin-top: 20px;
+            margin-bottom: 80px;
+            padding-bottom: 20px;
         }
 
         .share-btn, .download-btn {
@@ -756,7 +780,6 @@
 <body>
     <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">🌙</button>
     <div class="container">
-        <h1>정류장 카운터</h1>
         
         <!-- 정류장 개수 입력 페이지 -->
         <div id="station-count-page">
@@ -1868,26 +1891,35 @@
             
             // 자정(00:00)인지 확인
             if (currentHour === 0 && currentMinute === 0) {
-                if (stations && stations.length > 0) {
-                    // 모든 카운트 초기화
-                    stations.forEach(station => {
-                        station.count = 0;
-                        station.morningCount = 0;
-                        station.afternoonCount = 0;
-                    });
-                    currentStationIndex = 0;
-                    currentInput = '';
-                    
-                    // 완료 상태 초기화
-                    completedTimePeriods = { morning: false, afternoon: false };
-                    
-                    enableKeypad();
-                    updateKeypadPage();
-                    localStorage.setItem('savedStations', JSON.stringify(stations));
-                    
-                    // 사용자에게 알림 표시
-                    alert('자정이 되었습니다. 모든 카운트가 자동으로 초기화되었습니다.');
-                    console.log('자정 자동 초기화: 모든 카운팅이 초기화되었습니다.');
+                // 마지막 초기화 날짜 확인
+                const today = now.toDateString();
+                const lastResetDate = localStorage.getItem('lastResetDate');
+                
+                if (lastResetDate !== today) {
+                    if (stations && stations.length > 0) {
+                        // 모든 카운트 초기화
+                        stations.forEach(station => {
+                            station.count = 0;
+                            station.morningCount = 0;
+                            station.afternoonCount = 0;
+                        });
+                        currentStationIndex = 0;
+                        currentInput = '';
+                        
+                        // 완료 상태 초기화
+                        completedTimePeriods = { morning: false, afternoon: false };
+                        
+                        enableKeypad();
+                        updateKeypadPage();
+                        localStorage.setItem('savedStations', JSON.stringify(stations));
+                        
+                        // 오늘 초기화했다고 기록
+                        localStorage.setItem('lastResetDate', today);
+                        
+                        // 사용자에게 알림 표시
+                        alert('자정이 되었습니다. 모든 카운트가 자동으로 초기화되었습니다.');
+                        console.log('자정 자동 초기화: 모든 카운팅이 초기화되었습니다.');
+                    }
                 }
             }
         }

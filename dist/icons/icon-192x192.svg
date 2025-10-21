@@ -1,0 +1,30 @@
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <!-- 배경 원 -->
+  <circle cx="96" cy="96" r="90" fill="#4CAF50" stroke="#2E7D32" stroke-width="4"/>
+  
+  <!-- 버스 본체 -->
+  <rect x="40" y="60" width="112" height="60" rx="8" fill="#FFC107" stroke="#F57F17" stroke-width="2"/>
+  
+  <!-- 버스 창문 -->
+  <rect x="50" y="70" width="20" height="15" rx="2" fill="#81C784"/>
+  <rect x="75" y="70" width="20" height="15" rx="2" fill="#81C784"/>
+  <rect x="100" y="70" width="20" height="15" rx="2" fill="#81C784"/>
+  <rect x="125" y="70" width="15" height="15" rx="2" fill="#81C784"/>
+  
+  <!-- 버스 문 -->
+  <rect x="45" y="85" width="8" height="25" rx="2" fill="#FF8F00"/>
+  
+  <!-- 바퀴 -->
+  <circle cx="60" cy="130" r="12" fill="#424242"/>
+  <circle cx="60" cy="130" r="8" fill="#757575"/>
+  <circle cx="132" cy="130" r="12" fill="#424242"/>
+  <circle cx="132" cy="130" r="8" fill="#757575"/>
+  
+  <!-- 헤드라이트 -->
+  <circle cx="50" cy="90" r="6" fill="#FFEB3B"/>
+  <circle cx="142" cy="90" r="6" fill="#FFEB3B"/>
+  
+  <!-- 번호판 -->
+  <rect x="80" y="50" width="32" height="12" rx="2" fill="#FFFFFF"/>
+  <text x="96" y="60" text-anchor="middle" font-family="Arial" font-size="8" font-weight="bold" fill="#333">카운터</text>
+</svg>

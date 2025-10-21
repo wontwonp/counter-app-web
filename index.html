@@ -11,15 +11,35 @@
             box-sizing: border-box;
         }
 
+        /* 모바일 화면 최적화 */
+        @media screen and (max-width: 768px) {
+            body {
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+            
+            .container {
+                padding: 5px;
+            }
+            
+            .station-count-input, .station-names-input, .keypad-container {
+                margin: 5px;
+                padding: 10px;
+            }
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
             color: white;
             transition: all 0.3s ease;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            overflow-x: hidden;
         }
 
         body.dark-mode {
@@ -28,9 +48,11 @@
 
         .container {
             text-align: center;
-            padding: 20px;
-            max-width: 600px;
+            padding: 10px;
+            max-width: 100%;
             width: 100%;
+            margin: 0 auto;
+            box-sizing: border-box;
         }
 
         h1 {
@@ -569,6 +591,8 @@
             gap: 15px;
             justify-content: center;
             margin-top: 20px;
+            margin-bottom: 80px;
+            padding-bottom: 20px;
         }
 
         .share-btn, .download-btn {
@@ -740,7 +764,6 @@
 <body>
     <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">🌙</button>
     <div class="container">
-        <h1>정류장 카운터</h1>
         
         <!-- 정류장 개수 입력 페이지 -->
         <div id="station-count-page">
@@ -879,17 +902,17 @@
             if (isDarkMode) {
                 body.classList.add('dark-mode');
                 themeToggle.textContent = '☀️';
-                localStorage.setItem('darkMode', 'true');
+                saveToLocalStorage('darkMode', 'true');
             } else {
                 body.classList.remove('dark-mode');
                 themeToggle.textContent = '🌙';
-                localStorage.setItem('darkMode', 'false');
+                saveToLocalStorage('darkMode', 'false');
             }
         }
 
         // 페이지 로드 시 저장된 테마 설정 불러오기
         function loadTheme() {
-            const savedTheme = localStorage.getItem('darkMode');
+            const savedTheme = loadFromLocalStorage('darkMode');
             if (savedTheme === 'true') {
                 isDarkMode = true;
                 document.body.classList.add('dark-mode');
@@ -918,10 +941,10 @@
                 completeReset();
                 
                 // 새로운 날짜 저장
-                localStorage.setItem('lastResetDate', currentDate);
+                saveToLocalStorage('lastResetDate', currentDate);
             } else if (!savedDate) {
                 // 처음 실행하는 경우 현재 날짜 저장
-                localStorage.setItem('lastResetDate', currentDate);
+                saveToLocalStorage('lastResetDate', currentDate);
             }
         }
 
@@ -937,7 +960,10 @@
                 currentInput = '';
                 enableKeypad();
                 updateKeypadPage();
-                localStorage.setItem('savedStations', JSON.stringify(stations));
+                saveToLocalStorage('savedStations', JSON.stringify(stations));
+                saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
+                saveToLocalStorage('currentInput', currentInput);
+                saveToLocalStorage('completedTimePeriods', JSON.stringify({ morning: false, afternoon: false }));
                 console.log('24시 경과로 인한 완전 초기화가 완료되었습니다.');
             }
         }
@@ -966,7 +992,7 @@
             updateTimePeriodButtons();
             
             // localStorage에 저장
-            localStorage.setItem('selectedTimePeriod', selectedTimePeriod);
+            saveToLocalStorage('selectedTimePeriod', selectedTimePeriod);
         }
 
         // 시간대 선택 함수 (수동 선택용)
@@ -998,7 +1024,9 @@
             }
             
             // localStorage에 저장
-            localStorage.setItem('selectedTimePeriod', period);
+            saveToLocalStorage('selectedTimePeriod', period);
+            saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
+            saveToLocalStorage('currentInput', currentInput);
         }
 
         // 시간대 버튼 업데이트 함수
@@ -1098,8 +1126,7 @@
             stations[index].name = name;
             
             // 정류장 이름을 localStorage에 저장
-            const savedStations = stations.map(station => station.name);
-            localStorage.setItem('savedStations', JSON.stringify(savedStations));
+            saveToLocalStorage('savedStations', JSON.stringify(stations));
             
             checkAllNamesFilled();
         }
@@ -1119,8 +1146,7 @@
             }
             
             // 출발 시간을 localStorage에 저장
-            const savedDepartureTimes = stations.map(station => station.departureTime);
-            localStorage.setItem('savedDepartureTimes', JSON.stringify(savedDepartureTimes));
+            saveToLocalStorage('savedStations', JSON.stringify(stations));
         }
 
         // 모든 정류장 이름이 입력되었는지 확인
@@ -1134,8 +1160,10 @@
         function startCounting() {
             if (stations.every(station => station.name.trim() !== '')) {
                 // 정류장 개수와 노선이름을 localStorage에 저장
-                localStorage.setItem('savedStationCount', stationCount.toString());
-                localStorage.setItem('savedRouteName', routeName);
+                saveToLocalStorage('savedStationCount', stationCount.toString());
+                saveToLocalStorage('savedRouteName', routeName);
+                saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
+                saveToLocalStorage('currentInput', currentInput);
                 
                 currentStationIndex = 0;
                 updateKeypadPage();
@@ -1306,6 +1334,9 @@
                 
                 // localStorage에 저장 (오류 처리 포함)
                 saveToLocalStorage('savedStations', JSON.stringify(stations));
+                saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
+                saveToLocalStorage('currentInput', currentInput);
+                saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
             }
         }
 
@@ -1330,6 +1361,7 @@
             
             // 키패드 비활성화 상태 저장
             saveToLocalStorage('keypadDisabled', 'true');
+            saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
         }
 
         // 키패드 활성화 함수
@@ -1349,6 +1381,7 @@
             
             // 키패드 활성화 상태 저장
             saveToLocalStorage('keypadDisabled', 'false');
+            saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
         }
 
         // 정류장 명수만 초기화 (수동 초기화: 오전/오후 모두 초기화)
@@ -1367,7 +1400,10 @@
                 
                 enableKeypad(); // 키패드 다시 활성화
                 updateKeypadPage();
-                localStorage.setItem('savedStations', JSON.stringify(stations));
+                saveToLocalStorage('savedStations', JSON.stringify(stations));
+                saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
+                saveToLocalStorage('currentInput', currentInput);
+                saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
                 
                 console.log('수동 초기화: 오전/오후 모든 카운팅이 초기화되었습니다.');
             }
@@ -1417,6 +1453,8 @@
                 
                 // localStorage에 저장
                 saveToLocalStorage('savedStations', JSON.stringify(stations));
+                saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
+                saveToLocalStorage('currentInput', currentInput);
                 
                 // 키패드 페이지 업데이트
                 updateKeypadPage();
@@ -1484,7 +1522,7 @@
             autoSelectTimePeriod();
             
             // 저장된 설정이 있으면 덮어쓰기 (수동 선택 우선)
-            const savedPeriod = localStorage.getItem('selectedTimePeriod');
+            const savedPeriod = loadFromLocalStorage('selectedTimePeriod');
             if (savedPeriod) {
                 selectedTimePeriod = savedPeriod;
                 updateTimePeriodButtons();
@@ -1497,12 +1535,18 @@
             const savedStationCount = loadFromLocalStorage('savedStationCount');
             const savedDepartureTimes = JSON.parse(loadFromLocalStorage('savedDepartureTimes') || '[]');
             const savedRouteName = loadFromLocalStorage('savedRouteName');
+            const savedCurrentStationIndex = loadFromLocalStorage('currentStationIndex');
+            const savedCurrentInput = loadFromLocalStorage('currentInput');
+            const savedCompletedTimePeriods = JSON.parse(loadFromLocalStorage('completedTimePeriods') || '{}');
             
             console.log('로드된 데이터:', {
                 savedStations: savedStations.length,
                 savedStationCount,
                 savedRouteName,
-                savedDepartureTimes: savedDepartureTimes.length
+                savedDepartureTimes: savedDepartureTimes.length,
+                savedCurrentStationIndex,
+                savedCurrentInput,
+                savedCompletedTimePeriods
             });
             
             if (savedStationCount && savedStations.length > 0) {
@@ -1514,25 +1558,48 @@
                 
                 stations = Array.from({ length: stationCount }, (_, index) => {
                     const savedStation = savedStations[index];
-                    const stationName = typeof savedStation === 'string' ? savedStation : (savedStation?.name || '');
                     
-                    return {
-                        id: index,
-                        name: stationName,
-                        count: 0, // 항상 0으로 초기화
-                        morningCount: 0, // 항상 0으로 초기화
-                        afternoonCount: 0, // 항상 0으로 초기화
-                        departureTime: savedDepartureTimes[index] || { 
-                            morningHour: 8, 
-                            afternoonHour: 17, 
-                            minute: Math.min(index * 5, 59) 
-                        }
-                    };
+                    // 저장된 데이터가 객체인 경우 (카운팅 데이터 포함)
+                    if (typeof savedStation === 'object' && savedStation !== null) {
+                        return {
+                            id: index,
+                            name: savedStation.name || '',
+                            count: savedStation.count || 0,
+                            morningCount: savedStation.morningCount || 0,
+                            afternoonCount: savedStation.afternoonCount || 0,
+                            departureTime: savedStation.departureTime || savedDepartureTimes[index] || { 
+                                morningHour: 8, 
+                                afternoonHour: 17, 
+                                minute: Math.min(index * 5, 59) 
+                            }
+                        };
+                    } else {
+                        // 저장된 데이터가 문자열인 경우 (이름만 저장된 경우)
+                        const stationName = typeof savedStation === 'string' ? savedStation : '';
+                        return {
+                            id: index,
+                            name: stationName,
+                            count: 0,
+                            morningCount: 0,
+                            afternoonCount: 0,
+                            departureTime: savedDepartureTimes[index] || { 
+                                morningHour: 8, 
+                                afternoonHour: 17, 
+                                minute: Math.min(index * 5, 59) 
+                            }
+                        };
+                    }
                 });
                 
-                // 카운팅 상태 초기화
-                currentStationIndex = 0;
-                currentInput = '';
+                // 카운팅 상태 복원
+                currentStationIndex = parseInt(savedCurrentStationIndex) || 0;
+                currentInput = savedCurrentInput || '';
+                
+                // 완료된 시간대 상태 복원
+                completedTimePeriods = {
+                    morning: savedCompletedTimePeriods.morning || false,
+                    afternoon: savedCompletedTimePeriods.afternoon || false
+                };
                 
                 // 키패드 페이지로 바로 이동
                 document.getElementById('station-count-page').classList.add('hidden');
@@ -1543,13 +1610,14 @@
                 updateClock();
                 setInterval(updateClock, 1000);
                 
-                // 키패드 활성화 상태로 설정
-                enableKeypad();
-                
                 // 현재 시간에 따른 자동 시간대 선택
                 autoSelectTimePeriod();
                 
-                updateKeypadPage();
+                // 키패드 상태 복원
+                setTimeout(() => {
+                    restoreKeypadState();
+                    updateKeypadPage();
+                }, 100);
             }
         }
 
@@ -1872,10 +1940,13 @@
                         
                         enableKeypad();
                         updateKeypadPage();
-                        localStorage.setItem('savedStations', JSON.stringify(stations));
+                        saveToLocalStorage('savedStations', JSON.stringify(stations));
+                        saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
+                        saveToLocalStorage('currentInput', currentInput);
+                        saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
                         
                         // 오늘 초기화했다고 기록
-                        localStorage.setItem('lastResetDate', today);
+                        saveToLocalStorage('lastResetDate', today);
                         
                         // 사용자에게 알림 표시
                         alert('자정이 되었습니다. 모든 카운트가 자동으로 초기화되었습니다.');
@@ -1887,21 +1958,27 @@
 
         // 키패드 상태 복원 함수
         function restoreKeypadState() {
-            const keypadDisabled = localStorage.getItem('keypadDisabled');
+            const keypadDisabled = loadFromLocalStorage('keypadDisabled');
+            const savedCompletedTimePeriods = JSON.parse(loadFromLocalStorage('completedTimePeriods') || '{}');
+            
+            // 완료된 시간대 상태 복원
+            completedTimePeriods = {
+                morning: savedCompletedTimePeriods.morning || false,
+                afternoon: savedCompletedTimePeriods.afternoon || false
+            };
+            
             if (keypadDisabled === 'true') {
-                // 키패드가 비활성화된 상태였다면, 현재 시간대에 따라 재활성화 여부 결정
-                const now = new Date();
-                const currentHour = now.getHours();
-                
-                // 오전 시간대(6-12시)이고 오전 운행이 완료된 경우, 또는 오후 시간대(13-22시)이고 오후 운행이 완료된 경우
-                if ((currentHour >= 6 && currentHour < 12 && selectedTimePeriod === 'morning') ||
-                    (currentHour >= 13 && currentHour < 22 && selectedTimePeriod === 'afternoon')) {
+                // 현재 선택된 시간대가 완료된 상태인지 확인
+                if (completedTimePeriods[selectedTimePeriod]) {
                     // 해당 시간대 운행이 완료된 상태이므로 키패드 비활성화 유지
                     disableKeypad();
                 } else {
-                    // 다른 시간대로 전환 가능하므로 키패드 활성화
+                    // 해당 시간대 운행이 완료되지 않은 상태이므로 키패드 활성화
                     enableKeypad();
                 }
+            } else {
+                // 키패드가 활성화된 상태였다면 활성화 유지
+                enableKeypad();
             }
         }
 
@@ -2105,9 +2182,10 @@
             
             if (confirm(`"${route.name}" 노선을 삭제하시겠습니까?`)) {
                 savedRoutes.splice(index, 1);
-                saveToLocalStorage('savedRoutes', JSON.stringify(savedRoutes));
-                updateSavedRoutesDisplay();
-                alert(`"${route.name}" 노선이 삭제되었습니다.`);
+                if (saveToLocalStorage('savedRoutes', JSON.stringify(savedRoutes))) {
+                    updateSavedRoutesDisplay();
+                    alert(`"${route.name}" 노선이 삭제되었습니다.`);
+                }
             }
         }
 
