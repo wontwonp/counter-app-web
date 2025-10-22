@@ -1335,6 +1335,13 @@
                     stations[currentStationIndex].morningCount += inputValue;
                 } else {
                     stations[currentStationIndex].afternoonCount += inputValue;
+                    
+                    // 오후운행 시작 시 오전운행 완료 플래그 초기화
+                    const morningRunCompleted = loadFromLocalStorage('morningRunCompleted');
+                    if (morningRunCompleted === 'true') {
+                        saveToLocalStorage('morningRunCompleted', 'false');
+                        console.log('오후운행 시작, 오전운행 완료 플래그 초기화');
+                    }
                 }
                 
                 // 기존 count도 업데이트 (호환성)
@@ -1637,12 +1644,13 @@
                     console.log(`시간대 변경 감지: ${previousTimePeriod} → ${selectedTimePeriod}, 정류장 인덱스 초기화 (localStorage 무시)`);
                 } else if (morningRunCompleted === 'true' && selectedTimePeriod === 'afternoon') {
                     // 오전운행이 완료되었고 현재 오후시간대이면 첫 번째 정류장부터 시작
+                    // 하지만 오전운행 완료 상태는 유지 (오후운행을 새로 시작할 수 있도록)
                     currentStationIndex = 0;
                     currentInput = '';
                     saveToLocalStorage('currentStationIndex', '0');
                     saveToLocalStorage('currentInput', '');
-                    saveToLocalStorage('morningRunCompleted', 'false'); // 플래그 초기화
-                    console.log(`오전운행 완료 후 오후시간대 진입, 정류장 인덱스 초기화`);
+                    // morningRunCompleted 플래그는 유지 (오후운행 시작 후에만 초기화)
+                    console.log(`오전운행 완료 후 오후시간대 진입, 오후운행 시작을 위해 정류장 인덱스 초기화`);
                 } else {
                     // 시간대가 같으면 저장된 상태 복원
                     console.log(`저장된 정류장 인덱스: ${savedCurrentStationIndex}`);
