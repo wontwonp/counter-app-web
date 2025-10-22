@@ -1600,17 +1600,18 @@
                 // 시간대가 바뀌었는지 확인하고 정류장 인덱스 초기화
                 const savedTimePeriod = loadFromLocalStorage('selectedTimePeriod');
                 if (savedTimePeriod && savedTimePeriod !== newTimePeriod) {
-                    // 시간대가 바뀌었으면 첫 번째 정류장부터 시작
+                    // 시간대가 바뀌었으면 첫 번째 정류장부터 시작 (localStorage 값 무시)
                     currentStationIndex = 0;
                     currentInput = '';
                     saveToLocalStorage('currentStationIndex', '0');
                     saveToLocalStorage('currentInput', '');
-                    console.log(`시간대 변경 감지: ${savedTimePeriod} → ${newTimePeriod}, 정류장 인덱스 초기화`);
+                    console.log(`시간대 변경 감지: ${savedTimePeriod} → ${newTimePeriod}, 정류장 인덱스 초기화 (localStorage 무시)`);
                 } else {
                     // 시간대가 같으면 저장된 상태 복원
                     const savedCurrentStationIndex = loadFromLocalStorage('currentStationIndex');
                     currentStationIndex = savedCurrentStationIndex ? parseInt(savedCurrentStationIndex) : 0;
                     currentInput = '';
+                    console.log(`시간대 동일: ${savedTimePeriod}, 저장된 정류장 인덱스 복원: ${currentStationIndex}`);
                 }
                 
                 // 현재 시간에 따른 자동 시간대 선택
