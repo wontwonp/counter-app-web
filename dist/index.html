@@ -996,8 +996,10 @@
             // 오전: 00시~12시, 오후: 12시01분~23시59분
             if (currentHour >= 0 && currentHour <= 12) {
                 selectedTimePeriod = 'morning';
+                console.log(`시간대 조건 확인: ${currentHour}시는 오전 범위 (0-12시)`);
             } else {
                 selectedTimePeriod = 'afternoon';
+                console.log(`시간대 조건 확인: ${currentHour}시는 오후 범위 (13-23시)`);
             }
             
             console.log(`현재 시간: ${currentHour}시, 자동 선택된 시간대: ${selectedTimePeriod}`);
