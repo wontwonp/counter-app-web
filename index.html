@@ -1595,10 +1595,6 @@
                     }
                 });
                 
-                // 카운팅 상태 복원
-                currentStationIndex = parseInt(savedCurrentStationIndex) || 0;
-                currentInput = savedCurrentInput || '';
-                
                 // 완료된 시간대 상태 복원
                 completedTimePeriods = {
                     morning: savedCompletedTimePeriods.morning || false,
@@ -1616,6 +1612,21 @@
                 
                 // 현재 시간에 따른 자동 시간대 선택
                 autoSelectTimePeriod();
+                
+                // 시간대가 바뀌었는지 확인하고 정류장 인덱스 초기화
+                const savedTimePeriod = loadFromLocalStorage('selectedTimePeriod');
+                if (savedTimePeriod && savedTimePeriod !== selectedTimePeriod) {
+                    // 시간대가 바뀌었으면 첫 번째 정류장부터 시작
+                    currentStationIndex = 0;
+                    currentInput = '';
+                    saveToLocalStorage('currentStationIndex', '0');
+                    saveToLocalStorage('currentInput', '');
+                    console.log(`시간대 변경 감지: ${savedTimePeriod} → ${selectedTimePeriod}, 정류장 인덱스 초기화`);
+                } else {
+                    // 시간대가 같으면 저장된 상태 복원
+                    currentStationIndex = parseInt(savedCurrentStationIndex) || 0;
+                    currentInput = savedCurrentInput || '';
+                }
                 
                 // 키패드 상태 복원
                 setTimeout(() => {
