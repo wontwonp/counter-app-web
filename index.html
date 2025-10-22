@@ -1363,10 +1363,10 @@
             completedTimePeriods[selectedTimePeriod] = true;
             console.log(`${selectedTimePeriod === 'morning' ? '오전' : '오후'}운행 완료`);
 
-            // 오전운행 완료 시 시간대를 명시적으로 저장
+            // 오전운행 완료 시 완료 상태를 별도로 저장
             if (selectedTimePeriod === 'morning') {
-                saveToLocalStorage('selectedTimePeriod', 'morning');
-                console.log('오전운행 완료 시 시간대를 morning으로 고정');
+                saveToLocalStorage('morningRunCompleted', 'true');
+                console.log('오전운행 완료 상태 저장');
             }
 
             // 키패드 비활성화 상태 저장
@@ -1624,6 +1624,11 @@
                 
                 // 시간대가 바뀌었는지 확인하고 정류장 인덱스 초기화
                 console.log(`시간대 비교: 이전=${previousTimePeriod}, 현재=${selectedTimePeriod}`);
+                
+                // 오전운행 완료 상태 확인
+                const morningRunCompleted = loadFromLocalStorage('morningRunCompleted');
+                console.log(`오전운행 완료 상태: ${morningRunCompleted}`);
+                
                 if (previousTimePeriod && previousTimePeriod !== selectedTimePeriod) {
                     // 시간대가 바뀌었으면 첫 번째 정류장부터 시작 (localStorage 값 무시)
                     currentStationIndex = 0;
@@ -1631,6 +1636,14 @@
                     saveToLocalStorage('currentStationIndex', '0');
                     saveToLocalStorage('currentInput', '');
                     console.log(`시간대 변경 감지: ${previousTimePeriod} → ${selectedTimePeriod}, 정류장 인덱스 초기화 (localStorage 무시)`);
+                } else if (morningRunCompleted === 'true' && selectedTimePeriod === 'afternoon') {
+                    // 오전운행이 완료되었고 현재 오후시간대이면 첫 번째 정류장부터 시작
+                    currentStationIndex = 0;
+                    currentInput = '';
+                    saveToLocalStorage('currentStationIndex', '0');
+                    saveToLocalStorage('currentInput', '');
+                    saveToLocalStorage('morningRunCompleted', 'false'); // 플래그 초기화
+                    console.log(`오전운행 완료 후 오후시간대 진입, 정류장 인덱스 초기화`);
                 } else {
                     // 시간대가 같으면 저장된 상태 복원
                     console.log(`저장된 정류장 인덱스: ${savedCurrentStationIndex}`);
