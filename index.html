@@ -936,7 +936,10 @@
             const now = new Date();
             const currentDate = now.toDateString(); // "Mon Jan 01 2024" 형식
             const savedDate = localStorage.getItem('lastResetDate');
-            
+
+            console.log(`날짜 확인 - 현재: ${currentDate}, 저장된: ${savedDate}`);
+            console.log(`stations 배열 상태: ${stations ? stations.length : 'undefined'}개 정류장`);
+
             if (savedDate && savedDate !== currentDate) {
                 console.log(`날짜 변경 감지: ${savedDate} → ${currentDate}`);
                 console.log('24시가 지나 완전 초기화를 실행합니다.');
@@ -948,7 +951,10 @@
                 saveToLocalStorage('lastResetDate', currentDate);
             } else if (!savedDate) {
                 // 처음 실행하는 경우 현재 날짜 저장
+                console.log(`처음 실행 - 현재 날짜 저장: ${currentDate}`);
                 saveToLocalStorage('lastResetDate', currentDate);
+            } else {
+                console.log('날짜 변경 없음 - 리셋하지 않음');
             }
         }
 
