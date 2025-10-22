@@ -980,14 +980,11 @@
             const now = new Date();
             const currentHour = now.getHours();
             
-            // 오전: 6시~12시, 오후: 13시~22시
-            if (currentHour >= 6 && currentHour < 12) {
+            // 오전: 00시~12시, 오후: 12시01분~23시59분
+            if (currentHour >= 0 && currentHour <= 12) {
                 selectedTimePeriod = 'morning';
-            } else if (currentHour >= 13 && currentHour <= 22) {
-                selectedTimePeriod = 'afternoon';
             } else {
-                // 새벽이나 밤 시간대는 오전으로 기본 설정
-                selectedTimePeriod = 'morning';
+                selectedTimePeriod = 'afternoon';
             }
             
             console.log(`현재 시간: ${currentHour}시, 자동 선택된 시간대: ${selectedTimePeriod}`);
