@@ -997,7 +997,7 @@
             // 오전: 6시~12시, 오후: 13시~22시
             if (currentHour >= 6 && currentHour < 12) {
                 selectedTimePeriod = 'morning';
-            } else if (currentHour >= 13 && currentHour < 22) {
+            } else if (currentHour >= 13 && currentHour <= 22) {
                 selectedTimePeriod = 'afternoon';
             } else {
                 // 새벽이나 밤 시간대는 오전으로 기본 설정
