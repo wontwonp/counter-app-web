@@ -1585,24 +1585,36 @@
                 // 키패드 활성화 상태로 설정
                 enableKeypad();
                 
-                // 현재 시간에 따른 자동 시간대 선택
-                autoSelectTimePeriod();
+                // 시간대 변경 감지를 위해 현재 시간대를 미리 계산
+                const now = new Date();
+                const currentHour = now.getHours();
+                let newTimePeriod;
+                if (currentHour >= 6 && currentHour < 12) {
+                    newTimePeriod = 'morning';
+                } else if (currentHour >= 13 && currentHour < 22) {
+                    newTimePeriod = 'afternoon';
+                } else {
+                    newTimePeriod = 'morning';
+                }
                 
                 // 시간대가 바뀌었는지 확인하고 정류장 인덱스 초기화
                 const savedTimePeriod = loadFromLocalStorage('selectedTimePeriod');
-                if (savedTimePeriod && savedTimePeriod !== selectedTimePeriod) {
+                if (savedTimePeriod && savedTimePeriod !== newTimePeriod) {
                     // 시간대가 바뀌었으면 첫 번째 정류장부터 시작
                     currentStationIndex = 0;
                     currentInput = '';
                     saveToLocalStorage('currentStationIndex', '0');
                     saveToLocalStorage('currentInput', '');
-                    console.log(`시간대 변경 감지: ${savedTimePeriod} → ${selectedTimePeriod}, 정류장 인덱스 초기화`);
+                    console.log(`시간대 변경 감지: ${savedTimePeriod} → ${newTimePeriod}, 정류장 인덱스 초기화`);
                 } else {
                     // 시간대가 같으면 저장된 상태 복원
                     const savedCurrentStationIndex = loadFromLocalStorage('currentStationIndex');
                     currentStationIndex = savedCurrentStationIndex ? parseInt(savedCurrentStationIndex) : 0;
                     currentInput = '';
                 }
+                
+                // 현재 시간에 따른 자동 시간대 선택
+                autoSelectTimePeriod();
                 
                 updateKeypadPage();
             }
