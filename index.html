@@ -1612,7 +1612,9 @@
                 
                 // 현재 시간에 따른 자동 시간대 선택
                 const previousTimePeriod = loadFromLocalStorage('selectedTimePeriod');
+                console.log(`이전 시간대: ${previousTimePeriod}`);
                 autoSelectTimePeriod();
+                console.log(`현재 선택된 시간대: ${selectedTimePeriod}`);
                 
                 // 시간대가 바뀌었는지 확인하고 정류장 인덱스 초기화
                 if (previousTimePeriod && previousTimePeriod !== selectedTimePeriod) {
