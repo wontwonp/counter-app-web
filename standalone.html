@@ -1377,9 +1377,16 @@
             // 현재 운행 시간대를 완료 상태로 표시
             completedTimePeriods[selectedTimePeriod] = true;
             console.log(`${selectedTimePeriod === 'morning' ? '오전' : '오후'}운행 완료`);
-            
+
+            // 오전운행 완료 시 시간대를 명시적으로 저장
+            if (selectedTimePeriod === 'morning') {
+                saveToLocalStorage('selectedTimePeriod', 'morning');
+                console.log('오전운행 완료 시 시간대를 morning으로 고정');
+            }
+
             // 키패드 비활성화 상태 저장
-            saveToLocalStorage('keypadDisabled', 'true');
+            saveToLocalStorage('keypadDisabled', 'true');     
+            saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
         }
 
         // 키패드 활성화 함수
