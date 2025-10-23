@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>정류장 카운터</title>
     
     <!-- PWA 설정 -->
@@ -25,6 +25,24 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        /* 시스템 글자 크기 조정 방지 */
+        html {
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        body {
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            overflow-x: hidden;
+            height: 100vh;
+            max-height: 100vh;
         }
 
         /* 모바일 화면 최적화 */

@@ -2,13 +2,31 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>정류장 카운터</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        /* 시스템 글자 크기 조정 방지 */
+        html {
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        body {
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            overflow-x: hidden;
+            height: 100vh;
+            max-height: 100vh;
         }
 
         /* 모바일 화면 최적화 */
@@ -48,11 +66,16 @@
 
         .container {
             text-align: center;
-            padding: 10px;
+            padding: 5px;
             max-width: 100%;
             width: 100%;
             margin: 0 auto;
             box-sizing: border-box;
+            height: 100vh;
+            max-height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
 
         h1 {
@@ -218,64 +241,68 @@
 
         .clock-display {
             background: rgba(0, 0, 0, 0.3);
-            padding-top: 0px;
-            padding-bottom: 0px;
-            margin-bottom: 5px;
+            padding: 8px;
+            margin-bottom: 3px;
             border-radius: 10px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             font-family: 'Courier New', monospace;
+            max-height: 80px;
+            overflow: hidden;
         }
 
         .clock-time {
-            font-size: 2rem;
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
             font-weight: bold;
             color: #fff;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
 
         .clock-date {
-            font-size: 1rem;
+            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
             color: rgba(255, 255, 255, 0.8);
         }
 
         .input-display {
             background: rgba(0, 0, 0, 0.3);
-            padding-bottom: 0px;
-            padding-top: 0px;
-            border-top-width: 0px;
-            border-bottom-width: 0px;
-            margin-bottom: 5px;
+            padding: 8px;
+            margin-bottom: 3px;
             border-radius: 15px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            max-height: 60px;
+            overflow: hidden;
         }
 
         .number-display {
-            font-size: 2rem;
+            font-size: clamp(1.5rem, 5vw, 2.2rem);
             font-weight: bold;
             color: #fff;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin: 0;
         }
 
         .keypad {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex: 1;
+            min-height: 0;
         }
 
         .keypad-row {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             justify-content: center;
+            flex: 1;
         }
 
         .keypad-btn {
-            width: 90px;
-            height: 90px;
-            font-size: 1.8rem;
+            width: clamp(60px, 15vw, 90px);
+            height: clamp(50px, 12vw, 70px);
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
             font-weight: bold;
             border: none;
             border-radius: 15px;
@@ -304,9 +331,9 @@
         }
 
         .enter-btn {
-            width: 285px;
-            height: 90px;
-            font-size: 1.8rem;
+            width: clamp(200px, 80vw, 285px);
+            height: clamp(50px, 12vw, 70px);
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
             font-weight: bold;
             border: none;
             border-radius: 15px;
@@ -668,8 +695,8 @@
 
         /* 시간대 선택 버튼 스타일 */
         .time-period-btn {
-            font-size: 1.1rem;
-            padding: 12px 25px;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            padding: clamp(8px, 2vw, 12px) clamp(15px, 4vw, 25px);
             border: none;
             border-radius: 10px;
             cursor: pointer;
@@ -677,6 +704,8 @@
             background: rgba(255, 255, 255, 0.2);
             color: white;
             border: 2px solid rgba(255, 255, 255, 0.3);
+            flex: 1;
+            margin: 0 5px;
         }
 
         .time-period-btn.active {
