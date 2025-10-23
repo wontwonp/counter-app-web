@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>정류장 카운터</title>
-    
+    <!-- 화면 자동 꺼짐 방지 -->
+    <script src="https://unpkg.com/nosleep.js@0.12.0/dist/NoSleep.min.js"></script>
+
     <!-- PWA 설정 -->
     <meta name="theme-color" content="#4CAF50">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2267,6 +2269,63 @@
         });
         */
         
+        // 화면 자동 꺼짐 방지 기능
+        let noSleep = null;
+        let wakeLock = null;
+
+        function enableScreenWakeLock() {
+            try {
+                // No Sleep 라이브러리 사용 (더 넓은 브라우저 지원)
+                if (typeof NoSleep !== 'undefined') {
+                    noSleep = new NoSleep();
+                    noSleep.enable();
+                    console.log('No Sleep 라이브러리로 화면 자동 꺼짐 방지 활성화');
+                }
+
+                // Screen Wake Lock API 사용 (최신 브라우저)
+                if ('wakeLock' in navigator) {
+                    navigator.wakeLock.request('screen').then(lock => {
+                        wakeLock = lock;
+                        console.log('Screen Wake Lock API로 화면 자동 꺼짐 방지 활성화');
+                        
+                        // 화면이 꺼졌을 때 다시 활성화
+                        lock.addEventListener('release', () => {
+                            console.log('화면이 꺼졌습니다. 다시 활성화 시도...');
+                            setTimeout(() => {
+                                enableScreenWakeLock();
+                            }, 1000);
+                        });
+                    }).catch(err => {
+                        console.log('Screen Wake Lock API 실패:', err);
+                    });
+                }
+
+                // 사용자 상호작용이 필요한 경우를 대비한 이벤트 리스너
+                document.addEventListener('click', enableScreenWakeLock, { once: true });
+                document.addEventListener('touchstart', enableScreenWakeLock, { once: true });
+                
+            } catch (error) {
+                console.log('화면 자동 꺼짐 방지 설정 실패:', error);
+            }
+        }
+
+        function disableScreenWakeLock() {
+            try {
+                if (noSleep) {
+                    noSleep.disable();
+                    noSleep = null;
+                    console.log('No Sleep 라이브러리 비활성화');
+                }
+                if (wakeLock) {
+                    wakeLock.release();
+                    wakeLock = null;
+                    console.log('Screen Wake Lock API 비활성화');
+                }
+            } catch (error) {
+                console.log('화면 자동 꺼짐 방지 해제 실패:', error);
+            }
+        }
+        
         // PWA 설치 및 서비스 워커 등록
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
@@ -2277,6 +2336,9 @@
                     .catch(function(error) {
                         console.log('서비스 워커 등록 실패:', error);
                     });
+                
+                // 화면 자동 꺼짐 방지 활성화
+                enableScreenWakeLock();
             });
         }
     </script>
