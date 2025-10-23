@@ -291,6 +291,8 @@
             flex: 1;
             min-height: 0;
             max-height: 45vh;
+            z-index: 100;
+            position: relative;
         }
 
         .keypad-row {
@@ -346,6 +348,10 @@
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
+            z-index: 1000;
+            position: relative;
+            margin-top: 5px;
+            margin-bottom: 5px;
         }
 
         .enter-btn:hover {
