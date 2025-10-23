@@ -296,20 +296,24 @@
         .keypad {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 6px;
+            margin-bottom: 5px;
+            flex: 1;
+            min-height: 0;
+            max-height: 60vh;
         }
 
         .keypad-row {
             display: flex;
-            gap: 12px;
+            gap: 6px;
             justify-content: center;
+            flex: 1;
         }
 
         .keypad-btn {
-            width: 90px;
-            height: 90px;
-            font-size: 1.8rem;
+            width: clamp(50px, 12vw, 70px);
+            height: clamp(40px, 10vw, 55px);
+            font-size: clamp(1rem, 3.5vw, 1.5rem);
             font-weight: bold;
             border: none;
             border-radius: 15px;
@@ -338,9 +342,9 @@
         }
 
         .enter-btn {
-            width: 285px;
-            height: 90px;
-            font-size: 1.8rem;
+            width: clamp(180px, 70vw, 250px);
+            height: clamp(45px, 10vw, 60px);
+            font-size: clamp(1rem, 3.5vw, 1.5rem);
             font-weight: bold;
             border: none;
             border-radius: 15px;
