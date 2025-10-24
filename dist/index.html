@@ -88,33 +88,52 @@
                 margin-bottom: 10px;
             }
             
-            /* 노선 입력 텍스트창 모바일 최적화 */
+            /* 노선 입력 텍스트창 모바일 최적화 - 모든 기기 통일 */
             .number-input {
-                width: 90% !important;
-                max-width: 300px;
-                min-width: 200px;
-                font-size: clamp(1.2rem, 4vw, 1.5rem);
-                padding: clamp(12px, 3vw, 15px) clamp(15px, 4vw, 20px);
-                margin: clamp(10px, 2vw, 20px) auto;
-                box-sizing: border-box;
+                width: calc(100% - 20px) !important;
+                max-width: 320px !important;
+                min-width: 250px !important;
+                font-size: 16px !important;
+                padding: 14px 16px !important;
+                margin: 12px auto !important;
+                box-sizing: border-box !important;
+                border-radius: 8px !important;
+                border: none !important;
+                background: rgba(255, 255, 255, 0.9) !important;
+                color: #333 !important;
+                text-align: center !important;
+                display: block !important;
+                position: relative !important;
+                z-index: 1 !important;
             }
             
-            /* 다양한 모바일 화면 크기 대응 */
-            @media screen and (max-width: 480px) {
+            /* 갤럭시 S8 특화 대응 */
+            @media screen and (max-width: 414px) and (min-width: 360px) {
                 .number-input {
-                    width: 95% !important;
-                    font-size: 1.3rem;
-                    padding: 12px 15px;
-                    margin: 10px auto;
+                    width: calc(100% - 16px) !important;
+                    font-size: 15px !important;
+                    padding: 12px 14px !important;
+                    margin: 10px auto !important;
                 }
             }
             
-            @media screen and (max-width: 360px) {
+            /* 작은 화면 대응 */
+            @media screen and (max-width: 375px) {
                 .number-input {
-                    width: 98% !important;
-                    font-size: 1.2rem;
-                    padding: 10px 12px;
-                    margin: 8px auto;
+                    width: calc(100% - 12px) !important;
+                    font-size: 14px !important;
+                    padding: 10px 12px !important;
+                    margin: 8px auto !important;
+                }
+            }
+            
+            /* 매우 작은 화면 대응 */
+            @media screen and (max-width: 320px) {
+                .number-input {
+                    width: calc(100% - 8px) !important;
+                    font-size: 13px !important;
+                    padding: 8px 10px !important;
+                    margin: 6px auto !important;
                 }
             }
         }
