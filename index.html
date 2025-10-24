@@ -308,6 +308,20 @@
             color: #fff;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
             margin: 0;
+            transition: all 0.3s ease;
+        }
+
+        /* 숫자 입력 시 색상 변화 효과 */
+        .number-display.changed {
+            color: #FFD700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+            animation: numberChange 0.6s ease-in-out;
+        }
+
+        @keyframes numberChange {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
 
         .keypad {
@@ -358,6 +372,21 @@
             background: rgba(255, 255, 255, 0.4);
             transform: translateY(-1px) scale(0.95);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 키패드 버튼 클릭 시 색상 변화 효과 */
+        .keypad-btn.clicked {
+            background: rgba(76, 175, 80, 0.6);
+            border: 2px solid #4CAF50;
+            color: #4CAF50;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.8);
+            animation: keypadClick 0.4s ease-in-out;
+        }
+
+        @keyframes keypadClick {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
         }
 
         .enter-btn {
@@ -1372,27 +1401,84 @@
         function inputDigit(digit) {
             // 햅틱 피드백
             hapticFeedback(50);
-            
+
+            // 키패드 버튼 클릭 효과
+            const clickedButton = event.target;
+            if (clickedButton) {
+                clickedButton.classList.add('clicked');
+                setTimeout(() => {
+                    clickedButton.classList.remove('clicked');
+                }, 400);
+            }
+
             currentInput += digit;
-            document.getElementById('number-display').textContent = currentInput || '0';
+            
+            // 숫자 표시 애니메이션 효과
+            const numberDisplay = document.getElementById('number-display');
+            numberDisplay.classList.remove('changed');
+            setTimeout(() => {
+                numberDisplay.textContent = currentInput || '0';
+                numberDisplay.classList.add('changed');
+                setTimeout(() => {
+                    numberDisplay.classList.remove('changed');
+                }, 600);
+            }, 50);
         }
 
         // 입력 초기화
         function clearInput() {
             // 햅틱 피드백
             hapticFeedback(30);
-            
+
+            // 키패드 버튼 클릭 효과
+            const clickedButton = event.target;
+            if (clickedButton) {
+                clickedButton.classList.add('clicked');
+                setTimeout(() => {
+                    clickedButton.classList.remove('clicked');
+                }, 400);
+            }
+
             currentInput = '';
-            document.getElementById('number-display').textContent = '0';
+            
+            // 숫자 표시 애니메이션 효과
+            const numberDisplay = document.getElementById('number-display');
+            numberDisplay.classList.remove('changed');
+            setTimeout(() => {
+                numberDisplay.textContent = '0';
+                numberDisplay.classList.add('changed');
+                setTimeout(() => {
+                    numberDisplay.classList.remove('changed');
+                }, 600);
+            }, 50);
         }
 
         // 백스페이스
         function backspace() {
             // 햅틱 피드백
             hapticFeedback(30);
-            
+
+            // 키패드 버튼 클릭 효과
+            const clickedButton = event.target;
+            if (clickedButton) {
+                clickedButton.classList.add('clicked');
+                setTimeout(() => {
+                    clickedButton.classList.remove('clicked');
+                }, 400);
+            }
+
             currentInput = currentInput.slice(0, -1);
-            document.getElementById('number-display').textContent = currentInput || '0';
+            
+            // 숫자 표시 애니메이션 효과
+            const numberDisplay = document.getElementById('number-display');
+            numberDisplay.classList.remove('changed');
+            setTimeout(() => {
+                numberDisplay.textContent = currentInput || '0';
+                numberDisplay.classList.add('changed');
+                setTimeout(() => {
+                    numberDisplay.classList.remove('changed');
+                }, 600);
+            }, 50);
         }
 
         // 엔터 (숫자 입력 완료)
