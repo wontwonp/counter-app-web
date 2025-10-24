@@ -240,16 +240,41 @@
             margin-bottom: 15px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
         }
 
         .current-station h2 {
             margin-bottom: 10px;
             font-size: 1.5rem;
+            transition: color 0.3s ease;
         }
 
         .current-station p {
             font-size: 1.3rem;
             font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        /* 정류장 변경 시 색상 변화 효과 */
+        .current-station.changed {
+            background: rgba(76, 175, 80, 0.3);
+            border: 2px solid #4CAF50;
+            animation: stationChange 0.8s ease-in-out;
+        }
+
+        .current-station.changed h2 {
+            color: #4CAF50;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        .current-station.changed p {
+            color: #81C784;
+        }
+
+        @keyframes stationChange {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         .clock-display {
@@ -1287,6 +1312,23 @@
                 const minute = currentStation.departureTime.minute || 0;
                 const timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
                 timeDisplay = ` (${timeStr})`;
+            }
+            
+            // 정류장 변경 시 색상 변화 효과 적용
+            const currentStationElement = document.querySelector('.current-station');
+            if (currentStationElement) {
+                // 기존 변경 효과 제거
+                currentStationElement.classList.remove('changed');
+                
+                // 잠시 후 변경 효과 적용 (DOM 업데이트 후)
+                setTimeout(() => {
+                    currentStationElement.classList.add('changed');
+                    
+                    // 1초 후 변경 효과 제거
+                    setTimeout(() => {
+                        currentStationElement.classList.remove('changed');
+                    }, 1000);
+                }, 50);
             }
             
             document.getElementById('current-station-name').textContent = `${currentStation.name}${timeDisplay}`;
