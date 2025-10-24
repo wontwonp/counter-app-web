@@ -133,6 +133,23 @@
                 }
             }
             
+            /* 버튼 텍스트 모바일 최적화 */
+            .button-text-top, .button-text-bottom {
+                display: block !important;
+                line-height: 1.1 !important;
+                font-size: inherit !important;
+                font-weight: inherit !important;
+                text-align: center !important;
+            }
+            
+            .button-text-top {
+                margin-bottom: 1px !important;
+            }
+            
+            .button-text-bottom {
+                margin-top: 1px !important;
+            }
+            
             /* 노선 입력 텍스트창 모바일 최적화 - 모든 기기 통일 */
             .number-input {
                 width: calc(100% - 20px) !important;
@@ -320,6 +337,22 @@
             display: flex;
             gap: 20px;
             justify-content: center;
+        }
+        
+        /* 버튼 텍스트 상하 정렬 스타일 */
+        .button-text-top, .button-text-bottom {
+            display: block;
+            line-height: 1.2;
+            font-size: inherit;
+            font-weight: inherit;
+        }
+        
+        .button-text-top {
+            margin-bottom: 2px;
+        }
+        
+        .button-text-bottom {
+            margin-top: 2px;
         }
 
         .start-btn, .reset-btn {
@@ -1052,9 +1085,9 @@
                 <h2>정류장 이름을 입력하세요</h2>
                 <div id="station-inputs" class="station-inputs"></div>
                 <div class="button-group">
-                    <button id="start-counting" class="start-btn" onclick="startCounting()" disabled>카운팅 시작</button>
-                    <button id="save-route" class="save-btn" onclick="saveRoute()" disabled>노선 저장</button>
-                    <button id="reset-setup" class="reset-btn" onclick="resetSetup()">처음으로</button>
+                    <button id="start-counting" class="start-btn" onclick="startCounting()" disabled><span class="button-text-top">카운팅</span><br><span class="button-text-bottom">시작</span></button>
+                    <button id="save-route" class="save-btn" onclick="saveRoute()" disabled><span class="button-text-top">노선</span><br><span class="button-text-bottom">저장</span></button>
+                    <button id="reset-setup" class="reset-btn" onclick="resetSetup()"><span class="button-text-top">처음</span><br><span class="button-text-bottom">으로</span></button>
                 </div>
             </div>
         </div>
