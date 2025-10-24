@@ -166,6 +166,16 @@
                 margin-top: 1px !important;
             }
             
+            /* 숫자 표시 중앙 정렬 모바일 최적화 */
+            .number-display {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                height: 100% !important;
+                line-height: 1 !important;
+                text-align: center !important;
+            }
+            
             /* 노선 입력 텍스트창 모바일 최적화 - 모든 기기 통일 */
             .number-input {
                 width: calc(100% - 20px) !important;
@@ -486,6 +496,13 @@
             font-weight: bold;
             color: #fff;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            line-height: 1;
+            margin: 0;
+            transition: all 0.3s ease;
         }
 
         .keypad {
