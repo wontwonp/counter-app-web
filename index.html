@@ -645,14 +645,40 @@
             font-size: 1.3rem;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
+            transition: all 0.5s ease;
             z-index: 1000;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* 다크모드 버튼 숨김 상태 */
+        .theme-toggle.hidden {
+            opacity: 0;
+            transform: translateX(100px);
+            pointer-events: none;
         }
 
         .theme-toggle:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: scale(1.1);
+        }
+
+        /* 다크모드 버튼 영역 호버 시 다시 나타나기 */
+        .theme-toggle-area {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            z-index: 999;
+            cursor: pointer;
+        }
+
+        .theme-toggle-area:hover .theme-toggle {
+            opacity: 1 !important;
+            transform: translateX(0) !important;
+            pointer-events: auto !important;
         }
 
         .theme-toggle:active {
@@ -858,7 +884,9 @@
     </style>
 </head>
 <body>
-    <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">🌙</button>
+    <div class="theme-toggle-area">
+        <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">🌙</button>
+    </div>
     <div class="container">
         
         <!-- 정류장 개수 입력 페이지 -->
@@ -1004,6 +1032,33 @@
                 themeToggle.textContent = '🌙';
                 saveToLocalStorage('darkMode', 'false');
             }
+            
+            // 다크모드 버튼 자동 숨김 (5초 후)
+            hideThemeButton();
+        }
+
+        // 다크모드 버튼 자동 숨김 함수
+        function hideThemeButton() {
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            // 기존 타이머가 있으면 클리어
+            if (window.themeHideTimer) {
+                clearTimeout(window.themeHideTimer);
+            }
+            
+            // 5초 후 버튼 숨김
+            window.themeHideTimer = setTimeout(() => {
+                themeToggle.classList.add('hidden');
+            }, 5000);
+        }
+
+        // 다크모드 버튼 다시 보이기 함수
+        function showThemeButton() {
+            const themeToggle = document.getElementById('theme-toggle');
+            themeToggle.classList.remove('hidden');
+            
+            // 다시 숨김 타이머 설정
+            hideThemeButton();
         }
 
         // 페이지 로드 시 저장된 테마 설정 불러오기
@@ -2278,6 +2333,9 @@
 
             // 화면 자동 꺼짐 방지 활성화
             enableScreenWakeLock();
+
+            // 다크모드 버튼 자동 숨김 (5초 후)
+            hideThemeButton();
 
             // 키패드 상태 복원
             setTimeout(() => {
