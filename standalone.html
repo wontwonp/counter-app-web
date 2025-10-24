@@ -176,6 +176,20 @@
                 text-align: center !important;
             }
             
+            /* ENTER 버튼 겹침 방지 모바일 최적화 */
+            .enter-btn {
+                z-index: 10000 !important;
+                position: relative !important;
+                margin-top: 20px !important;
+                margin-bottom: 20px !important;
+                display: block !important;
+                clear: both !important;
+                width: calc(100% - 20px) !important;
+                max-width: 200px !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
+            
             /* 노선 입력 텍스트창 모바일 최적화 - 모든 기기 통일 */
             .number-input {
                 width: calc(100% - 20px) !important;
@@ -570,10 +584,12 @@
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
-            z-index: 1000;
+            z-index: 10000;
             position: relative;
-            margin-top: 5px;
-            margin-bottom: 5px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            display: block;
+            clear: both;
         }
 
         .enter-btn:hover {
