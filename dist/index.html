@@ -70,6 +70,7 @@
                 padding: 10px;
                 width: 100%;
                 max-width: 95%;
+                box-sizing: border-box;
             }
             
             .station-names-input {
@@ -85,6 +86,36 @@
             .station-input-group {
                 gap: 8px;
                 margin-bottom: 10px;
+            }
+            
+            /* 노선 입력 텍스트창 모바일 최적화 */
+            .number-input {
+                width: 90% !important;
+                max-width: 300px;
+                min-width: 200px;
+                font-size: clamp(1.2rem, 4vw, 1.5rem);
+                padding: clamp(12px, 3vw, 15px) clamp(15px, 4vw, 20px);
+                margin: clamp(10px, 2vw, 20px) auto;
+                box-sizing: border-box;
+            }
+            
+            /* 다양한 모바일 화면 크기 대응 */
+            @media screen and (max-width: 480px) {
+                .number-input {
+                    width: 95% !important;
+                    font-size: 1.3rem;
+                    padding: 12px 15px;
+                    margin: 10px auto;
+                }
+            }
+            
+            @media screen and (max-width: 360px) {
+                .number-input {
+                    width: 98% !important;
+                    font-size: 1.2rem;
+                    padding: 10px 12px;
+                    margin: 8px auto;
+                }
             }
         }
 
