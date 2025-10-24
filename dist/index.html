@@ -1318,6 +1318,11 @@
                 enableKeypad();
                 updateKeypadPage();
                 localStorage.setItem('savedStations', JSON.stringify(stations));
+                saveToLocalStorage('currentStationIndex', '0');
+                saveToLocalStorage('currentInput', '');
+                saveToLocalStorage('completedTimePeriods', JSON.stringify({ morning: false, afternoon: false }));
+                saveToLocalStorage('keypadDisabled', 'false');
+                saveToLocalStorage('morningRunCompleted', 'false');
                 console.log('24시 경과로 인한 완전 초기화가 완료되었습니다.');
             }
         }
