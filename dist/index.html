@@ -98,10 +98,55 @@
             }
             
             .station-name-input {
-                width: 100% !important;
+                width: calc(100% - 20px) !important;
                 max-width: 100% !important;
+                min-width: 200px !important;
+                font-size: 16px !important;
+                padding: 12px 15px !important;
+                margin: 8px auto !important;
                 box-sizing: border-box !important;
-                margin: 0 !important;
+                border-radius: 8px !important;
+                border: none !important;
+                background: rgba(255, 255, 255, 0.9) !important;
+                color: #333 !important;
+                text-align: left !important;
+                display: block !important;
+                position: relative !important;
+                z-index: 1 !important;
+                font-family: inherit !important;
+                line-height: 1.4 !important;
+                resize: none !important;
+                overflow: hidden !important;
+            }
+            
+            /* 갤럭시 S8 특화 대응 */
+            @media screen and (max-width: 414px) and (min-width: 360px) {
+                .station-name-input {
+                    width: calc(100% - 16px) !important;
+                    font-size: 15px !important;
+                    padding: 10px 12px !important;
+                    margin: 6px auto !important;
+                }
+            }
+            
+            /* 작은 화면 대응 */
+            @media screen and (max-width: 375px) {
+                .station-name-input {
+                    width: calc(100% - 12px) !important;
+                    font-size: 14px !important;
+                    padding: 8px 10px !important;
+                    margin: 4px auto !important;
+                }
+            }
+            
+            /* 매우 작은 화면 대응 */
+            @media screen and (max-width: 320px) {
+                .station-name-input {
+                    width: calc(100% - 8px) !important;
+                    font-size: 13px !important;
+                    padding: 6px 8px !important;
+                    margin: 2px auto !important;
+                }
             }
             
             /* 노선 입력 텍스트창 모바일 최적화 - 모든 기기 통일 */
