@@ -144,6 +144,13 @@
             opacity: 0.8;
         }
 
+        .stat-browser-info {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
         .daily-stats {
             background: white;
             border-radius: 15px;
@@ -273,6 +280,7 @@
                     <h3>오늘 사용자</h3>
                     <div class="stat-number" id="todayUsers">0</div>
                     <div class="stat-label">명</div>
+                    <div class="stat-browser-info" id="browserInfo">현재 브라우저 기준</div>
                 </div>
                 <div class="stat-card">
                     <h3>이번 주 사용자</h3>
@@ -375,6 +383,10 @@
             const today = new Date().toISOString().split('T')[0];
             const todayUsers = data.dailyUsers[today] || 0;
             
+            // 브라우저 정보 표시
+            const browserInfo = getBrowserInfo();
+            document.getElementById('browserInfo').textContent = browserInfo;
+            
             // 이번 주 사용자 수 계산
             const weekUsers = getWeekUsers(data.dailyUsers);
             
@@ -388,6 +400,22 @@
             document.getElementById('weekUsers').textContent = weekUsers;
             document.getElementById('monthUsers').textContent = monthUsers;
             document.getElementById('totalUsers').textContent = totalUsers;
+        }
+
+        // 브라우저 정보 가져오기
+        function getBrowserInfo() {
+            const userAgent = navigator.userAgent;
+            if (userAgent.includes('Chrome')) {
+                return 'Chrome 브라우저 기준';
+            } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+                return 'Safari 브라우저 기준';
+            } else if (userAgent.includes('Firefox')) {
+                return 'Firefox 브라우저 기준';
+            } else if (userAgent.includes('Edge')) {
+                return 'Edge 브라우저 기준';
+            } else {
+                return '현재 브라우저 기준';
+            }
         }
 
         // 이번 주 사용자 수 계산
