@@ -1966,6 +1966,42 @@
             }
         });
 
+        // 모바일 관리자 페이지 접근 (화면 왼쪽 상단 모서리 5번 연속 터치)
+        let touchCount = 0;
+        let lastTouchTime = 0;
+        const TOUCH_TIMEOUT = 2000; // 2초 내에 터치해야 함
+        const REQUIRED_TOUCHES = 5; // 5번 터치 필요
+        
+        document.addEventListener('touchstart', function(event) {
+            const touch = event.touches[0];
+            const x = touch.clientX;
+            const y = touch.clientY;
+            const currentTime = Date.now();
+            
+            // 화면 왼쪽 상단 모서리 영역 (50px x 50px) 체크
+            if (x <= 50 && y <= 50) {
+                // 시간 초과 시 카운트 리셋
+                if (currentTime - lastTouchTime > TOUCH_TIMEOUT) {
+                    touchCount = 0;
+                }
+                
+                touchCount++;
+                lastTouchTime = currentTime;
+                
+                console.log(`관리자 터치 카운트: ${touchCount}/${REQUIRED_TOUCHES}`);
+                
+                // 5번 터치 시 관리자 페이지로 이동
+                if (touchCount >= REQUIRED_TOUCHES) {
+                    event.preventDefault();
+                    touchCount = 0; // 카운트 리셋
+                    window.location.href = 'admin.html';
+                }
+            } else {
+                // 다른 영역 터치 시 카운트 리셋
+                touchCount = 0;
+            }
+        });
+
         // 페이지 로드 시 초기화
         window.addEventListener('load', function() {
             loadTheme();
