@@ -339,6 +339,11 @@
             if (password === ADMIN_PASSWORD) {
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('statsSection').classList.add('active');
+                
+                // 로그인 시 당일 날짜로 다시 설정
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('dateInput').value = today;
+                
                 loadStats();
                 // 로그인 후 당일 날짜로 자동 조회
                 searchDate();
