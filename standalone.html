@@ -1881,6 +1881,9 @@
             loadSavedStations();
             setKoreanInputMode();
             
+            // 사용자 접속 기록
+            recordUserAccess();
+            
             // 공유 버튼 이벤트 리스너 추가
             const kakaoShareBtn = document.getElementById('kakao-share-btn');
             if (kakaoShareBtn) {
@@ -2419,6 +2422,25 @@
                     alert('데이터 저장에 실패했습니다. 페이지를 새로고침하지 마세요.');
                 }
                 return false;
+            }
+        }
+
+        // 사용자 접속 기록 함수
+        function recordUserAccess() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const dailyUsers = JSON.parse(localStorage.getItem('dailyUsers') || '{}');
+                
+                // 오늘 첫 접속인지 확인 (같은 세션에서는 중복 기록 방지)
+                const sessionKey = `session_${today}`;
+                if (!sessionStorage.getItem(sessionKey)) {
+                    dailyUsers[today] = (dailyUsers[today] || 0) + 1;
+                    localStorage.setItem('dailyUsers', JSON.stringify(dailyUsers));
+                    sessionStorage.setItem(sessionKey, 'true');
+                    console.log(`사용자 접속 기록: ${today} - 총 ${dailyUsers[today]}명`);
+                }
+            } catch (error) {
+                console.error('사용자 접속 기록 실패:', error);
             }
         }
 

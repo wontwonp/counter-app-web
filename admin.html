@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 통계 - 카운터 앱</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .admin-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .login-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-section h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .password-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .login-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .login-btn:hover {
+            background: #45a049;
+        }
+
+        .error-message {
+            color: #f44336;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .stats-section {
+            display: none;
+        }
+
+        .stats-section.active {
+            display: block;
+        }
+
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .stats-header h2 {
+            color: #333;
+            font-size: 1.8rem;
+        }
+
+        .logout-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .logout-btn:hover {
+            background: #d32f2f;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .daily-stats {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .daily-stats h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .date-selector {
+            margin-bottom: 20px;
+        }
+
+        .date-input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-right: 10px;
+        }
+
+        .search-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .search-btn:hover {
+            background: #1976D2;
+        }
+
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .stats-table th,
+        .stats-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stats-table th {
+            background: #f5f5f5;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stats-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        .back-btn {
+            background: #9E9E9E;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+        }
+
+        .back-btn:hover {
+            background: #757575;
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .stats-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- 로그인 섹션 -->
+        <div class="login-section" id="loginSection">
+            <h1>🔐 관리자 통계</h1>
+            <input type="password" id="passwordInput" class="password-input" placeholder="관리자 비밀번호 입력" maxlength="20">
+            <br>
+            <button class="login-btn" onclick="checkPassword()">로그인</button>
+            <div id="errorMessage" class="error-message"></div>
+        </div>
+
+        <!-- 통계 섹션 -->
+        <div class="stats-section" id="statsSection">
+            <div class="stats-header">
+                <h2>📊 일별 사용 통계</h2>
+                <button class="logout-btn" onclick="logout()">로그아웃</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>오늘 사용자</h3>
+                    <div class="stat-number" id="todayUsers">0</div>
+                    <div class="stat-label">명</div>
+                </div>
+                <div class="stat-card">
+                    <h3>이번 주 사용자</h3>
+                    <div class="stat-number" id="weekUsers">0</div>
+                    <div class="stat-label">명</div>
+                </div>
+                <div class="stat-card">
+                    <h3>이번 달 사용자</h3>
+                    <div class="stat-number" id="monthUsers">0</div>
+                    <div class="stat-label">명</div>
+                </div>
+                <div class="stat-card">
+                    <h3>총 사용자</h3>
+                    <div class="stat-number" id="totalUsers">0</div>
+                    <div class="stat-label">명</div>
+                </div>
+            </div>
+
+            <div class="daily-stats">
+                <h3>📅 일별 상세 통계</h3>
+                <div class="date-selector">
+                    <input type="date" id="dateInput" class="date-input">
+                    <button class="search-btn" onclick="searchDate()">조회</button>
+                </div>
+                <div id="dailyStatsContent">
+                    <div class="no-data">날짜를 선택하고 조회 버튼을 클릭하세요.</div>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <button class="back-btn" onclick="goToMain()">메인 페이지로</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 관리자 비밀번호 (실제 사용시 더 복잡한 비밀번호로 변경)
+        const ADMIN_PASSWORD = "admin123";
+        
+        // 사용자 통계 데이터 저장 키
+        const USER_STATS_KEY = "userStats";
+        const DAILY_USERS_KEY = "dailyUsers";
+
+        // 페이지 로드 시 오늘 날짜 설정
+        window.addEventListener('load', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dateInput').value = today;
+            loadStats();
+        });
+
+        // 비밀번호 확인
+        function checkPassword() {
+            const password = document.getElementById('passwordInput').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('statsSection').classList.add('active');
+                loadStats();
+            } else {
+                errorMessage.textContent = '비밀번호가 올바르지 않습니다.';
+                document.getElementById('passwordInput').value = '';
+            }
+        }
+
+        // 로그아웃
+        function logout() {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('statsSection').classList.remove('active');
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('errorMessage').textContent = '';
+        }
+
+        // 엔터키로 로그인
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        // 통계 로드
+        function loadStats() {
+            const stats = getUserStats();
+            updateStatsCards(stats);
+        }
+
+        // 사용자 통계 데이터 가져오기
+        function getUserStats() {
+            const stats = JSON.parse(localStorage.getItem(USER_STATS_KEY) || '{}');
+            const dailyUsers = JSON.parse(localStorage.getItem(DAILY_USERS_KEY) || '{}');
+            
+            return {
+                stats: stats,
+                dailyUsers: dailyUsers
+            };
+        }
+
+        // 통계 카드 업데이트
+        function updateStatsCards(data) {
+            const today = new Date().toISOString().split('T')[0];
+            const todayUsers = data.dailyUsers[today] || 0;
+            
+            // 이번 주 사용자 수 계산
+            const weekUsers = getWeekUsers(data.dailyUsers);
+            
+            // 이번 달 사용자 수 계산
+            const monthUsers = getMonthUsers(data.dailyUsers);
+            
+            // 총 사용자 수 계산
+            const totalUsers = Object.values(data.dailyUsers).reduce((sum, count) => sum + count, 0);
+            
+            document.getElementById('todayUsers').textContent = todayUsers;
+            document.getElementById('weekUsers').textContent = weekUsers;
+            document.getElementById('monthUsers').textContent = monthUsers;
+            document.getElementById('totalUsers').textContent = totalUsers;
+        }
+
+        // 이번 주 사용자 수 계산
+        function getWeekUsers(dailyUsers) {
+            const today = new Date();
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay());
+            
+            let weekUsers = 0;
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(startOfWeek);
+                date.setDate(startOfWeek.getDate() + i);
+                const dateStr = date.toISOString().split('T')[0];
+                weekUsers += dailyUsers[dateStr] || 0;
+            }
+            return weekUsers;
+        }
+
+        // 이번 달 사용자 수 계산
+        function getMonthUsers(dailyUsers) {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth();
+            
+            let monthUsers = 0;
+            for (let day = 1; day <= 31; day++) {
+                const date = new Date(year, month, day);
+                if (date.getMonth() !== month) break;
+                
+                const dateStr = date.toISOString().split('T')[0];
+                monthUsers += dailyUsers[dateStr] || 0;
+            }
+            return monthUsers;
+        }
+
+        // 날짜별 통계 조회
+        function searchDate() {
+            const selectedDate = document.getElementById('dateInput').value;
+            if (!selectedDate) {
+                alert('날짜를 선택해주세요.');
+                return;
+            }
+            
+            const data = getUserStats();
+            const dailyUsers = data.dailyUsers[selectedDate] || 0;
+            
+            const content = document.getElementById('dailyStatsContent');
+            
+            if (dailyUsers > 0) {
+                content.innerHTML = `
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>날짜</th>
+                                <th>사용자 수</th>
+                                <th>비고</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>${formatDate(selectedDate)}</td>
+                                <td>${dailyUsers}명</td>
+                                <td>정상 사용</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div class="no-data">
+                        ${formatDate(selectedDate)}에는 사용 기록이 없습니다.
+                    </div>
+                `;
+            }
+        }
+
+        // 날짜 포맷팅
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayName = dayNames[date.getDay()];
+            
+            return `${year}년 ${month}월 ${day}일 (${dayName})`;
+        }
+
+        // 메인 페이지로 이동
+        function goToMain() {
+            window.location.href = 'index.html';
+        }
+
+        // 사용자 접속 기록 (메인 앱에서 호출할 함수)
+        function recordUserAccess() {
+            const today = new Date().toISOString().split('T')[0];
+            const dailyUsers = JSON.parse(localStorage.getItem(DAILY_USERS_KEY) || '{}');
+            
+            // 오늘 첫 접속인지 확인
+            if (!dailyUsers[today]) {
+                dailyUsers[today] = 1;
+            } else {
+                dailyUsers[today]++;
+            }
+            
+            localStorage.setItem(DAILY_USERS_KEY, JSON.stringify(dailyUsers));
+        }
+    </script>
+</body>
+</html>
