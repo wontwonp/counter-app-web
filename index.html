@@ -2012,6 +2012,9 @@
             // 사용자 접속 기록
             recordUserAccess();
             
+            // 페이지 로드 시 자정 초기화 체크
+            checkMidnightReset();
+            
             // 공유 버튼 이벤트 리스너 추가
             const kakaoShareBtn = document.getElementById('kakao-share-btn');
             if (kakaoShareBtn) {
@@ -2470,8 +2473,8 @@
             const currentHour = now.getHours();
             const currentMinute = now.getMinutes();
             
-            // 자정(00:00)인지 확인
-            if (currentHour === 0 && currentMinute === 0) {
+            // 자정(00:00-00:59) 범위에서 확인 (더 넓은 범위로 체크)
+            if (currentHour === 0) {
                 // 마지막 초기화 날짜 확인
                 const today = now.toDateString();
                 const lastResetDate = localStorage.getItem('lastResetDate');
