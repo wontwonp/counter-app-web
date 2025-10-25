@@ -1942,6 +1942,13 @@
 
         // 키보드 이벤트
         document.addEventListener('keydown', function(event) {
+            // 관리자 페이지 접근 (Ctrl+Shift+A)
+            if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'a') {
+                event.preventDefault();
+                window.location.href = 'admin.html';
+                return;
+            }
+            
             if (document.getElementById('keypad-page').classList.contains('hidden')) return;
             
             // 키패드가 비활성화된 상태에서는 키보드 입력 무시
@@ -2600,12 +2607,7 @@
         function recordKeypadUsage() {
             try {
                 const today = new Date().toISOString().split('T')[0];
-                const keypadStats = JSON.parse(localStorage.getItem('keypadStats') || '{}');
                 const dailyUsers = JSON.parse(localStorage.getItem('dailyUsers') || '{}');
-                
-                // 오늘 키패드 사용 횟수 증가
-                keypadStats[today] = (keypadStats[today] || 0) + 1;
-                localStorage.setItem('keypadStats', JSON.stringify(keypadStats));
                 
                 // 키패드 사용 시에도 사용자 수 증가 (세션 기반 중복 방지)
                 const sessionKey = `keypad_session_${today}`;
@@ -2615,8 +2617,6 @@
                     sessionStorage.setItem(sessionKey, 'true');
                     console.log(`키패드 사용으로 사용자 수 증가: ${today} - 총 ${dailyUsers[today]}명`);
                 }
-                
-                console.log(`키패드 사용 기록: ${today} - 총 ${keypadStats[today]}회`);
             } catch (error) {
                 console.error('키패드 사용 기록 실패:', error);
             }

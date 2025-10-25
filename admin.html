@@ -285,24 +285,9 @@
                     <div class="stat-label">명</div>
                 </div>
                 <div class="stat-card">
-                    <h3>오늘 키패드 사용</h3>
-                    <div class="stat-number" id="todayKeypad">0</div>
-                    <div class="stat-label">회</div>
-                </div>
-                <div class="stat-card">
-                    <h3>이번 주 키패드 사용</h3>
-                    <div class="stat-number" id="weekKeypad">0</div>
-                    <div class="stat-label">회</div>
-                </div>
-                <div class="stat-card">
-                    <h3>이번 달 키패드 사용</h3>
-                    <div class="stat-number" id="monthKeypad">0</div>
-                    <div class="stat-label">회</div>
-                </div>
-                <div class="stat-card">
-                    <h3>총 키패드 사용</h3>
-                    <div class="stat-number" id="totalKeypad">0</div>
-                    <div class="stat-label">회</div>
+                    <h3>총 사용자</h3>
+                    <div class="stat-number" id="totalUsers">0</div>
+                    <div class="stat-label">명</div>
                 </div>
             </div>
 
@@ -378,12 +363,10 @@
         function getUserStats() {
             const stats = JSON.parse(localStorage.getItem(USER_STATS_KEY) || '{}');
             const dailyUsers = JSON.parse(localStorage.getItem(DAILY_USERS_KEY) || '{}');
-            const keypadStats = JSON.parse(localStorage.getItem('keypadStats') || '{}');
             
             return {
                 stats: stats,
-                dailyUsers: dailyUsers,
-                keypadStats: keypadStats
+                dailyUsers: dailyUsers
             };
         }
 
@@ -391,29 +374,20 @@
         function updateStatsCards(data) {
             const today = new Date().toISOString().split('T')[0];
             const todayUsers = data.dailyUsers[today] || 0;
-            const todayKeypad = data.keypadStats[today] || 0;
             
             // 이번 주 사용자 수 계산
             const weekUsers = getWeekUsers(data.dailyUsers);
-            const weekKeypad = getWeekKeypad(data.keypadStats);
             
             // 이번 달 사용자 수 계산
             const monthUsers = getMonthUsers(data.dailyUsers);
-            const monthKeypad = getMonthKeypad(data.keypadStats);
             
             // 총 사용자 수 계산
             const totalUsers = Object.values(data.dailyUsers).reduce((sum, count) => sum + count, 0);
-            const totalKeypad = Object.values(data.keypadStats).reduce((sum, count) => sum + count, 0);
             
             document.getElementById('todayUsers').textContent = todayUsers;
             document.getElementById('weekUsers').textContent = weekUsers;
             document.getElementById('monthUsers').textContent = monthUsers;
             document.getElementById('totalUsers').textContent = totalUsers;
-            
-            document.getElementById('todayKeypad').textContent = todayKeypad;
-            document.getElementById('weekKeypad').textContent = weekKeypad;
-            document.getElementById('monthKeypad').textContent = monthKeypad;
-            document.getElementById('totalKeypad').textContent = totalKeypad;
         }
 
         // 이번 주 사용자 수 계산
@@ -449,38 +423,6 @@
             return monthUsers;
         }
 
-        // 이번 주 키패드 사용 수 계산
-        function getWeekKeypad(keypadStats) {
-            const today = new Date();
-            const startOfWeek = new Date(today);
-            startOfWeek.setDate(today.getDate() - today.getDay());
-            
-            let weekKeypad = 0;
-            for (let i = 0; i < 7; i++) {
-                const date = new Date(startOfWeek);
-                date.setDate(startOfWeek.getDate() + i);
-                const dateStr = date.toISOString().split('T')[0];
-                weekKeypad += keypadStats[dateStr] || 0;
-            }
-            return weekKeypad;
-        }
-
-        // 이번 달 키패드 사용 수 계산
-        function getMonthKeypad(keypadStats) {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = today.getMonth();
-            
-            let monthKeypad = 0;
-            for (let day = 1; day <= 31; day++) {
-                const date = new Date(year, month, day);
-                if (date.getMonth() !== month) break;
-                
-                const dateStr = date.toISOString().split('T')[0];
-                monthKeypad += keypadStats[dateStr] || 0;
-            }
-            return monthKeypad;
-        }
 
         // 날짜별 통계 조회
         function searchDate() {
@@ -492,18 +434,16 @@
             
             const data = getUserStats();
             const dailyUsers = data.dailyUsers[selectedDate] || 0;
-            const keypadUsage = data.keypadStats[selectedDate] || 0;
             
             const content = document.getElementById('dailyStatsContent');
             
-            if (dailyUsers > 0 || keypadUsage > 0) {
+            if (dailyUsers > 0) {
                 content.innerHTML = `
                     <table class="stats-table">
                         <thead>
                             <tr>
                                 <th>날짜</th>
                                 <th>사용자 수</th>
-                                <th>키패드 사용</th>
                                 <th>비고</th>
                             </tr>
                         </thead>
@@ -511,7 +451,6 @@
                             <tr>
                                 <td>${formatDate(selectedDate)}</td>
                                 <td>${dailyUsers}명</td>
-                                <td>${keypadUsage}회</td>
                                 <td>정상 사용</td>
                             </tr>
                         </tbody>
