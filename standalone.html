@@ -2442,10 +2442,20 @@
             try {
                 const today = new Date().toISOString().split('T')[0];
                 const keypadStats = JSON.parse(localStorage.getItem('keypadStats') || '{}');
+                const dailyUsers = JSON.parse(localStorage.getItem('dailyUsers') || '{}');
                 
                 // 오늘 키패드 사용 횟수 증가
                 keypadStats[today] = (keypadStats[today] || 0) + 1;
                 localStorage.setItem('keypadStats', JSON.stringify(keypadStats));
+                
+                // 키패드 사용 시에도 사용자 수 증가 (세션 기반 중복 방지)
+                const sessionKey = `keypad_session_${today}`;
+                if (!sessionStorage.getItem(sessionKey)) {
+                    dailyUsers[today] = (dailyUsers[today] || 0) + 1;
+                    localStorage.setItem('dailyUsers', JSON.stringify(dailyUsers));
+                    sessionStorage.setItem(sessionKey, 'true');
+                    console.log(`키패드 사용으로 사용자 수 증가: ${today} - 총 ${dailyUsers[today]}명`);
+                }
                 
                 console.log(`키패드 사용 기록: ${today} - 총 ${keypadStats[today]}회`);
             } catch (error) {
