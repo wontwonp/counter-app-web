@@ -1651,6 +1651,9 @@
             // 햅틱 피드백
             hapticFeedback(50);
             
+            // 키패드 사용 통계 기록
+            recordKeypadUsage();
+            
             currentInput += digit;
             document.getElementById('number-display').textContent = currentInput || '0';
         }
@@ -1659,6 +1662,9 @@
         function clearInput() {
             // 햅틱 피드백
             hapticFeedback(30);
+            
+            // 키패드 사용 통계 기록
+            recordKeypadUsage();
             
             currentInput = '';
             document.getElementById('number-display').textContent = '0';
@@ -1669,6 +1675,9 @@
             // 햅틱 피드백
             hapticFeedback(30);
             
+            // 키패드 사용 통계 기록
+            recordKeypadUsage();
+            
             currentInput = currentInput.slice(0, -1);
             document.getElementById('number-display').textContent = currentInput || '0';
         }
@@ -1677,6 +1686,9 @@
         function enterNumber() {
             // 햅틱 피드백 (더 강한 진동)
             hapticFeedback([50, 30, 50]);
+            
+            // 키패드 사용 통계 기록
+            recordKeypadUsage();
             
             if (currentStationIndex < stations.length) {
                 // 입력된 숫자가 있으면 그 값을, 없으면 0을 추가
@@ -2392,6 +2404,22 @@
                     alert('데이터 저장에 실패했습니다. 페이지를 새로고침하지 마세요.');
                 }
                 return false;
+            }
+        }
+
+        // 키패드 사용 통계 기록 함수
+        function recordKeypadUsage() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const keypadStats = JSON.parse(localStorage.getItem('keypadStats') || '{}');
+                
+                // 오늘 키패드 사용 횟수 증가
+                keypadStats[today] = (keypadStats[today] || 0) + 1;
+                localStorage.setItem('keypadStats', JSON.stringify(keypadStats));
+                
+                console.log(`키패드 사용 기록: ${today} - 총 ${keypadStats[today]}회`);
+            } catch (error) {
+                console.error('키패드 사용 기록 실패:', error);
             }
         }
 
