@@ -340,6 +340,8 @@
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('statsSection').classList.add('active');
                 loadStats();
+                // 로그인 후 당일 날짜로 자동 조회
+                searchDate();
             } else {
                 errorMessage.textContent = '비밀번호가 올바르지 않습니다.';
                 document.getElementById('passwordInput').value = '';
