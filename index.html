@@ -1564,6 +1564,11 @@
                         item.style.background = isDarkMode ? 'rgba(255,255,255,0.2)' : 'white';
                         item.style.borderColor = isDarkMode ? 'rgba(255,255,255,0.3)' : '#ddd';
                         item.style.color = isDarkMode ? '#fff' : '#333';
+                    } else {
+                        // 선택된 항목은 항상 초록색 유지
+                        item.style.borderColor = '#4CAF50';
+                        item.style.backgroundColor = '#e8f5e8';
+                        item.style.color = '#2e7d32';
                     }
                 });
                 
