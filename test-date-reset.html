@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>날짜 초기화 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background: #0b7dda;
+        }
+        .danger {
+            background: #f44336;
+        }
+        .danger:hover {
+            background: #da190b;
+        }
+        .info {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: #e3f2fd;
+        }
+    </style>
+</head>
+<body>
+    <h1>🗓️ 날짜 초기화 테스트</h1>
+    
+    <div class="info">
+        <h3>현재 상태:</h3>
+        <div class="status" id="current-date"></div>
+        <div class="status" id="last-reset-date"></div>
+    </div>
+    
+    <div class="info">
+        <h3>테스트 방법:</h3>
+        <ol>
+            <li>아래 "날짜를 어제로 변경" 버튼 클릭</li>
+            <li>메인 카운터 앱으로 이동</li>
+            <li>카운트 입력 (예: 5)</li>
+            <li>이 페이지로 돌아와서 "날짜를 오늘로 복원" 클릭</li>
+            <li>카운터 앱 확인 - 초기화되어야 함</li>
+        </ol>
+    </div>
+    
+    <button class="button danger" onclick="setYesterday()">
+        📅 날짜를 어제로 변경
+    </button>
+    
+    <button class="button" onclick="setToday()">
+        ✅ 날짜를 오늘로 복원
+    </button>
+    
+    <button class="button" onclick="goToApp()">
+        📱 카운터 앱 열기
+    </button>
+    
+    <button class="button" onclick="checkStatus()">
+        🔍 현재 상태 확인
+    </button>
+    
+    <script>
+        function setYesterday() {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const dateStr = yesterday.toDateString();
+            
+            localStorage.setItem('lastResetDate', dateStr);
+            checkStatus();
+            alert('✅ 날짜를 어제로 변경했습니다.\n이제 카운터 앱에서 카운트를 입력하고 다시 돌아오세요.');
+        }
+        
+        function setToday() {
+            const today = new Date().toDateString();
+            localStorage.setItem('lastResetDate', today);
+            checkStatus();
+            alert('✅ 날짜를 오늘로 복원했습니다.\n이제 카운터 앱에서 날짜 변경이 감지되어 초기화될 것입니다.');
+        }
+        
+        function goToApp() {
+            window.location.href = 'index.html';
+        }
+        
+        function checkStatus() {
+            const today = new Date().toDateString();
+            const lastReset = localStorage.getItem('lastResetDate');
+            
+            document.getElementById('current-date').innerHTML = 
+                '<strong>현재 날짜:</strong> ' + today;
+            document.getElementById('last-reset-date').innerHTML = 
+                '<strong>저장된 초기화 날짜:</strong> ' + (lastReset || '없음');
+            
+            if (lastReset && lastReset !== today) {
+                alert('📢 날짜가 다릅니다! 카운터 앱을 열면 자동으로 초기화됩니다.');
+            }
+        }
+        
+        // 페이지 로드 시 상태 확인
+        checkStatus();
+    </script>
+</body>
+</html>
+
