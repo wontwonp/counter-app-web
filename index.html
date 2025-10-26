@@ -1501,6 +1501,12 @@
                 const page = document.getElementById(pageId);
                 if (!page) return;
                 
+                // 토글 버튼 아이콘 변경
+                const themeToggle = page.querySelector('.theme-toggle');
+                if (themeToggle) {
+                    themeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+                }
+                
                 const bgStyle = isDarkMode 
                     ? 'background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);'
                     : 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);';
@@ -1519,10 +1525,20 @@
                 const h1 = page.querySelector('h1');
                 if (h1) h1.style.color = isDarkMode ? '#fff' : '#333';
                 
-                // 통계 배경색
+                // 통계 배경색 및 텍스트 색상
                 const stats = page.querySelectorAll('div[style*="background-color: #e3f2fd"]');
                 stats.forEach(stat => {
                     stat.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : '#e3f2fd';
+                    const labels = stat.querySelectorAll('div');
+                    labels.forEach(label => {
+                        if (!label.querySelector('div[style*="font-size: 28px"]')) {
+                            label.style.color = isDarkMode ? '#fff' : '#333';
+                        }
+                    });
+                    const numbers = stat.querySelectorAll('div[style*="font-size: 28px"]');
+                    numbers.forEach(num => {
+                        num.style.color = isDarkMode ? '#fff' : '#1976d2';
+                    });
                 });
                 
                 // 노선 버튼들
@@ -1535,10 +1551,18 @@
                     }
                 });
                 
-                // 상태 섹션 배경
+                // 상태 섹션 배경 및 텍스트
                 const statusSection = page.querySelector('div[style*="background: #f5f5f5"]');
                 if (statusSection) {
                     statusSection.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : '#f5f5f5';
+                    const statusText = statusSection.querySelector('div[style*="margin-top: 40px"]');
+                    if (statusText) {
+                        statusText.style.color = isDarkMode ? '#fff' : '#333';
+                    }
+                    const statusTitle = statusSection.querySelector('div[style*="font-weight: bold"]');
+                    if (statusTitle) {
+                        statusTitle.style.color = isDarkMode ? '#fff' : '#333';
+                    }
                 }
             });
         }
@@ -2234,6 +2258,8 @@
 
         // 차량현황 1센터 페이지 초기화
         function initializeVehicleStatus1() {
+            updateVehicleStatusDarkMode(); // 다크모드 초기화
+            
             const routes = [
                 "거제1", "거제2", "김해1", "내서", "남포", "남포1-1", "다대1", "동래", "마산1", "마산2",
                 "명지1", "명지2", "부암", "서면", "서면2", "수영", "장유", "함안"
@@ -2358,6 +2384,8 @@
 
         // 차량현황 3센터 페이지 초기화
         function initializeVehicleStatus3() {
+            updateVehicleStatusDarkMode(); // 다크모드 초기화
+            
             const routes = ["진해2", "진해1", "창원1", "창원2", "창원3", "창원3-1"].sort();
             
             const routeGrid = document.getElementById("routeGrid3");
@@ -2446,6 +2474,8 @@
 
         // 차량현황 4센터 페이지 초기화
         function initializeVehicleStatus4() {
+            updateVehicleStatusDarkMode(); // 다크모드 초기화
+            
             const routes = ["진주1", "진주2", "통영", "하단"];
             
             const routeGrid = document.getElementById("routeGrid4");
