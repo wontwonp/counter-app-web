@@ -2890,9 +2890,14 @@
             const savedStationCount = loadFromLocalStorage('savedStationCount');
             const savedDepartureTimes = JSON.parse(loadFromLocalStorage('savedDepartureTimes') || '[]');
             const savedRouteName = loadFromLocalStorage('savedRouteName');
-            const savedCurrentStationIndex = loadFromLocalStorage('currentStationIndex');
+            let savedCurrentStationIndex = loadFromLocalStorage('currentStationIndex');
             const savedCurrentInput = loadFromLocalStorage('currentInput');
             const savedCompletedTimePeriods = JSON.parse(loadFromLocalStorage('completedTimePeriods') || '{}');
+            
+            // 날짜가 바뀌었는지 확인 (초기화 플래그 체크)
+            const now = new Date();
+            const today = now.toDateString();
+            const lastResetDate = loadFromLocalStorage('lastResetDate');
             
             console.log('로드된 데이터:', {
                 savedStations: savedStations.length,
@@ -2901,8 +2906,16 @@
                 savedDepartureTimes: savedDepartureTimes.length,
                 savedCurrentStationIndex,
                 savedCurrentInput,
-                savedCompletedTimePeriods
+                savedCompletedTimePeriods,
+                lastResetDate,
+                today
             });
+            
+            // 날짜가 바뀌었으면 정류장 인덱스를 0으로 강제 설정
+            if (lastResetDate && lastResetDate !== today) {
+                console.log('⚠️ 날짜 변경 감지: 정류장 인덱스를 0으로 강제 설정');
+                savedCurrentStationIndex = '0';
+            }
             
             if (savedStationCount && savedStations.length > 0) {
                 // 저장된 정류장 개수와 이름이 있으면 자동으로 키패드 페이지로 이동
