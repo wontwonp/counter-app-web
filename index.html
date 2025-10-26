@@ -2,7 +2,10 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>정류장 카운터</title>
     <!-- 화면 자동 꺼짐 방지 -->
     <script src="https://unpkg.com/nosleep.js@0.12.0/dist/NoSleep.min.js"></script>
@@ -2641,6 +2644,24 @@
             }
         }
 
+        // 전체화면 진입 기능
+        function requestFullScreen() {
+            try {
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.mozRequestFullScreen) {
+                    elem.mozRequestFullScreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+            } catch (error) {
+                console.log('전체화면 진입 실패:', error);
+            }
+        }
+
         // 화면 자동 꺼짐 방지 기능
         let noSleep = null;
         let wakeLock = null;
@@ -2727,6 +2748,11 @@
             if (urlParams.get('page') === 'vehicle-status') {
                 openVehicleStatus();
             }
+
+            // 전체화면 진입 시도
+            setTimeout(() => {
+                requestFullScreen();
+            }, 500);
         });
 
         // 공유 중인지 확인하는 변수
