@@ -1560,15 +1560,20 @@
                 // 노선 버튼들
                 const routeItems = page.querySelectorAll('.route-item');
                 routeItems.forEach(item => {
-                    if (!item.classList.contains('selected')) {
-                        item.style.background = isDarkMode ? 'rgba(255,255,255,0.2)' : 'white';
-                        item.style.borderColor = isDarkMode ? 'rgba(255,255,255,0.3)' : '#ddd';
-                        item.style.color = isDarkMode ? '#fff' : '#333';
-                    } else {
+                    // selected 클래스나 특정 스타일로 선택 여부 확인
+                    const isSelected = item.classList.contains('selected') || 
+                                      item.style.backgroundColor === 'rgb(232, 245, 232)' ||
+                                      item.style.borderColor === 'rgb(76, 175, 80)';
+                    
+                    if (isSelected) {
                         // 선택된 항목은 항상 초록색 유지
                         item.style.borderColor = '#4CAF50';
                         item.style.backgroundColor = '#e8f5e8';
                         item.style.color = '#2e7d32';
+                    } else {
+                        item.style.background = isDarkMode ? 'rgba(255,255,255,0.2)' : 'white';
+                        item.style.borderColor = isDarkMode ? 'rgba(255,255,255,0.3)' : '#ddd';
+                        item.style.color = isDarkMode ? '#fff' : '#333';
                     }
                 });
                 
