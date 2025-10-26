@@ -1546,12 +1546,15 @@
                 
                 const statusText = page.querySelectorAll('div[style*="margin-top: 40px"], div[style*="font-weight: bold"][style*="margin-bottom: 10px"]');
                 statusText.forEach(text => {
-                    if (isDarkMode) {
-                        if (!text.style.color.includes('green') && !text.style.color.includes('red')) {
+                    // 현재 색상이 녹색이나 빨간색이 아니면만 색상 적용
+                    const currentColor = text.style.color || '';
+                    if (!currentColor.includes('rgb(46, 125, 50)') && 
+                        !currentColor.includes('rgb(244, 67, 54)') && 
+                        !currentColor.includes('#2e7d32') && 
+                        !currentColor.includes('#f44336')) {
+                        if (isDarkMode) {
                             text.style.color = '#fff';
-                        }
-                    } else {
-                        if (!text.style.color.includes('green') && !text.style.color.includes('red')) {
+                        } else {
                             text.style.color = '#333';
                         }
                     }
