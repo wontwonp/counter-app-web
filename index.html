@@ -2364,13 +2364,15 @@
             let statusHTML = "";
             
             if (selectedArray.length === 18) {
-                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: #2e7d32;">창원1센터 차량현황 총18대 퇴근준비완료</div>`;
+                const color = isDarkMode ? '#4CAF50' : '#2e7d32';
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원1센터 차량현황 총18대 퇴근준비완료</div>`;
             } else if (excludedArray.length > 0) {
                 const excludedNames = excludedArray.join(",");
                 const selectedCount = selectedArray.length;
-                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: #f44336;">창원1센터 차량현황 ${excludedNames} 노선제외 ${selectedCount}대 퇴근준비완료</div>`;
+                const color = isDarkMode ? '#FFD700' : '#f44336';
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원1센터 차량현황 ${excludedNames} 노선제외 ${selectedCount}대 퇴근준비완료</div>`;
             } else {
-                statusHTML = "노선을 선택해주세요.";
+                statusHTML = `<div style="color: ${isDarkMode ? '#fff' : '#333'};">노선을 선택해주세요.</div>`;
             }
             
             statusText.innerHTML = statusHTML;
@@ -2491,11 +2493,13 @@
             
             let statusHTML = "";
             if (selectedArray.length === 6) {
-                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: #2e7d32;">창원3센터 차량현황 총6대 퇴근준비완료</div>`;
+                const color = isDarkMode ? '#4CAF50' : '#2e7d32';
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원3센터 차량현황 총6대 퇴근준비완료</div>`;
             } else if (excludedArray.length > 0) {
-                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: #f44336;">창원3센터 차량현황 ${excludedArray.join(",")} 노선제외 ${selectedArray.length}대 퇴근준비완료</div>`;
+                const color = isDarkMode ? '#FFD700' : '#f44336';
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원3센터 차량현황 ${excludedArray.join(",")} 노선제외 ${selectedArray.length}대 퇴근준비완료</div>`;
             } else {
-                statusHTML = "노선을 선택해주세요.";
+                statusHTML = `<div style="color: ${isDarkMode ? '#fff' : '#333'};">노선을 선택해주세요.</div>`;
             }
             statusText.innerHTML = statusHTML;
         }
@@ -2597,11 +2601,13 @@
             
             let statusHTML = "";
             if (selectedArray.length === 4) {
-                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: #2e7d32;">창원4센터 차량현황 총4대 퇴근준비완료</div>`;
+                const color = isDarkMode ? '#4CAF50' : '#2e7d32';
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원4센터 차량현황 총4대 퇴근준비완료</div>`;
             } else if (excludedArray.length > 0) {
-                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: #f44336;">창원4센터 차량현황 ${excludedArray.join(",")} 노선제외 ${selectedArray.length}대 퇴근준비완료</div>`;
+                const color = isDarkMode ? '#FFD700' : '#f44336';
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원4센터 차량현황 ${excludedArray.join(",")} 노선제외 ${selectedArray.length}대 퇴근준비완료</div>`;
             } else {
-                statusHTML = "노선을 선택해주세요.";
+                statusHTML = `<div style="color: ${isDarkMode ? '#fff' : '#333'};">노선을 선택해주세요.</div>`;
             }
             statusText.innerHTML = statusHTML;
         }
