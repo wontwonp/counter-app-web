@@ -1342,7 +1342,7 @@
     <!-- 차량현황 페이지 (창원1센터) -->
     <div id="vehicle-status-1-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
         <div style="position: fixed; top: 10px; right: 10px; z-index: 10001;">
-            <button onclick="toggleTheme()" style="font-size: 20px; border: none; cursor: pointer; padding: 8px; border-radius: 50%; width: 40px; height: 40px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);" id="theme-toggle-vehicle-1">🌙</button>
+            <button onclick="toggleTheme()" style="font-size: 24px; border: none; cursor: pointer; padding: 0; border-radius: 50%; width: 40px; height: 40px; background: transparent;" id="theme-toggle-vehicle-1">🌙</button>
         </div>
         <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
             <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
@@ -1381,7 +1381,7 @@
     <!-- 차량현황 페이지 (창원3센터) -->
     <div id="vehicle-status-3-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
         <div style="position: fixed; top: 10px; right: 10px; z-index: 10001;">
-            <button onclick="toggleTheme()" style="font-size: 20px; border: none; cursor: pointer; padding: 8px; border-radius: 50%; width: 40px; height: 40px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);" id="theme-toggle-vehicle-3">🌙</button>
+            <button onclick="toggleTheme()" style="font-size: 24px; border: none; cursor: pointer; padding: 0; border-radius: 50%; width: 40px; height: 40px; background: transparent;" id="theme-toggle-vehicle-3">🌙</button>
         </div>
         <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
             <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
@@ -1420,7 +1420,7 @@
     <!-- 차량현황 페이지 (창원4센터) -->
     <div id="vehicle-status-4-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
         <div style="position: fixed; top: 10px; right: 10px; z-index: 10001;">
-            <button onclick="toggleTheme()" style="font-size: 20px; border: none; cursor: pointer; padding: 8px; border-radius: 50%; width: 40px; height: 40px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);" id="theme-toggle-vehicle-4">🌙</button>
+            <button onclick="toggleTheme()" style="font-size: 24px; border: none; cursor: pointer; padding: 0; border-radius: 50%; width: 40px; height: 40px; background: transparent;" id="theme-toggle-vehicle-4">🌙</button>
         </div>
         <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
             <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
@@ -1526,19 +1526,35 @@
                 if (h1) h1.style.color = isDarkMode ? '#fff' : '#333';
                 
                 // 통계 배경색 및 텍스트 색상
-                const stats = page.querySelectorAll('div[style*="background-color: #e3f2fd"]');
-                stats.forEach(stat => {
-                    stat.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : '#e3f2fd';
-                    const labels = stat.querySelectorAll('div');
-                    labels.forEach(label => {
-                        if (!label.querySelector('div[style*="font-size: 28px"]')) {
-                            label.style.color = isDarkMode ? '#fff' : '#333';
+                const allDivs = page.querySelectorAll('div');
+                allDivs.forEach(div => {
+                    const style = div.getAttribute('style') || '';
+                    if (style.includes('background-color: #e3f2fd')) {
+                        div.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : '#e3f2fd';
+                    }
+                    if (style.includes('background: #f5f5f5')) {
+                        div.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : '#f5f5f5';
+                    }
+                });
+                
+                // 통계 라벨과 숫자 색상
+                const labels = page.querySelectorAll('div[style*="margin-top: 5px"]');
+                labels.forEach(label => label.style.color = isDarkMode ? '#fff' : '#333');
+                
+                const numbers = page.querySelectorAll('div[id*="totalCount"], div[id*="selectedCount"], div[id*="excludedCount"]');
+                numbers.forEach(num => num.style.color = isDarkMode ? '#fff' : '#1976d2');
+                
+                const statusText = page.querySelectorAll('div[style*="margin-top: 40px"], div[style*="font-weight: bold"][style*="margin-bottom: 10px"]');
+                statusText.forEach(text => {
+                    if (isDarkMode) {
+                        if (!text.style.color.includes('green') && !text.style.color.includes('red')) {
+                            text.style.color = '#fff';
                         }
-                    });
-                    const numbers = stat.querySelectorAll('div[style*="font-size: 28px"]');
-                    numbers.forEach(num => {
-                        num.style.color = isDarkMode ? '#fff' : '#1976d2';
-                    });
+                    } else {
+                        if (!text.style.color.includes('green') && !text.style.color.includes('red')) {
+                            text.style.color = '#333';
+                        }
+                    }
                 });
                 
                 // 노선 버튼들
