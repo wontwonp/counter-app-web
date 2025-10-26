@@ -2470,44 +2470,43 @@
         // 자정 자동 카운트 초기화 함수
         function checkMidnightReset() {
             const now = new Date();
-            const currentHour = now.getHours();
-            const currentMinute = now.getMinutes();
+            const today = now.toDateString();
+            const lastResetDate = localStorage.getItem('lastResetDate');
             
-            // 자정(00:00-00:59) 범위에서 확인 (더 넓은 범위로 체크)
-            if (currentHour === 0) {
-                // 마지막 초기화 날짜 확인
-                const today = now.toDateString();
-                const lastResetDate = localStorage.getItem('lastResetDate');
-                
-                if (lastResetDate !== today) {
-                    if (stations && stations.length > 0) {
-                        // 모든 카운트 초기화
-                        stations.forEach(station => {
-                            station.count = 0;
-                            station.morningCount = 0;
-                            station.afternoonCount = 0;
-                        });
-                        currentStationIndex = 0;
-                        currentInput = '';
-                        
-                        // 완료 상태 초기화
-                        completedTimePeriods = { morning: false, afternoon: false };
-                        
-                        enableKeypad();
-                        updateKeypadPage();
-                        saveToLocalStorage('savedStations', JSON.stringify(stations));
-                        saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
-                        saveToLocalStorage('currentInput', currentInput);
-                        saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
-                        
-                        // 오늘 초기화했다고 기록
-                        saveToLocalStorage('lastResetDate', today);
-                        
-                        // 사용자에게 알림 표시
-                        alert('자정이 되었습니다. 모든 카운트가 자동으로 초기화되었습니다.');
-                        console.log('자정 자동 초기화: 모든 카운팅이 초기화되었습니다.');
-                    }
+            // 날짜가 바뀌었는지 확인 (아무 시간대든 상관없이)
+            if (lastResetDate && lastResetDate !== today) {
+                if (stations && stations.length > 0) {
+                    // 모든 카운트 초기화
+                    stations.forEach(station => {
+                        station.count = 0;
+                        station.morningCount = 0;
+                        station.afternoonCount = 0;
+                    });
+                    currentStationIndex = 0;
+                    currentInput = '';
+                    
+                    // 완료 상태 초기화
+                    completedTimePeriods = { morning: false, afternoon: false };
+                    
+                    enableKeypad();
+                    updateKeypadPage();
+                    saveToLocalStorage('savedStations', JSON.stringify(stations));
+                    saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
+                    saveToLocalStorage('currentInput', currentInput);
+                    saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
+                    
+                    // 오늘 초기화했다고 기록
+                    saveToLocalStorage('lastResetDate', today);
+                    
+                    // 사용자에게 알림 표시
+                    alert('날짜가 변경되었습니다. 모든 카운트가 자동으로 초기화되었습니다.');
+                    console.log('날짜 변경 자동 초기화: 모든 카운팅이 초기화되었습니다.');
                 }
+            }
+            
+            // 첫 실행 시에도 lastResetDate 설정
+            if (!lastResetDate) {
+                saveToLocalStorage('lastResetDate', today);
             }
         }
 
