@@ -259,6 +259,40 @@
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
         }
 
+        /* 차량현황 페이지 다크모드 */
+        body.dark-mode #vehicle-status-1-page,
+        body.dark-mode #vehicle-status-3-page,
+        body.dark-mode #vehicle-status-4-page {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+        }
+
+        body.dark-mode #vehicle-status-1-page > div > div,
+        body.dark-mode #vehicle-status-3-page > div > div,
+        body.dark-mode #vehicle-status-4-page > div > div {
+            background: transparent !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3) !important;
+        }
+
+        body.dark-mode #vehicle-status-1-page h1,
+        body.dark-mode #vehicle-status-3-page h1,
+        body.dark-mode #vehicle-status-4-page h1 {
+            color: #fff !important;
+        }
+
+        body.dark-mode #vehicle-status-1-page .route-item,
+        body.dark-mode #vehicle-status-3-page .route-item,
+        body.dark-mode #vehicle-status-4-page .route-item {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border-color: rgba(255, 255, 255, 0.3) !important;
+            color: #fff !important;
+        }
+
+        body.dark-mode #vehicle-status-1-page button,
+        body.dark-mode #vehicle-status-3-page button,
+        body.dark-mode #vehicle-status-4-page button {
+            color: white !important;
+        }
+
         .container {
             text-align: center;
             padding: 5px;
