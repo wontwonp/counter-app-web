@@ -1486,8 +1486,61 @@
                 saveToLocalStorage('darkMode', 'false');
             }
             
+            // 차량현황 페이지 다크모드 적용
+            updateVehicleStatusDarkMode();
+            
             // 다크모드 버튼 자동 숨김 (5초 후)
             hideThemeButton();
+        }
+
+        // 차량현황 페이지 다크모드 업데이트
+        function updateVehicleStatusDarkMode() {
+            const pages = ['vehicle-status-1-page', 'vehicle-status-3-page', 'vehicle-status-4-page'];
+            
+            pages.forEach(pageId => {
+                const page = document.getElementById(pageId);
+                if (!page) return;
+                
+                const bgStyle = isDarkMode 
+                    ? 'background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);'
+                    : 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);';
+                page.setAttribute('style', page.getAttribute('style').replace(/background:.*?;/, bgStyle));
+                
+                // 컨테이너
+                const container = page.querySelector('div > div');
+                if (container) {
+                    const bgColor = isDarkMode ? 'transparent' : 'white';
+                    const boxShadow = isDarkMode ? '0 2px 10px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.1)';
+                    container.style.background = bgColor;
+                    container.style.boxShadow = boxShadow;
+                }
+                
+                // h1
+                const h1 = page.querySelector('h1');
+                if (h1) h1.style.color = isDarkMode ? '#fff' : '#333';
+                
+                // 통계 배경색
+                const stats = page.querySelectorAll('div[style*="background-color: #e3f2fd"]');
+                stats.forEach(stat => {
+                    stat.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : '#e3f2fd';
+                });
+                
+                // 노선 버튼들
+                const routeItems = page.querySelectorAll('.route-item');
+                routeItems.forEach(item => {
+                    if (!item.classList.contains('selected')) {
+                        item.style.background = isDarkMode ? 'rgba(255,255,255,0.2)' : 'white';
+                        item.style.borderColor = isDarkMode ? 'rgba(255,255,255,0.3)' : '#ddd';
+                        item.style.color = isDarkMode ? '#fff' : '#333';
+                    }
+                });
+                
+                // 상태 섹션 배경
+                const statusSection = page.querySelector('div[style*="background: #f5f5f5"]');
+                if (statusSection) {
+                    statusSection.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : '#f5f5f5';
+                }
+            });
         }
 
         // 다크모드 버튼 자동 숨김 함수
@@ -1520,7 +1573,8 @@
             if (savedTheme === 'true') {
                 isDarkMode = true;
                 document.body.classList.add('dark-mode');
-                document.getElementById('theme-toggle').textContent = '☀️';
+                const themeToggle = document.getElementById('theme-toggle');
+                if (themeToggle) themeToggle.textContent = '☀️';
             }
         }
 
