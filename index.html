@@ -1227,6 +1227,21 @@
         </div>
     </div>
 
+    <!-- 차량입차현황 선택 페이지 -->
+    <div id="vehicle-status-page" class="hidden">
+        <div class="station-count-input">
+            <h2>저장된 노선</h2>
+            <div class="button-group" style="flex-direction: column; align-items: center;">
+                <button onclick="openChangwonVehicleStatus()" class="main-button" style="width: 300px; background: #4CAF50; color: white; font-size: 1.2rem; padding: 20px;">
+                    창원1센터차량입차현황
+                </button>
+                <button onclick="goBackToKeypad()" class="back-btn" style="width: 300px; background: #6c757d; color: white; font-size: 1rem; padding: 15px; margin-top: 15px;">
+                    뒤로가기
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- 이미지 미리보기 모달 -->
     <div id="image-modal" class="image-modal">
         <button class="modal-close" onclick="closeImageModal()">&times;</button>
@@ -1922,7 +1937,19 @@
 
         // 차량입차현황 페이지 열기
         function openVehicleStatus() {
+            document.getElementById('keypad-page').classList.add('hidden');
+            document.getElementById('vehicle-status-page').classList.remove('hidden');
+        }
+
+        // 창원1센터차량입차현황 앱 열기
+        function openChangwonVehicleStatus() {
             window.location.href = 'https://wontwonp.github.io/-1-/';
+        }
+
+        // 키패드 페이지로 돌아가기
+        function goBackToKeypad() {
+            document.getElementById('vehicle-status-page').classList.add('hidden');
+            document.getElementById('keypad-page').classList.remove('hidden');
         }
 
         // 직전 정류장 삭제 함수
