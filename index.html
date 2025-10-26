@@ -1348,18 +1348,18 @@
             <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <h1 style="text-align: center; margin-bottom: 30px;">🚌 창원1센터차량현황</h1>
                 
-                <div style="display: flex; justify-content: space-around; margin-bottom: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 6px;">
+                <div id="statsBox1" style="display: flex; justify-content: space-around; margin-bottom: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 6px;">
                     <div style="text-align: center; flex: 1;">
                         <div id="totalCount1" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div style="margin-top: 5px;">전체 노선</div>
+                        <div id="totalLabel1" style="margin-top: 5px;">전체 노선</div>
                     </div>
                     <div style="text-align: center; flex: 1;">
                         <div id="selectedCount1" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div style="margin-top: 5px;">선택된 노선</div>
+                        <div id="selectedLabel1" style="margin-top: 5px;">선택된 노선</div>
                     </div>
                     <div style="text-align: center; flex: 1;">
                         <div id="excludedCount1" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div style="margin-top: 5px;">제외된 노선</div>
+                        <div id="excludedLabel1" style="margin-top: 5px;">제외된 노선</div>
                     </div>
                 </div>
                 
@@ -1387,18 +1387,18 @@
             <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <h1 style="text-align: center; margin-bottom: 30px;">🚌 창원3센터차량현황</h1>
                 
-                <div style="display: flex; justify-content: space-around; margin-bottom: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 6px;">
+                <div id="statsBox3" style="display: flex; justify-content: space-around; margin-bottom: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 6px;">
                     <div style="text-align: center; flex: 1;">
                         <div id="totalCount3" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div style="margin-top: 5px;">전체 노선</div>
+                        <div id="totalLabel3" style="margin-top: 5px;">전체 노선</div>
                     </div>
                     <div style="text-align: center; flex: 1;">
                         <div id="selectedCount3" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div style="margin-top: 5px;">선택된 노선</div>
+                        <div id="selectedLabel3" style="margin-top: 5px;">선택된 노선</div>
                     </div>
                     <div style="text-align: center; flex: 1;">
                         <div id="excludedCount3" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div style="margin-top: 5px;">제외된 노선</div>
+                        <div id="excludedLabel3" style="margin-top: 5px;">제외된 노선</div>
                     </div>
                 </div>
                 
@@ -1426,18 +1426,18 @@
             <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <h1 style="text-align: center; margin-bottom: 30px;">🚌 창원4센터차량현황</h1>
                 
-                <div style="display: flex; justify-content: space-around; margin-bottom: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 6px;">
+                <div id="statsBox4" style="display: flex; justify-content: space-around; margin-bottom: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 6px;">
                     <div style="text-align: center; flex: 1;">
                         <div id="totalCount4" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div style="margin-top: 5px;">전체 노선</div>
+                        <div id="totalLabel4" style="margin-top: 5px;">전체 노선</div>
                     </div>
                     <div style="text-align: center; flex: 1;">
                         <div id="selectedCount4" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div style="margin-top: 5px;">선택된 노선</div>
+                        <div id="selectedLabel4" style="margin-top: 5px;">선택된 노선</div>
                     </div>
                     <div style="text-align: center; flex: 1;">
                         <div id="excludedCount4" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div style="margin-top: 5px;">제외된 노선</div>
+                        <div id="excludedLabel4" style="margin-top: 5px;">제외된 노선</div>
                     </div>
                 </div>
                 
@@ -1502,7 +1502,7 @@
                 if (!page) return;
                 
                 // 토글 버튼 아이콘 변경
-                const themeToggle = page.querySelector('button[onclick="toggleTheme()"]');
+                const themeToggle = page.querySelector('.theme-toggle');
                 if (themeToggle) {
                     themeToggle.textContent = isDarkMode ? '☀️' : '🌙';
                 }
@@ -1537,12 +1537,32 @@
                     }
                 });
                 
-                // 통계 라벨과 숫자 색상
-                const labels = page.querySelectorAll('div[style*="margin-top: 5px"]');
-                labels.forEach(label => label.style.color = isDarkMode ? '#fff' : '#333');
+                // 통계 박스 배경색 직접 업데이트
+                const statsBox1 = document.getElementById('statsBox1');
+                const statsBox3 = document.getElementById('statsBox3');
+                const statsBox4 = document.getElementById('statsBox4');
+                [statsBox1, statsBox3, statsBox4].forEach(box => {
+                    if (box) {
+                        box.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : '#e3f2fd';
+                    }
+                });
                 
-                const numbers = page.querySelectorAll('div[id*="totalCount"], div[id*="selectedCount"], div[id*="excludedCount"]');
-                numbers.forEach(num => num.style.color = isDarkMode ? '#fff' : '#1976d2');
+                // 통계 라벨과 숫자 색상
+                for (let i = 1; i <= 4; i++) {
+                    const totalLabel = document.getElementById(`totalLabel${i}`);
+                    const selectedLabel = document.getElementById(`selectedLabel${i}`);
+                    const excludedLabel = document.getElementById(`excludedLabel${i}`);
+                    const totalCount = document.getElementById(`totalCount${i}`);
+                    const selectedCount = document.getElementById(`selectedCount${i}`);
+                    const excludedCount = document.getElementById(`excludedCount${i}`);
+                    
+                    if (totalLabel) totalLabel.style.color = isDarkMode ? '#fff' : '#333';
+                    if (selectedLabel) selectedLabel.style.color = isDarkMode ? '#fff' : '#333';
+                    if (excludedLabel) excludedLabel.style.color = isDarkMode ? '#fff' : '#333';
+                    if (totalCount) totalCount.style.color = isDarkMode ? '#fff' : '#1976d2';
+                    if (selectedCount) selectedCount.style.color = isDarkMode ? '#fff' : '#1976d2';
+                    if (excludedCount) excludedCount.style.color = isDarkMode ? '#fff' : '#1976d2';
+                }
                 
                 const statusText = page.querySelectorAll('div[style*="margin-top: 40px"], div[style*="font-weight: bold"][style*="margin-bottom: 10px"]');
                 statusText.forEach(text => {
