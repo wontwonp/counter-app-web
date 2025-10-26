@@ -1979,6 +1979,8 @@
         function openVehicleStatus() {
             document.getElementById('keypad-page').classList.add('hidden');
             document.getElementById('vehicle-status-page').classList.remove('hidden');
+            // URL에 state 추가하여 새로고침 시에도 상태 유지
+            window.history.pushState({page: 'vehicle-status'}, '', '?page=vehicle-status');
         }
 
         // 창원1센터차량입차현황 앱 열기
@@ -2002,6 +2004,8 @@
         function goBackToKeypad() {
             document.getElementById('vehicle-status-page').classList.add('hidden');
             document.getElementById('keypad-page').classList.remove('hidden');
+            // URL에서 state 제거
+            window.history.pushState({page: 'keypad'}, '', window.location.pathname);
         }
 
         // 직전 정류장 삭제 함수
@@ -2719,6 +2723,12 @@
             setTimeout(() => {
                 restoreKeypadState();
             }, 100);
+
+            // URL 파라미터 확인하여 페이지 상태 복원
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('page') === 'vehicle-status') {
+                openVehicleStatus();
+            }
         });
 
         // 공유 중인지 확인하는 변수
