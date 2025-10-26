@@ -1078,6 +1078,16 @@
             transform: translateY(-2px);
         }
 
+        /* 차량입차현황 페이지 버튼 호버 효과 */
+        #vehicle-status-page button:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        #vehicle-status-page button:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
         /* 정류장 이름 입력 페이지 버튼 그룹 스타일 */
         .button-group {
             display: flex;
@@ -1228,15 +1238,15 @@
     </div>
 
     <!-- 차량입차현황 선택 페이지 -->
-    <div id="vehicle-status-page" class="hidden">
-        <div class="station-count-input">
-            <h2>저장된 노선</h2>
-            <div class="button-group" style="flex-direction: column; align-items: center;">
-                <button onclick="openChangwonVehicleStatus()" class="main-button" style="width: 300px; background: #4CAF50; color: white; font-size: 1.2rem; padding: 20px;">
+    <div id="vehicle-status-page" class="hidden" style="display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;">
+        <div class="station-count-input" style="width: 100%; max-width: 400px; text-align: center;">
+            <h2 style="margin-bottom: 40px; font-size: 2rem; color: white;">저장된 노선</h2>
+            <div style="display: flex; flex-direction: column; gap: 20px; align-items: center;">
+                <button onclick="openChangwonVehicleStatus()" style="width: 90%; max-width: 350px; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; font-size: 1.3rem; font-weight: bold; padding: 20px 30px; border: none; border-radius: 15px; cursor: pointer; box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3); transition: all 0.3s ease;">
                     창원1센터차량입차현황
                 </button>
-                <button onclick="goBackToKeypad()" class="back-btn" style="width: 300px; background: #6c757d; color: white; font-size: 1rem; padding: 15px; margin-top: 15px;">
-                    뒤로가기
+                <button onclick="goBackToKeypad()" style="width: 90%; max-width: 350px; background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white; font-size: 1.1rem; padding: 18px 30px; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 6px 15px rgba(108, 117, 125, 0.3); transition: all 0.3s ease;">
+                    카운터로돌아가기
                 </button>
             </div>
         </div>
