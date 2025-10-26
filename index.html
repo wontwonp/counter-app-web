@@ -1062,6 +1062,22 @@
             transform: translateY(-2px);
         }
 
+        .vehicle-status-btn {
+            background: #2196F3;
+            color: white;
+            font-size: 1rem;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .vehicle-status-btn:hover {
+            background: #0b7dda;
+            transform: translateY(-2px);
+        }
+
         /* 정류장 이름 입력 페이지 버튼 그룹 스타일 */
         .button-group {
             display: flex;
@@ -1203,6 +1219,9 @@
                 </button>
                 <button onclick="resetApp()" class="reset-btn" id="reset-to-start">
                     처음으로
+                </button>
+                <button onclick="openVehicleStatus()" class="vehicle-status-btn">
+                    차량입차현황
                 </button>
             </div>
         </div>
@@ -1899,6 +1918,11 @@
             document.getElementById('keypad-page').classList.add('hidden');
             document.getElementById('station-names-page').classList.add('hidden');
             document.getElementById('station-count-page').classList.remove('hidden');
+        }
+
+        // 차량입차현황 페이지 열기
+        function openVehicleStatus() {
+            window.location.href = 'https://wontwonp.github.io/-1-/';
         }
 
         // 직전 정류장 삭제 함수
