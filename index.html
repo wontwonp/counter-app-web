@@ -1565,18 +1565,14 @@
                     
                     if (isSelected) {
                         // 선택된 항목은 다크모드에서도 초록색으로 밝게 표시
-                        item.style.borderColor = '#4CAF50';
-                        if (isDarkMode) {
-                            item.style.backgroundColor = '#4CAF50';
-                            item.style.color = '#fff';
-                        } else {
-                            item.style.backgroundColor = '#e8f5e8';
-                            item.style.color = '#2e7d32';
-                        }
+                        item.style.setProperty('background-color', '#4CAF50', 'important');
+                        item.style.setProperty('border-color', '#4CAF50', 'important');
+                        item.style.setProperty('color', '#fff', 'important');
+                        item.style.setProperty('font-weight', 'bold', 'important');
                     } else {
-                        item.style.background = isDarkMode ? 'rgba(255,255,255,0.2)' : 'white';
-                        item.style.borderColor = isDarkMode ? 'rgba(255,255,255,0.3)' : '#ddd';
-                        item.style.color = isDarkMode ? '#fff' : '#333';
+                        item.style.setProperty('background-color', isDarkMode ? 'rgba(255,255,255,0.2)' : 'white', 'important');
+                        item.style.setProperty('border-color', isDarkMode ? 'rgba(255,255,255,0.3)' : '#ddd', 'important');
+                        item.style.setProperty('color', isDarkMode ? '#fff' : '#333', 'important');
                     }
                 });
                 
@@ -2343,10 +2339,10 @@
                 window.selectedRoutes1.add(route);
                 routeItem.classList.add("selected");
                 // 다크모드에서도 초록색으로 명확하게 표시
-                routeItem.style.borderColor = "#4CAF50";
-                routeItem.style.backgroundColor = "#4CAF50";
-                routeItem.style.color = "#fff";
-                routeItem.style.fontWeight = "bold";
+                routeItem.style.setProperty('background-color', '#4CAF50', 'important');
+                routeItem.style.setProperty('border-color', '#4CAF50', 'important');
+                routeItem.style.setProperty('color', '#fff', 'important');
+                routeItem.style.setProperty('font-weight', 'bold', 'important');
             }
             
             updateStatus1();
@@ -2473,10 +2469,10 @@
                 }
             } else {
                 window.selectedRoutes3.add(route);
-                routeItem.style.borderColor = "#4CAF50";
-                routeItem.style.backgroundColor = "#4CAF50";
-                routeItem.style.color = "#fff";
-                routeItem.style.fontWeight = "bold";
+                routeItem.style.setProperty('background-color', '#4CAF50', 'important');
+                routeItem.style.setProperty('border-color', '#4CAF50', 'important');
+                routeItem.style.setProperty('color', '#fff', 'important');
+                routeItem.style.setProperty('font-weight', 'bold', 'important');
             }
             
             updateStatus3();
@@ -2577,10 +2573,10 @@
                 }
             } else {
                 window.selectedRoutes4.add(route);
-                routeItem.style.borderColor = "#4CAF50";
-                routeItem.style.backgroundColor = "#4CAF50";
-                routeItem.style.color = "#fff";
-                routeItem.style.fontWeight = "bold";
+                routeItem.style.setProperty('background-color', '#4CAF50', 'important');
+                routeItem.style.setProperty('border-color', '#4CAF50', 'important');
+                routeItem.style.setProperty('color', '#fff', 'important');
+                routeItem.style.setProperty('font-weight', 'bold', 'important');
             }
             
             updateStatus4();
