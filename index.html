@@ -2461,6 +2461,7 @@
             
             if (window.selectedRoutes3.has(route)) {
                 window.selectedRoutes3.delete(route);
+                routeItem.classList.remove("selected");
                 if (isDarkMode) {
                     routeItem.style.borderColor = "rgba(255,255,255,0.3)";
                     routeItem.style.backgroundColor = "rgba(255,255,255,0.2)";
@@ -2472,6 +2473,7 @@
                 }
             } else {
                 window.selectedRoutes3.add(route);
+                routeItem.classList.add("selected");
                 routeItem.style.setProperty('background-color', '#4CAF50', 'important');
                 routeItem.style.setProperty('border-color', '#4CAF50', 'important');
                 routeItem.style.setProperty('color', '#fff', 'important');
@@ -2565,6 +2567,7 @@
             
             if (window.selectedRoutes4.has(route)) {
                 window.selectedRoutes4.delete(route);
+                routeItem.classList.remove("selected");
                 if (isDarkMode) {
                     routeItem.style.borderColor = "rgba(255,255,255,0.3)";
                     routeItem.style.backgroundColor = "rgba(255,255,255,0.2)";
@@ -2576,6 +2579,7 @@
                 }
             } else {
                 window.selectedRoutes4.add(route);
+                routeItem.classList.add("selected");
                 routeItem.style.setProperty('background-color', '#4CAF50', 'important');
                 routeItem.style.setProperty('border-color', '#4CAF50', 'important');
                 routeItem.style.setProperty('color', '#fff', 'important');
