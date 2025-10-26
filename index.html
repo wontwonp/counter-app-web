@@ -1340,9 +1340,9 @@
     </div>
 
     <!-- 차량현황 페이지 (창원1센터) -->
-    <div id="vehicle-status-1-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div id="vehicle-status-1-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); overflow-x: hidden;">
         <div style="position: fixed; top: 10px; right: 10px; z-index: 10001;">
-            <button onclick="toggleTheme()" style="font-size: 24px; border: none; cursor: pointer; padding: 0; border-radius: 50%; width: 40px; height: 40px; background: transparent;" id="theme-toggle-vehicle-1">🌙</button>
+            <button onclick="toggleTheme()" style="font-size: 24px; border: none; cursor: pointer; padding: 0; width: 40px; height: 40px; background: transparent; display: flex; align-items: center; justify-content: center;" id="theme-toggle-vehicle-1">🌙</button>
         </div>
         <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
             <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
@@ -1379,9 +1379,9 @@
     </div>
 
     <!-- 차량현황 페이지 (창원3센터) -->
-    <div id="vehicle-status-3-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div id="vehicle-status-3-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow-y: auto; overflow-x: hidden; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
         <div style="position: fixed; top: 10px; right: 10px; z-index: 10001;">
-            <button onclick="toggleTheme()" style="font-size: 24px; border: none; cursor: pointer; padding: 0; border-radius: 50%; width: 40px; height: 40px; background: transparent;" id="theme-toggle-vehicle-3">🌙</button>
+            <button onclick="toggleTheme()" style="font-size: 24px; border: none; cursor: pointer; padding: 0; width: 40px; height: 40px; background: transparent; display: flex; align-items: center; justify-content: center;" id="theme-toggle-vehicle-3">🌙</button>
         </div>
         <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
             <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
@@ -1418,9 +1418,9 @@
     </div>
 
     <!-- 차량현황 페이지 (창원4센터) -->
-    <div id="vehicle-status-4-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div id="vehicle-status-4-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow-y: auto; overflow-x: hidden; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
         <div style="position: fixed; top: 10px; right: 10px; z-index: 10001;">
-            <button onclick="toggleTheme()" style="font-size: 24px; border: none; cursor: pointer; padding: 0; border-radius: 50%; width: 40px; height: 40px; background: transparent;" id="theme-toggle-vehicle-4">🌙</button>
+            <button onclick="toggleTheme()" style="font-size: 24px; border: none; cursor: pointer; padding: 0; width: 40px; height: 40px; background: transparent; display: flex; align-items: center; justify-content: center;" id="theme-toggle-vehicle-4">🌙</button>
         </div>
         <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
             <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
@@ -1502,7 +1502,7 @@
                 if (!page) return;
                 
                 // 토글 버튼 아이콘 변경
-                const themeToggle = page.querySelector('.theme-toggle');
+                const themeToggle = page.querySelector('button[onclick="toggleTheme()"]');
                 if (themeToggle) {
                     themeToggle.textContent = isDarkMode ? '☀️' : '🌙';
                 }
@@ -1560,16 +1560,19 @@
                 // 노선 버튼들
                 const routeItems = page.querySelectorAll('.route-item');
                 routeItems.forEach(item => {
-                    // selected 클래스나 특정 스타일로 선택 여부 확인
-                    const isSelected = item.classList.contains('selected') || 
-                                      item.style.backgroundColor === 'rgb(232, 245, 232)' ||
-                                      item.style.borderColor === 'rgb(76, 175, 80)';
+                    // selected 클래스 확인
+                    const isSelected = item.classList.contains('selected');
                     
                     if (isSelected) {
-                        // 선택된 항목은 항상 초록색 유지
+                        // 선택된 항목은 다크모드에서도 초록색으로 밝게 표시
                         item.style.borderColor = '#4CAF50';
-                        item.style.backgroundColor = '#e8f5e8';
-                        item.style.color = '#2e7d32';
+                        if (isDarkMode) {
+                            item.style.backgroundColor = '#4CAF50';
+                            item.style.color = '#fff';
+                        } else {
+                            item.style.backgroundColor = '#e8f5e8';
+                            item.style.color = '#2e7d32';
+                        }
                     } else {
                         item.style.background = isDarkMode ? 'rgba(255,255,255,0.2)' : 'white';
                         item.style.borderColor = isDarkMode ? 'rgba(255,255,255,0.3)' : '#ddd';
