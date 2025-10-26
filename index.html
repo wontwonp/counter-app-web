@@ -2771,18 +2771,88 @@
             }
         });
 
+        // 날짜 변경 확인 및 초기화 함수
+        function checkDateChangeAndReset() {
+            const now = new Date();
+            const today = now.toDateString();
+            const lastResetDate = localStorage.getItem('lastResetDate');
+            
+            // 날짜가 바뀌었는지 확인
+            if (lastResetDate && lastResetDate !== today) {
+                console.log('날짜가 변경되었습니다. 카운팅 초기화.');
+                
+                // 모든 카운트 초기화
+                if (stations && stations.length > 0) {
+                    stations.forEach(station => {
+                        station.count = 0;
+                        station.morningCount = 0;
+                        station.afternoonCount = 0;
+                    });
+                    
+                    currentStationIndex = 0;
+                    currentInput = '';
+                    
+                    // 완료 상태 초기화
+                    completedTimePeriods = { morning: false, afternoon: false };
+                    
+                    // localStorage 저장
+                    saveToLocalStorage('savedStations', JSON.stringify(stations));
+                    saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
+                    saveToLocalStorage('currentInput', currentInput);
+                    saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
+                    
+                    // 오늘 초기화했다고 기록
+                    saveToLocalStorage('lastResetDate', today);
+                    
+                    // 키패드 활성화
+                    enableKeypad();
+                    
+                    // 업데이트
+                    updateKeypadPage();
+                    
+                    console.log('날짜 변경 자동 초기화 완료');
+                }
+            }
+            
+            // 첫 실행 시에도 lastResetDate 설정
+            if (!lastResetDate) {
+                saveToLocalStorage('lastResetDate', today);
+            }
+        }
+
         // 페이지 로드 시 초기화
         window.addEventListener('load', function() {
             loadTheme();
             loadSavedTimePeriod();
+            
+            // 날짜 변경 확인 및 초기화 (저장된 데이터를 불러오기 전에 실행)
+            checkDateChangeAndReset();
+            
             loadSavedStations();
             setKoreanInputMode();
             
             // 사용자 접속 기록
             recordUserAccess();
             
-            // 페이지 로드 시 자정 초기화 체크
-            checkMidnightReset();
+            // 저장된 노선 목록 표시
+            updateSavedRoutesDisplay();
+            
+            // 화면 자동 꺼짐 방지 활성화
+            enableScreenWakeLock();
+            
+            // 다크모드 버튼 자동 숨김 (5초 후)
+            hideThemeButton();
+            
+            // 키패드 상태 복원
+            setTimeout(() => {
+                restoreKeypadState();
+            }, 100);
+            
+            // URL 파라미터 확인하여 페이지 상태 복원
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('page') === 'vehicle-status') {
+                openVehicleStatus();
+            }
             
             // 공유 버튼 이벤트 리스너 추가
             const kakaoShareBtn = document.getElementById('kakao-share-btn');
@@ -3385,36 +3455,7 @@
             }
         }
 
-        // 페이지 로드 시 초기화
-        window.addEventListener('load', function() {
-            loadTheme();
-            loadSavedStations();
-            loadSavedTimePeriod();
-            setKoreanInputMode();
-
-            // 저장된 노선 목록 표시
-            updateSavedRoutesDisplay();
-
-            // 날짜 변경 확인 (페이지 로드 시)
-            checkDateChangeAndReset();
-
-            // 화면 자동 꺼짐 방지 활성화
-            enableScreenWakeLock();
-
-            // 다크모드 버튼 자동 숨김 (5초 후)
-            hideThemeButton();
-
-            // 키패드 상태 복원
-            setTimeout(() => {
-                restoreKeypadState();
-            }, 100);
-
-            // URL 파라미터 확인하여 페이지 상태 복원
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('page') === 'vehicle-status') {
-                openVehicleStatus();
-            }
-        });
+        // 중복된 window.addEventListener 제거 - 첫 번째 이벤트 리스너 사용
 
         // 공유 중인지 확인하는 변수
         let isSharing = false;
