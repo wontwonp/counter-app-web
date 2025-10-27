@@ -1346,8 +1346,8 @@
         </div>
         <div style="height: 100%; overflow-y: auto; overflow-x: hidden;">
         <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-            <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <h1 style="text-align: center; margin-bottom: 30px;">🚌 창원1센터차량현황</h1>
+            <div id="contentBox1" style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h1 id="title1" style="text-align: center; margin-bottom: 30px; color: #333;">🚌 창원1센터차량현황</h1>
                 
                 <div id="statsBox1" style="display: flex; justify-content: space-around; margin-bottom: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 6px;">
                     <div style="text-align: center; flex: 1;">
@@ -1387,8 +1387,8 @@
         </div>
         <div style="height: 100%; overflow-y: auto; overflow-x: hidden;">
         <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-            <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <h1 style="text-align: center; margin-bottom: 30px;">🚌 창원3센터차량현황</h1>
+            <div id="contentBox3" style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h1 id="title3" style="text-align: center; margin-bottom: 30px; color: #333;">🚌 창원3센터차량현황</h1>
                 
                 <div id="statsBox3" style="display: flex; justify-content: space-around; margin-bottom: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 6px;">
                     <div style="text-align: center; flex: 1;">
@@ -1428,8 +1428,8 @@
         </div>
         <div style="height: 100%; overflow-y: auto; overflow-x: hidden;">
         <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-            <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <h1 style="text-align: center; margin-bottom: 30px;">🚌 창원4센터차량현황</h1>
+            <div id="contentBox4" style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h1 id="title4" style="text-align: center; margin-bottom: 30px; color: #333;">🚌 창원4센터차량현황</h1>
                 
                 <div id="statsBox4" style="display: flex; justify-content: space-around; margin-bottom: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 6px;">
                     <div style="text-align: center; flex: 1;">
@@ -1530,6 +1530,15 @@
                 // h1
                 const h1 = page.querySelector('h1');
                 if (h1) h1.style.color = isDarkMode ? '#fff' : '#333';
+                
+                // contentBox 배경색 업데이트
+                const contentBoxes = ['contentBox1', 'contentBox3', 'contentBox4'];
+                contentBoxes.forEach(boxId => {
+                    const box = document.getElementById(boxId);
+                    if (box) {
+                        box.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : 'white';
+                    }
+                });
                 
                 // 통계 배경색 및 텍스트 색상
                 const allDivs = page.querySelectorAll('div');
