@@ -1594,6 +1594,12 @@
                     }
                 });
                 
+                // 카카오톡 공유 버튼 텍스트 색상 유지 (항상 검정색)
+                const kakaoButtons = page.querySelectorAll('button[style*="background: #FFD700"]');
+                kakaoButtons.forEach(btn => {
+                    btn.style.color = 'black';
+                });
+                
                 // 노선 버튼들
                 const routeItems = page.querySelectorAll('.route-item');
                 routeItems.forEach(item => {
