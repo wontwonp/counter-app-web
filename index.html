@@ -1340,10 +1340,11 @@
     </div>
 
     <!-- 차량현황 페이지 (창원1센터) -->
-    <div id="vehicle-status-1-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div id="vehicle-status-1-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow: hidden; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
         <div class="theme-toggle-area" style="position: fixed; top: 0; right: 0; width: 80px; height: 80px; z-index: 10001; background: transparent;">
-            <button onclick="toggleTheme()" class="theme-toggle" id="theme-toggle-vehicle-1" style="width: 50px; height: 50px; border-radius: 50%; border: none; background: rgba(255, 255, 255, 0.2); color: white; cursor: pointer; font-size: 1.3rem; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); transition: all 0.5s ease; z-index: 1000; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">🌙</button>
+            <button onclick="toggleTheme()" class="theme-toggle" id="theme-toggle-vehicle-1" style="width: 50px; height: 50px; border-radius: 50%; border: none; background: rgba(255, 255, 255, 0.2); color: white; cursor: pointer; font-size: 1.3rem; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); transition: all 0.5s ease; z-index: 1000; display: flex; align-items: center; justify-content: center;">🌙</button>
         </div>
+        <div style="height: 100%; overflow-y: auto; overflow-x: hidden;">
         <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
             <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <h1 style="text-align: center; margin-bottom: 30px;">🚌 창원1센터차량현황</h1>
@@ -1375,14 +1376,16 @@
                 
                 <button style="width: 100%; background: #f44336; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer;" onclick="goBackToCounter1()">🔙 카운터로 돌아가기</button>
             </div>
+            </div>
         </div>
     </div>
 
     <!-- 차량현황 페이지 (창원3센터) -->
-    <div id="vehicle-status-3-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div id="vehicle-status-3-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow: hidden; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
         <div class="theme-toggle-area" style="position: fixed; top: 0; right: 0; width: 80px; height: 80px; z-index: 10001; background: transparent;">
-            <button onclick="toggleTheme()" class="theme-toggle" id="theme-toggle-vehicle-3" style="width: 50px; height: 50px; border-radius: 50%; border: none; background: rgba(255, 255, 255, 0.2); color: white; cursor: pointer; font-size: 1.3rem; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); transition: all 0.5s ease; z-index: 1000; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">🌙</button>
+            <button onclick="toggleTheme()" class="theme-toggle" id="theme-toggle-vehicle-3" style="width: 50px; height: 50px; border-radius: 50%; border: none; background: rgba(255, 255, 255, 0.2); color: white; cursor: pointer; font-size: 1.3rem; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); transition: all 0.5s ease; z-index: 1000; display: flex; align-items: center; justify-content: center;">🌙</button>
         </div>
+        <div style="height: 100%; overflow-y: auto; overflow-x: hidden;">
         <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
             <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <h1 style="text-align: center; margin-bottom: 30px;">🚌 창원3센터차량현황</h1>
@@ -1414,14 +1417,16 @@
                 
                 <button style="width: 100%; background: #f44336; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer;" onclick="goBackToCounter3()">🔙 카운터로 돌아가기</button>
             </div>
+            </div>
         </div>
     </div>
 
     <!-- 차량현황 페이지 (창원4센터) -->
-    <div id="vehicle-status-4-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div id="vehicle-status-4-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow: hidden; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
         <div class="theme-toggle-area" style="position: fixed; top: 0; right: 0; width: 80px; height: 80px; z-index: 10001; background: transparent;">
-            <button onclick="toggleTheme()" class="theme-toggle" id="theme-toggle-vehicle-4" style="width: 50px; height: 50px; border-radius: 50%; border: none; background: rgba(255, 255, 255, 0.2); color: white; cursor: pointer; font-size: 1.3rem; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); transition: all 0.5s ease; z-index: 1000; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">🌙</button>
+            <button onclick="toggleTheme()" class="theme-toggle" id="theme-toggle-vehicle-4" style="width: 50px; height: 50px; border-radius: 50%; border: none; background: rgba(255, 255, 255, 0.2); color: white; cursor: pointer; font-size: 1.3rem; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); transition: all 0.5s ease; z-index: 1000; display: flex; align-items: center; justify-content: center;">🌙</button>
         </div>
+        <div style="height: 100%; overflow-y: auto; overflow-x: hidden;">
         <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
             <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <h1 style="text-align: center; margin-bottom: 30px;">🚌 창원4센터차량현황</h1>
@@ -1452,6 +1457,7 @@
                 <button style="width: 100%; background: #4CAF50; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 15px;" onclick="resetSelection4()">🔄 선택 초기화</button>
                 
                 <button style="width: 100%; background: #f44336; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer;" onclick="goBackToCounter4()">🔙 카운터로 돌아가기</button>
+            </div>
             </div>
         </div>
     </div>
