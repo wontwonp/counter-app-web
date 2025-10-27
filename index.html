@@ -1646,6 +1646,39 @@
             hideThemeButton();
         }
 
+        // 차량현황 페이지 다크모드 버튼 자동 숨김 함수
+        function hideVehicleStatusThemeButton() {
+            const themeToggle1 = document.getElementById('theme-toggle-vehicle-1');
+            const themeToggle3 = document.getElementById('theme-toggle-vehicle-3');
+            const themeToggle4 = document.getElementById('theme-toggle-vehicle-4');
+            
+            // 기존 타이머가 있으면 클리어
+            if (window.vehicleThemeHideTimer) {
+                clearTimeout(window.vehicleThemeHideTimer);
+            }
+            
+            // 5초 후 버튼 숨김 (모든 차량현황 페이지)
+            window.vehicleThemeHideTimer = setTimeout(() => {
+                if (themeToggle1) themeToggle1.style.display = 'none';
+                if (themeToggle3) themeToggle3.style.display = 'none';
+                if (themeToggle4) themeToggle4.style.display = 'none';
+            }, 5000);
+        }
+
+        // 차량현황 페이지 다크모드 버튼 다시 보이기
+        function showVehicleStatusThemeButton() {
+            const themeToggle1 = document.getElementById('theme-toggle-vehicle-1');
+            const themeToggle3 = document.getElementById('theme-toggle-vehicle-3');
+            const themeToggle4 = document.getElementById('theme-toggle-vehicle-4');
+            
+            if (themeToggle1) themeToggle1.style.display = 'flex';
+            if (themeToggle3) themeToggle3.style.display = 'flex';
+            if (themeToggle4) themeToggle4.style.display = 'flex';
+            
+            // 다시 숨김 타이머 설정
+            hideVehicleStatusThemeButton();
+        }
+
         // 페이지 로드 시 저장된 테마 설정 불러오기
         function loadTheme() {
             const savedTheme = loadFromLocalStorage('darkMode');
@@ -2314,6 +2347,7 @@
         // 차량현황 1센터 페이지 초기화
         function initializeVehicleStatus1() {
             updateVehicleStatusDarkMode(); // 다크모드 초기화
+            hideVehicleStatusThemeButton(); // 다크모드 버튼 자동 숨김 (5초 후)
             
             const routes = [
                 "거제1", "거제2", "김해1", "내서", "남포", "남포1-1", "다대1", "동래", "마산1", "마산2",
@@ -2457,6 +2491,7 @@
         // 차량현황 3센터 페이지 초기화
         function initializeVehicleStatus3() {
             updateVehicleStatusDarkMode(); // 다크모드 초기화
+            hideVehicleStatusThemeButton(); // 다크모드 버튼 자동 숨김 (5초 후)
             
             const routes = ["진해2", "진해1", "창원1", "창원2", "창원3", "창원3-1"].sort();
             
@@ -2565,6 +2600,7 @@
         // 차량현황 4센터 페이지 초기화
         function initializeVehicleStatus4() {
             updateVehicleStatusDarkMode(); // 다크모드 초기화
+            hideVehicleStatusThemeButton(); // 다크모드 버튼 자동 숨김 (5초 후)
             
             const routes = ["진주1", "진주2", "통영", "하단"];
             
