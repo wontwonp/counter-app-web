@@ -1020,6 +1020,114 @@
             border-radius: 10px;
         }
 
+        /* 택시 승객 입력 모달 */
+        .taxi-input-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .taxi-input-modal.show {
+            display: flex;
+        }
+
+        .taxi-input-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 90%;
+            width: 350px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .taxi-input-modal-content h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .taxi-input-display {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #taxi-number-display {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .taxi-keypad {
+            display: grid;
+            gap: 10px;
+        }
+
+        .taxi-keypad-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .taxi-keypad-btn {
+            flex: 1;
+            padding: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .taxi-keypad-btn:active {
+            transform: scale(0.95);
+        }
+
+        .taxi-enter-btn {
+            flex: 1;
+            padding: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .taxi-enter-btn:active {
+            transform: scale(0.95);
+        }
+
+        .taxi-input-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .taxi-input-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+        }
+
         .modal-close {
             position: absolute;
             top: 10px;
@@ -1248,6 +1356,10 @@
                     <button id="morning-btn-keypad" class="time-period-btn active" onclick="selectTimePeriod('morning')">오전 운행</button>
                     <button id="afternoon-btn-keypad" class="time-period-btn" onclick="selectTimePeriod('afternoon')">오후 운행</button>
                 </div>
+                <!-- 택시 승객 추가 버튼 -->
+                <div style="display: flex; justify-content: center; margin-top: 10px;">
+                    <button onclick="openTaxiInputModal()" class="taxi-input-btn" id="taxi-input-btn-keypad" style="display: none;">택시승객 추가</button>
+                </div>
             </div>
 
             <div class="clock-display">
@@ -1335,6 +1447,42 @@
         <button class="modal-close" onclick="closeImageModal()">&times;</button>
         <div class="image-modal-content">
             <img id="generated-image" src="" alt="생성된 이미지">
+        </div>
+    </div>
+
+    <!-- 택시 승객 입력 모달 -->
+    <div id="taxi-input-modal" class="taxi-input-modal">
+        <div class="taxi-input-modal-content">
+            <h2>🚕 택시 승차 인원을 입력하세요</h2>
+            <div class="taxi-input-display">
+                <div id="taxi-number-display">0</div>
+            </div>
+            <div class="taxi-keypad">
+                <div class="taxi-keypad-row">
+                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('1')">1</button>
+                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('2')">2</button>
+                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('3')">3</button>
+                </div>
+                <div class="taxi-keypad-row">
+                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('4')">4</button>
+                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('5')">5</button>
+                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('6')">6</button>
+                </div>
+                <div class="taxi-keypad-row">
+                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('7')">7</button>
+                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('8')">8</button>
+                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('9')">9</button>
+                </div>
+                <div class="taxi-keypad-row">
+                    <button class="taxi-keypad-btn" onclick="clearTaxiInput()">C</button>
+                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('0')">0</button>
+                    <button class="taxi-keypad-btn" onclick="taxiBackspace()">⌫</button>
+                </div>
+                <div class="taxi-keypad-row">
+                    <button class="taxi-enter-btn" onclick="confirmTaxiInput()">ENTER</button>
+                </div>
+            </div>
+            <p style="text-align: center; color: #666; margin-top: 15px; font-size: 0.9rem;">최대 50명까지 입력 가능</p>
         </div>
     </div>
 
@@ -1474,6 +1622,7 @@
         let selectedTimePeriod = 'morning'; // 'morning' 또는 'afternoon'
         let isLoadedRoute = false; // 불러온 노선인지 추적
         let completedTimePeriods = { morning: false, afternoon: false }; // 완료된 운행 시간대 추적
+        let taxiPassengers = { morning: 0, afternoon: 0 }; // 택시 승객 수
 
         // 다크모드 토글 함수
         function toggleTheme() {
@@ -2067,6 +2216,26 @@
                 
                 summaryList.appendChild(summaryItem);
             });
+            
+            // 택시 승객 정보 추가
+            if (taxiPassengers.morning > 0 || taxiPassengers.afternoon > 0) {
+                const taxiItem = document.createElement('div');
+                taxiItem.className = 'summary-item';
+                taxiItem.style.fontWeight = 'bold';
+                taxiItem.style.color = '#f5576c';
+                
+                let taxiText = '';
+                if (taxiPassengers.morning > 0) {
+                    taxiText += `오전택시인원 ${taxiPassengers.morning}명`;
+                }
+                if (taxiPassengers.afternoon > 0) {
+                    if (taxiText) taxiText += ', ';
+                    taxiText += `오후택시인원 ${taxiPassengers.afternoon}명`;
+                }
+                
+                taxiItem.textContent = taxiText;
+                summaryList.appendChild(taxiItem);
+            }
         }
 
         // 햅틱 피드백 함수 (진동 + 시각적 피드백)
@@ -2218,12 +2387,71 @@
                 currentInput = '';
                 document.getElementById('number-display').textContent = '0';
                 
-                // 마지막 정류장에서 머물도록 수정
-                if (currentStationIndex < stations.length - 1) {
+                // 총탑승자수 계산 (현재 선택된 시간대의 모든 정류장 합계)
+                const totalPassengers = stations.reduce((sum, station) => {
+                    return sum + (selectedTimePeriod === 'morning' ? station.morningCount : station.afternoonCount);
+                }, 0);
+                
+                // 45명 제한 확인
+                if (totalPassengers > 45) {
+                    alert('정원 초과하였습니다');
+                    // 초과분만큼 빼기
+                    const excess = totalPassengers - 45;
+                    if (selectedTimePeriod === 'morning') {
+                        stations[currentStationIndex].morningCount -= excess;
+                    } else {
+                        stations[currentStationIndex].afternoonCount -= excess;
+                    }
+                    stations[currentStationIndex].count -= excess;
+                }
+                
+                // 총탑승자수 다시 계산 (45명으로 조정 후)
+                const adjustedTotalPassengers = stations.reduce((sum, station) => {
+                    return sum + (selectedTimePeriod === 'morning' ? station.morningCount : station.afternoonCount);
+                }, 0);
+                
+                // 택시 승객 버튼 표시 여부 확인
+                const periodKey = selectedTimePeriod === 'morning' ? 'morning' : 'afternoon';
+                const shouldShowTaxiButton = taxiPassengers[periodKey] === 0 && adjustedTotalPassengers >= 45;
+                
+                // 45명 도달했을 때 숫자를 입력한 경우는 다음 정류장으로 못가고, 빈 값으로 엔터만 눌렀을 때만 이동
+                // 단, 정확히 45명이 되는 순간에는 다음 정류장으로 이동
+                if (adjustedTotalPassengers >= 45 && currentStationIndex < stations.length - 1) {
+                    // 정확히 45명이 되는 순간인지 확인 (이번 입력으로 45명이 됨)
+                    const wasUnder45 = (totalPassengers - inputValue) < 45;
+                    const isExactly45 = adjustedTotalPassengers === 45 && wasUnder45;
+                    
+                    // 숫자를 입력한 경우 → 45명이 되지 않는 한 다음 정류장으로 이동하지 않음
+                    // 단, 정확히 45명이 되는 순간에는 다음 정류장으로 이동
+                    if (inputValue > 0 && !isExactly45) {
+                        // 현재 정류장에 머물기 (currentStationIndex 증가하지 않음)
+                        if (shouldShowTaxiButton) {
+                            document.getElementById('taxi-input-btn-keypad').style.display = 'block';
+                        }
+                    } else {
+                        // 빈 값으로 엔터를 누른 경우 (inputValue === 0) 또는 정확히 45명이 되는 순간 → 다음 정류장으로 이동
+                        currentStationIndex++;
+                        
+                        // 택시 승객 버튼 표시 유지
+                        if (shouldShowTaxiButton) {
+                            document.getElementById('taxi-input-btn-keypad').style.display = 'block';
+                        }
+                    }
+                } else if (currentStationIndex < stations.length - 1) {
+                    // 45명 미달이거나 마지막 정류장이 아닌 경우만 다음 정류장으로 이동
                     currentStationIndex++;
                 } else {
                     // 마지막 정류장에서는 입력 완료 상태로 변경 (하지만 시간대 전환 시 재활성화 가능)
                     disableKeypad();
+                    
+                    // 해당 시간대 완료 상태로 설정
+                    completedTimePeriods[selectedTimePeriod] = true;
+                    saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
+                    
+                    // 택시 승객이 아직 입력되지 않았거나 총탑승자수가 45명이 되었고, 해당 시간대가 완료된 경우에만 버튼 표시
+                    if (shouldShowTaxiButton) {
+                        document.getElementById('taxi-input-btn-keypad').style.display = 'block';
+                    }
                 }
                 
                 updateKeypadPage();
@@ -2233,6 +2461,90 @@
                 saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
                 saveToLocalStorage('currentInput', currentInput);
                 saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
+            }
+        }
+
+        // 택시 승객 입력 변수
+        let taxiInput = '';
+
+        // 택시 승객 입력 모달 열기
+        function openTaxiInputModal() {
+            taxiInput = '';
+            document.getElementById('taxi-number-display').textContent = '0';
+            document.getElementById('taxi-input-modal').classList.add('show');
+        }
+
+        // 택시 승객 숫자 입력
+        function inputTaxiDigit(digit) {
+            if (taxiInput.length >= 2) {
+                taxiInput = taxiInput.slice(0, 2);
+            }
+            taxiInput += digit;
+            const numValue = parseInt(taxiInput);
+            if (numValue > 50) {
+                taxiInput = '50';
+            }
+            document.getElementById('taxi-number-display').textContent = taxiInput || '0';
+        }
+
+        // 택시 승객 입력 초기화
+        function clearTaxiInput() {
+            taxiInput = '';
+            document.getElementById('taxi-number-display').textContent = '0';
+        }
+
+        // 택시 승객 백스페이스
+        function taxiBackspace() {
+            taxiInput = taxiInput.slice(0, -1);
+            document.getElementById('taxi-number-display').textContent = taxiInput || '0';
+        }
+
+        // 택시 승객 입력 확인
+        function confirmTaxiInput() {
+            const taxiCount = parseInt(taxiInput) || 0;
+            const periodKey = selectedTimePeriod === 'morning' ? 'morning' : 'afternoon';
+            
+            // 택시 승객 합산 (누적)
+            taxiPassengers[periodKey] = (taxiPassengers[periodKey] || 0) + taxiCount;
+            
+            // localStorage에 저장
+            saveToLocalStorage('taxiPassengers', JSON.stringify(taxiPassengers));
+            
+            // 모달 닫기
+            document.getElementById('taxi-input-modal').classList.remove('show');
+            
+            // 마지막 정류장인지 확인
+            if (currentStationIndex < stations.length - 1) {
+                // 다음 정류장으로 이동
+                currentStationIndex++;
+                
+                // 요약 업데이트
+                updateSummary();
+                updateKeypadPage();
+                
+                // localStorage에 저장
+                saveToLocalStorage('savedStations', JSON.stringify(stations));
+                saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
+                saveToLocalStorage('currentInput', currentInput);
+                
+                console.log(`택시 승객 ${periodKey === 'morning' ? '오전' : '오후'} 추가: ${taxiCount}명 (누적: ${taxiPassengers[periodKey]}명)`);
+                console.log(`다음 정류장으로 이동: ${currentStationIndex + 1}/${stations.length}`);
+            } else {
+                // 마지막 정류장이면 완료 처리 및 버튼 숨기기
+                disableKeypad();
+                
+                // 해당 시간대 완료 상태로 설정
+                completedTimePeriods[selectedTimePeriod] = true;
+                saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
+                
+                // 택시 승객 버튼 숨기기
+                document.getElementById('taxi-input-btn-keypad').style.display = 'none';
+                
+                // 요약 업데이트
+                updateSummary();
+                updateKeypadPage();
+                
+                console.log(`택시 승객 ${periodKey === 'morning' ? '오전' : '오후'} 완료: 최종 합산 ${taxiPassengers[periodKey]}명`);
             }
         }
 
@@ -2299,6 +2611,10 @@
                 
                 // 완료 상태 초기화
                 completedTimePeriods = { morning: false, afternoon: false };
+                
+                // 택시 승객도 초기화
+                taxiPassengers = { morning: 0, afternoon: 0 };
+                saveToLocalStorage('taxiPassengers', JSON.stringify(taxiPassengers));
                 
                 enableKeypad(); // 키패드 다시 활성화
                 updateKeypadPage();
@@ -2856,6 +3172,7 @@
                     localStorage.setItem('currentStationIndex', '0');
                     localStorage.setItem('currentInput', '');
                     localStorage.setItem('completedTimePeriods', JSON.stringify({ morning: false, afternoon: false }));
+                    localStorage.setItem('taxiPassengers', JSON.stringify({ morning: 0, afternoon: 0 }));
                     
                     console.log('날짜 변경 자동 초기화 완료');
                 }
@@ -3023,6 +3340,10 @@
                     morning: savedCompletedTimePeriods.morning || false,
                     afternoon: savedCompletedTimePeriods.afternoon || false
                 };
+                
+                // 택시 승객 정보 복원
+                const savedTaxiPassengers = JSON.parse(loadFromLocalStorage('taxiPassengers') || '{"morning":0,"afternoon":0}');
+                taxiPassengers = savedTaxiPassengers;
                 
                 // 키패드 페이지로 바로 이동
                 document.getElementById('station-count-page').classList.add('hidden');
@@ -3282,6 +3603,26 @@
             // 오후 총계 (5열)
             ctx.fillText(afternoonTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, totalRowY + rowHeight/2 + 8);
             
+            // 택시 승객 정보 추가 (이미지 하단)
+            let taxiInfoY = totalRowY + rowHeight + 50;
+            if (taxiPassengers.morning > 0 || taxiPassengers.afternoon > 0) {
+                ctx.font = 'bold 36px Arial';
+                ctx.fillStyle = '#f5576c';
+                
+                let taxiText = '';
+                if (taxiPassengers.morning > 0) {
+                    taxiText = `오전택시인원 ${taxiPassengers.morning}명`;
+                }
+                if (taxiPassengers.afternoon > 0) {
+                    if (taxiText) taxiText += ', ';
+                    taxiText += `오후택시인원 ${taxiPassengers.afternoon}명`;
+                }
+                
+                // 텍스트 중앙 정렬
+                const taxiTextWidth = ctx.measureText(taxiText).width;
+                ctx.fillText(taxiText, (canvas.width - taxiTextWidth) / 2, taxiInfoY);
+            }
+            
             return canvas.toDataURL('image/png');
         }
 
@@ -3390,12 +3731,16 @@
                     // 완료 상태 초기화
                     completedTimePeriods = { morning: false, afternoon: false };
                     
+                    // 택시 승객도 초기화
+                    taxiPassengers = { morning: 0, afternoon: 0 };
+                    
                     enableKeypad();
                     updateKeypadPage();
                     saveToLocalStorage('savedStations', JSON.stringify(stations));
                     saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
                     saveToLocalStorage('currentInput', currentInput);
                     saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
+                    saveToLocalStorage('taxiPassengers', JSON.stringify(taxiPassengers));
                     
                     // 오늘 초기화했다고 기록
                     saveToLocalStorage('lastResetDate', today);
