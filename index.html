@@ -2721,18 +2721,50 @@
 
         // 앱 초기화
         function resetApp() {
-            stationCount = 0;
-            stations = [];
-            stationNames = [];
-            currentStationIndex = 0;
-            currentInput = '';
-            
-            document.getElementById('station-count').value = '';
-            document.getElementById('count-submit').disabled = true;
-            
-            document.getElementById('keypad-page').classList.add('hidden');
-            document.getElementById('station-names-page').classList.add('hidden');
-            document.getElementById('station-count-page').classList.remove('hidden');
+            // 확인 메시지 표시
+            if (confirm('오전/오후 모든 카운팅이 초기화됩니다.\n처음으로 돌아가시겠습니까?')) {
+                // 정류장명수초기화와 동일한 방식으로 모든 카운트를 0으로 설정하고 localStorage에 저장
+                if (stations.length > 0) {
+                    stations.forEach(station => {
+                        station.count = 0;
+                        station.morningCount = 0;
+                        station.afternoonCount = 0;
+                    });
+                    
+                    // 모든 카운트를 0으로 만들고 저장
+                    currentStationIndex = 0;
+                    currentInput = '';
+                    completedTimePeriods = { morning: false, afternoon: false };
+                    taxiPassengers = { morning: 0, afternoon: 0 };
+                    
+                    // 완료 상태 저장
+                    saveToLocalStorage('savedStations', JSON.stringify(stations));
+                    saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
+                    saveToLocalStorage('currentInput', currentInput);
+                    saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
+                    saveToLocalStorage('taxiPassengers', JSON.stringify(taxiPassengers));
+                    saveToLocalStorage('keypadDisabled', 'false');
+                    saveToLocalStorage('morningRunCompleted', 'false');
+                    
+                    // 키패드 활성화
+                    enableKeypad();
+                    
+                    console.log('처음으로: 모든 카운트 및 완료 상태 초기화되고 저장됨');
+                }
+                
+                stationCount = 0;
+                stations = [];
+                stationNames = [];
+                currentStationIndex = 0;
+                currentInput = '';
+                
+                document.getElementById('station-count').value = '';
+                document.getElementById('count-submit').disabled = true;
+                
+                document.getElementById('keypad-page').classList.add('hidden');
+                document.getElementById('station-names-page').classList.add('hidden');
+                document.getElementById('station-count-page').classList.remove('hidden');
+            }
         }
 
         // 차량입차현황 페이지 열기
@@ -3295,6 +3327,8 @@
                     localStorage.setItem('currentInput', '');
                     localStorage.setItem('completedTimePeriods', JSON.stringify({ morning: false, afternoon: false }));
                     localStorage.setItem('taxiPassengers', JSON.stringify({ morning: 0, afternoon: 0 }));
+                    localStorage.setItem('keypadDisabled', 'false');
+                    localStorage.setItem('morningRunCompleted', 'false');
                     
                     console.log('날짜 변경 자동 초기화 완료');
                 }
@@ -3428,8 +3462,11 @@
                 stations = Array.from({ length: stationCount }, (_, index) => {
                     const savedStation = savedStations[index];
                     
+                    // 날짜가 바뀌었거나 저장된 정류장 데이터가 없으면 모든 카운트를 0으로 초기화
+                    const shouldResetCounts = (lastResetDate && lastResetDate !== today) || !savedStation;
+                    
                     // 저장된 데이터가 객체인 경우 (카운팅 데이터 포함)
-                    if (typeof savedStation === 'object' && savedStation !== null) {
+                    if (typeof savedStation === 'object' && savedStation !== null && !shouldResetCounts) {
                         return {
                             id: index,
                             name: savedStation.name || '',
@@ -3443,8 +3480,8 @@
                             }
                         };
                     } else {
-                        // 저장된 데이터가 문자열인 경우 (이름만 저장된 경우)
-                        const stationName = typeof savedStation === 'string' ? savedStation : '';
+                        // 저장된 데이터가 문자열인 경우 또는 초기화가 필요한 경우 (이름만 저장된 경우)
+                        const stationName = (savedStation && typeof savedStation === 'string') ? savedStation : '';
                         return {
                             id: index,
                             name: stationName,
@@ -3461,14 +3498,32 @@
                 });
                 
                 // 완료된 시간대 상태 복원
-                completedTimePeriods = {
-                    morning: savedCompletedTimePeriods.morning || false,
-                    afternoon: savedCompletedTimePeriods.afternoon || false
-                };
+                // localStorage에 completedTimePeriods가 없으면 (처음으로 버튼으로 초기화된 경우) 완료 상태도 초기화
+                if (!localStorage.getItem('completedTimePeriods')) {
+                    completedTimePeriods = { morning: false, afternoon: false };
+                    localStorage.setItem('keypadDisabled', 'false');
+                    localStorage.setItem('morningRunCompleted', 'false');
+                } else if (lastResetDate && lastResetDate !== today) {
+                    completedTimePeriods = { morning: false, afternoon: false };
+                    localStorage.setItem('keypadDisabled', 'false');
+                    localStorage.setItem('morningRunCompleted', 'false');
+                } else {
+                    completedTimePeriods = {
+                        morning: savedCompletedTimePeriods.morning || false,
+                        afternoon: savedCompletedTimePeriods.afternoon || false
+                    };
+                }
                 
                 // 택시 승객 정보 복원
+                // localStorage에 taxiPassengers가 없으면 (처음으로 버튼으로 초기화된 경우) 택시 승객도 초기화
                 const savedTaxiPassengers = JSON.parse(loadFromLocalStorage('taxiPassengers') || '{"morning":0,"afternoon":0}');
-                taxiPassengers = savedTaxiPassengers;
+                if (!localStorage.getItem('taxiPassengers') || (lastResetDate && lastResetDate !== today)) {
+                    // localStorage에 택시 승객 정보가 없거나 날짜가 바뀌었으면 택시 승객 초기화
+                    taxiPassengers = { morning: 0, afternoon: 0 };
+                    localStorage.setItem('taxiPassengers', JSON.stringify(taxiPassengers));
+                } else {
+                    taxiPassengers = savedTaxiPassengers;
+                }
                 
                 // 키패드 페이지로 바로 이동
                 document.getElementById('station-count-page').classList.add('hidden');
@@ -3515,6 +3570,9 @@
                     currentInput = savedCurrentInput || '';
                     console.log(`시간대 동일: ${previousTimePeriod}, 저장된 정류장 인덱스 복원: ${currentStationIndex}`);
                 }
+                
+                // 택시 승객 버튼 숨기기
+                document.getElementById('taxi-input-btn-keypad').style.display = 'none';
                 
                 // 키패드 상태 복원
                 setTimeout(() => {
@@ -3892,6 +3950,12 @@
                 morning: savedCompletedTimePeriods.morning || false,
                 afternoon: savedCompletedTimePeriods.afternoon || false
             };
+            
+            // localStorage에 completedTimePeriods가 없으면 (처음으로 버튼으로 초기화된 경우) 키패드 활성화
+            if (!localStorage.getItem('completedTimePeriods')) {
+                enableKeypad();
+                return;
+            }
             
             if (keypadDisabled === 'true') {
                 // 현재 선택된 시간대가 완료된 상태인지 확인
