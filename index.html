@@ -2220,7 +2220,10 @@
         // 공지사항 저장
         window.saveNotice = function() {
             const title = document.getElementById('notice-title').value.trim();
-            const content = document.getElementById('notice-content').value.trim();
+            // 줄바꿈을 유지하기 위해 trim()을 제거하고, 앞뒤 공백만 제거
+            let content = document.getElementById('notice-content').value;
+            // 앞뒤 공백만 제거 (줄바꿈은 유지)
+            content = content.replace(/^\s+|\s+$/g, '');
             
             if (!title || !content) {
                 alert('제목과 내용을 모두 입력해주세요.');
@@ -2231,7 +2234,7 @@
             const newNotice = {
                 id: Date.now(),
                 title: title,
-                content: content,
+                content: content, // 줄바꿈이 포함된 원본 내용 저장
                 createdAt: new Date().toISOString()
             };
             
@@ -2359,27 +2362,29 @@
             const noticeDisplay = document.getElementById('notice-content-display');
             
             if (notices.length === 0) {
-                // 기본 공지사항 표시
+                // 기본 공지사항 표시 (번호 없이, 줄바꿈 유지)
                 noticeDisplay.innerHTML = `
-                    <p style="margin: 10px 0;"><strong>1.</strong> 총인원 합계는 45명이상 집계되지 않습니다.</p>
-                    <p style="margin: 10px 0;"><strong>2.</strong> 택시인원은 총 인원 45명 도달시 택시인원추가 버튼이 나타납니다.</p>
+                    <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">총인원 합계는 45명이상 집계되지 않습니다.</div>
+                    <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">택시인원은 총 인원 45명 도달시 택시인원추가 버튼이 나타납니다.</div>
                 `;
             } else {
-                // 저장된 공지사항 표시
-                noticeDisplay.innerHTML = notices.map((notice, index) => `
-                    <p style="margin: 10px 0;"><strong>${index + 1}.</strong> ${escapeHtml(notice.content)}</p>
-                `).join('');
+                // 저장된 공지사항 표시 (번호 없이, 줄바꿈 유지)
+                noticeDisplay.innerHTML = notices.map((notice) => {
+                    // HTML 이스케이프 처리 후 줄바꿈 유지
+                    const escapedContent = escapeHtml(notice.content);
+                    return `<div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">${escapedContent}</div>`;
+                }).join('');
             }
             
             // 다크모드일 경우 모든 텍스트를 흰색으로 설정
             if (document.body.classList.contains('dark-mode')) {
-                const allTextElements = noticeDisplay.querySelectorAll('p, strong, span, div');
+                const allTextElements = noticeDisplay.querySelectorAll('div, p, strong, span');
                 allTextElements.forEach(el => {
                     el.style.color = '#ffffff';
                 });
             } else {
                 // 라이트모드일 경우 모든 텍스트를 어두운 색상으로 설정
-                const allTextElements = noticeDisplay.querySelectorAll('p, strong, span, div');
+                const allTextElements = noticeDisplay.querySelectorAll('div, p, strong, span');
                 allTextElements.forEach(el => {
                     el.style.color = '#555';
                 });
