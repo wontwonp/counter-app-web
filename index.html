@@ -1582,6 +1582,40 @@
             color: #ffffff !important;
         }
 
+        /* 차량현황 페이지 다크모드 */
+        body.dark-mode #vehicle-status-1-page,
+        body.dark-mode #vehicle-status-3-page,
+        body.dark-mode #vehicle-status-4-page {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+        }
+
+        body.dark-mode #vehicle-status-1-page > div > div,
+        body.dark-mode #vehicle-status-3-page > div > div,
+        body.dark-mode #vehicle-status-4-page > div > div {
+            background: transparent !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3) !important;
+        }
+
+        body.dark-mode #vehicle-status-1-page h1,
+        body.dark-mode #vehicle-status-3-page h1,
+        body.dark-mode #vehicle-status-4-page h1 {
+            color: #fff !important;
+        }
+
+        body.dark-mode #vehicle-status-1-page .route-item,
+        body.dark-mode #vehicle-status-3-page .route-item,
+        body.dark-mode #vehicle-status-4-page .route-item {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border-color: rgba(255, 255, 255, 0.3) !important;
+            color: #fff !important;
+        }
+
+        body.dark-mode #vehicle-status-1-page button,
+        body.dark-mode #vehicle-status-3-page button,
+        body.dark-mode #vehicle-status-4-page button {
+            color: #fff !important;
+        }
+
         /* 차량입차현황 페이지 */
         #vehicle-status-page {
             display: flex;
@@ -2028,6 +2062,129 @@
         </div>
     </div>
 
+    <!-- 차량현황 페이지 (창원1센터) -->
+    <div id="vehicle-status-1-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow: hidden; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="theme-toggle-area" style="background: transparent; box-shadow: rgba(0, 0, 0, 0) 0px 2px 10px;">
+            <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">🌙</button>
+        </div>
+        <div style="height: 100%; overflow-y: auto; overflow-x: hidden;">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+            <div id="contentBox1" style="background: transparent; border-radius: 10px; padding: 30px;">
+                <h1 id="title1" style="text-align: center; margin-bottom: 30px; color: #333;">🚌 창원1센터 입차현황</h1>
+                
+                <div id="statsBox1" style="display: flex; justify-content: space-around; margin-bottom: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 6px;">
+                    <div style="text-align: center; flex: 1;">
+                        <div id="totalCount1" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
+                        <div id="totalLabel1" style="margin-top: 5px;">전체 노선</div>
+                    </div>
+                    <div style="text-align: center; flex: 1;">
+                        <div id="selectedCount1" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
+                        <div id="selectedLabel1" style="margin-top: 5px;">선택된 노선</div>
+                    </div>
+                    <div style="text-align: center; flex: 1;">
+                        <div id="excludedCount1" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
+                        <div id="excludedLabel1" style="margin-top: 5px;">제외된 노선</div>
+                    </div>
+                </div>
+                
+                <div id="routeGrid1" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;"></div>
+                
+                <div style="position: relative; background: #f5f5f5; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                    <div style="font-weight: bold; margin-bottom: 10px;">📋 현재 상태</div>
+                    <button style="position: absolute; top: 10px; right: 10px; background: #FFD700; color: black; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;" onclick="shareToKakao1()">📱 카카오톡 공유</button>
+                    <div id="statusText1" style="margin-top: 40px;">노선을 선택해주세요.</div>
+                </div>
+                
+                <button style="width: 100%; background: #4CAF50; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 15px;" onclick="resetSelection1()">🔄 선택 초기화</button>
+                
+                <button style="width: 100%; background: #f44336; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer;" onclick="goBackToCounter1()">🔙 카운터로 돌아가기</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 차량현황 페이지 (창원3센터) -->
+    <div id="vehicle-status-3-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow: hidden; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="theme-toggle-area" style="background: transparent; box-shadow: rgba(0, 0, 0, 0) 0px 2px 10px;">
+            <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">🌙</button>
+        </div>
+        <div style="height: 100%; overflow-y: auto; overflow-x: hidden;">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+            <div id="contentBox3" style="background: transparent; border-radius: 10px; padding: 30px;">
+                <h1 id="title3" style="text-align: center; margin-bottom: 30px; color: #333;">🚌 창원3센터 입차현황</h1>
+                
+                <div id="statsBox3" style="display: flex; justify-content: space-around; margin-bottom: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 6px;">
+                    <div style="text-align: center; flex: 1;">
+                        <div id="totalCount3" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
+                        <div id="totalLabel3" style="margin-top: 5px;">전체 노선</div>
+                    </div>
+                    <div style="text-align: center; flex: 1;">
+                        <div id="selectedCount3" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
+                        <div id="selectedLabel3" style="margin-top: 5px;">선택된 노선</div>
+                    </div>
+                    <div style="text-align: center; flex: 1;">
+                        <div id="excludedCount3" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
+                        <div id="excludedLabel3" style="margin-top: 5px;">제외된 노선</div>
+                    </div>
+                </div>
+                
+                <div id="routeGrid3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;"></div>
+                
+                <div style="position: relative; background: #f5f5f5; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                    <div style="font-weight: bold; margin-bottom: 10px;">📋 현재 상태</div>
+                    <button style="position: absolute; top: 10px; right: 10px; background: #FFD700; color: black; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;" onclick="shareToKakao3()">📱 카카오톡 공유</button>
+                    <div id="statusText3" style="margin-top: 40px;">노선을 선택해주세요.</div>
+                </div>
+                
+                <button style="width: 100%; background: #4CAF50; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 15px;" onclick="resetSelection3()">🔄 선택 초기화</button>
+                
+                <button style="width: 100%; background: #f44336; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer;" onclick="goBackToCounter3()">🔙 카운터로 돌아가기</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 차량현황 페이지 (창원4센터) -->
+    <div id="vehicle-status-4-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow: hidden; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="theme-toggle-area" style="background: transparent; box-shadow: rgba(0, 0, 0, 0) 0px 2px 10px;">
+            <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">🌙</button>
+        </div>
+        <div style="height: 100%; overflow-y: auto; overflow-x: hidden;">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+            <div id="contentBox4" style="background: transparent; border-radius: 10px; padding: 30px;">
+                <h1 id="title4" style="text-align: center; margin-bottom: 30px; color: #333;">🚌 창원4센터 입차현황</h1>
+                
+                <div id="statsBox4" style="display: flex; justify-content: space-around; margin-bottom: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 6px;">
+                    <div style="text-align: center; flex: 1;">
+                        <div id="totalCount4" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
+                        <div id="totalLabel4" style="margin-top: 5px;">전체 노선</div>
+                    </div>
+                    <div style="text-align: center; flex: 1;">
+                        <div id="selectedCount4" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
+                        <div id="selectedLabel4" style="margin-top: 5px;">선택된 노선</div>
+                    </div>
+                    <div style="text-align: center; flex: 1;">
+                        <div id="excludedCount4" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
+                        <div id="excludedLabel4" style="margin-top: 5px;">제외된 노선</div>
+                    </div>
+                </div>
+                
+                <div id="routeGrid4" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;"></div>
+                
+                <div style="position: relative; background: #f5f5f5; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                    <div style="font-weight: bold; margin-bottom: 10px;">📋 현재 상태</div>
+                    <button style="position: absolute; top: 10px; right: 10px; background: #FFD700; color: black; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;" onclick="shareToKakao4()">📱 카카오톡 공유</button>
+                    <div id="statusText4" style="margin-top: 40px;">노선을 선택해주세요.</div>
+                </div>
+                
+                <button style="width: 100%; background: #4CAF50; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 15px;" onclick="resetSelection4()">🔄 선택 초기화</button>
+                
+                <button style="width: 100%; background: #f44336; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer;" onclick="goBackToCounter4()">🔙 카운터로 돌아가기</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 공지사항 모달 (사용자용) -->
     <div id="notice-modal" class="notice-modal">
         <div class="notice-modal-content">
@@ -2338,22 +2495,481 @@
         };
 
         // 창원1센터 입차현황 열기
+        // 창원1센터 차량입차현황 앱 열기
         window.openChangwonVehicleStatus = function() {
-            alert('창원1센터 입차현황 기능은 준비 중입니다.');
-            // TODO: 창원1센터 입차현황 페이지 구현
+            document.getElementById('vehicle-status-page').classList.add('hidden');
+            document.getElementById('vehicle-status-page').style.display = 'none';
+            document.getElementById('vehicle-status-1-page').classList.remove('hidden');
+            document.getElementById('vehicle-status-1-page').style.display = 'block';
+            initializeVehicleStatus1();
         };
 
-        // 창원3센터 입차현황 열기
+        // 창원3센터 차량입차현황 앱 열기
         window.openChangwon3Center = function() {
-            alert('창원3센터 입차현황 기능은 준비 중입니다.');
-            // TODO: 창원3센터 입차현황 페이지 구현
+            document.getElementById('vehicle-status-page').classList.add('hidden');
+            document.getElementById('vehicle-status-page').style.display = 'none';
+            document.getElementById('vehicle-status-3-page').classList.remove('hidden');
+            document.getElementById('vehicle-status-3-page').style.display = 'block';
+            initializeVehicleStatus3();
         };
 
-        // 창원4센터 입차현황 열기
+        // 창원4센터 차량입차현황 앱 열기
         window.openChangwon4Center = function() {
-            alert('창원4센터 입차현황 기능은 준비 중입니다.');
-            // TODO: 창원4센터 입차현황 페이지 구현
+            document.getElementById('vehicle-status-page').classList.add('hidden');
+            document.getElementById('vehicle-status-page').style.display = 'none';
+            document.getElementById('vehicle-status-4-page').classList.remove('hidden');
+            document.getElementById('vehicle-status-4-page').style.display = 'block';
+            initializeVehicleStatus4();
         };
+
+        // 차량현황 페이지 다크모드 업데이트
+        function updateVehicleStatusDarkMode() {
+            const pages = ['vehicle-status-1-page', 'vehicle-status-3-page', 'vehicle-status-4-page'];
+            
+            pages.forEach(pageId => {
+                const page = document.getElementById(pageId);
+                if (!page) return;
+                
+                // 토글 버튼 아이콘 변경
+                const themeToggle = page.querySelector('.theme-toggle');
+                if (themeToggle) {
+                    themeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+                }
+                
+                const bgStyle = isDarkMode 
+                    ? 'background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);'
+                    : 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);';
+                page.setAttribute('style', page.getAttribute('style').replace(/background:.*?;/, bgStyle));
+                
+                // 컨테이너
+                const container = page.querySelector('div > div');
+                if (container) {
+                    const containerStyle = container.getAttribute('style') || '';
+                    if (isDarkMode) {
+                        container.setAttribute('style', containerStyle + ' background: transparent !important; box-shadow: 0 2px 10px rgba(0,0,0,0.3) !important;');
+                    }
+                }
+                
+                // 제목 색상
+                const h1 = page.querySelector('h1');
+                if (h1) {
+                    h1.style.color = isDarkMode ? '#fff' : '#333';
+                }
+                
+                // 통계 박스
+                const statsBox = page.querySelector('[id^="statsBox"]');
+                if (statsBox) {
+                    statsBox.style.backgroundColor = isDarkMode ? 'rgba(255,255,255,0.1)' : '#e3f2fd';
+                }
+            });
+        }
+
+        // 차량현황 1센터 페이지 초기화
+        function initializeVehicleStatus1() {
+            updateVehicleStatusDarkMode(); // 다크모드 초기화
+            
+            // 메인 다크모드 버튼 숨김 처리
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                // 기존 타이머가 있으면 클리어
+                if (window.vehicleStatusThemeHideTimer) {
+                    clearTimeout(window.vehicleStatusThemeHideTimer);
+                }
+                
+                // 5초 후 버튼 숨김
+                window.vehicleStatusThemeHideTimer = setTimeout(() => {
+                    themeToggle.style.opacity = '0';
+                    themeToggle.style.transform = 'translateX(100px)';
+                    themeToggle.style.pointerEvents = 'none';
+                }, 5000);
+            }
+            
+            const routes = [
+                "거제1", "거제2", "김해1", "내서", "남포", "남포1-1", "다대1", "동래", "마산1", "마산2",
+                "명지1", "명지2", "부암", "서면", "서면2", "수영", "장유", "함안"
+            ].sort();
+            
+            const routeGrid = document.getElementById("routeGrid1");
+            routeGrid.innerHTML = '';
+            
+            window.selectedRoutes1 = new Set();
+            
+            routes.forEach(route => {
+                const routeItem = document.createElement("div");
+                routeItem.className = "route-item";
+                routeItem.textContent = route;
+                routeItem.style.cssText = "display: flex; align-items: center; justify-content: center; padding: 20px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; background: white; font-size: 18px; font-weight: 500; color: #333; min-height: 70px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;";
+                routeItem.onclick = (e) => toggleRoute1(route, e);
+                routeGrid.appendChild(routeItem);
+            });
+            
+            updateStats1();
+        }
+
+        // 노선 선택/해제 토글
+        function toggleRoute1(route, event) {
+            const routeItem = event.target;
+            
+            // 진동 실행
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+            
+            if (window.selectedRoutes1.has(route)) {
+                window.selectedRoutes1.delete(route);
+                routeItem.classList.remove("selected");
+                if (isDarkMode) {
+                    routeItem.style.borderColor = "rgba(255,255,255,0.3)";
+                    routeItem.style.backgroundColor = "rgba(255,255,255,0.2)";
+                    routeItem.style.color = "#fff";
+                } else {
+                    routeItem.style.borderColor = "#ddd";
+                    routeItem.style.backgroundColor = "white";
+                    routeItem.style.color = "#333";
+                }
+            } else {
+                window.selectedRoutes1.add(route);
+                routeItem.classList.add("selected");
+                // 다크모드에서도 초록색으로 명확하게 표시
+                routeItem.style.setProperty('background-color', '#4CAF50', 'important');
+                routeItem.style.setProperty('border-color', '#4CAF50', 'important');
+                routeItem.style.setProperty('color', '#fff', 'important');
+                routeItem.style.setProperty('font-weight', 'bold', 'important');
+            }
+            
+            updateStatus1();
+            updateStats1();
+        }
+
+        // 상태 업데이트
+        function updateStatus1() {
+            const statusText = document.getElementById("statusText1");
+            const selectedArray = Array.from(window.selectedRoutes1);
+            const excludedArray = [
+                "거제1", "거제2", "김해1", "내서", "남포", "남포1-1", "다대1", "동래", "마산1", "마산2",
+                "명지1", "명지2", "부암", "서면", "서면2", "수영", "장유", "함안"
+            ].filter(route => !window.selectedRoutes1.has(route));
+            
+            let statusHTML = "";
+            
+            if (selectedArray.length === 18) {
+                const color = isDarkMode ? '#4CAF50' : '#2e7d32';
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원1센터 차량현황 총18대 퇴근준비완료</div>`;
+            } else if (excludedArray.length > 0) {
+                const excludedNames = excludedArray.join(",");
+                const selectedCount = selectedArray.length;
+                const color = isDarkMode ? '#FFD700' : '#f44336';
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원1센터 차량현황 ${excludedNames} 노선제외 ${selectedCount}대 퇴근준비완료</div>`;
+            } else {
+                statusHTML = `<div style="color: ${isDarkMode ? '#fff' : '#333'};">노선을 선택해주세요.</div>`;
+            }
+            
+            statusText.innerHTML = statusHTML;
+        }
+
+        // 통계 업데이트
+        function updateStats1() {
+            const routes = [
+                "거제1", "거제2", "김해1", "내서", "남포", "남포1-1", "다대1", "동래", "마산1", "마산2",
+                "명지1", "명지2", "부암", "서면", "서면2", "수영", "장유", "함안"
+            ];
+            
+            document.getElementById("totalCount1").textContent = routes.length;
+            document.getElementById("selectedCount1").textContent = window.selectedRoutes1.size;
+            document.getElementById("excludedCount1").textContent = routes.length - window.selectedRoutes1.size;
+        }
+
+        // 선택 초기화
+        function resetSelection1() {
+            window.selectedRoutes1.clear();
+            document.querySelectorAll("#routeGrid1 .route-item").forEach(item => {
+                item.classList.remove("selected");
+                if (isDarkMode) {
+                    item.style.borderColor = "rgba(255,255,255,0.3)";
+                    item.style.backgroundColor = "rgba(255,255,255,0.2)";
+                    item.style.color = "#fff";
+                } else {
+                    item.style.borderColor = "#ddd";
+                    item.style.backgroundColor = "white";
+                    item.style.color = "#333";
+                }
+            });
+            updateStatus1();
+            updateStats1();
+        }
+
+        // 카카오톡 공유
+        function shareToKakao1() {
+            const statusText = document.getElementById("statusText1").textContent;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: '창원1센터차량현황',
+                    text: statusText
+                }).catch(err => console.log('공유 실패:', err));
+            } else {
+                // 공유 API가 없는 경우 클립보드에 복사
+                navigator.clipboard.writeText(statusText).then(() => {
+                    alert('클립보드에 복사되었습니다.');
+                }).catch(err => {
+                    alert('복사 실패: ' + err);
+                });
+            }
+        }
+
+        // 카운터로 돌아가기
+        function goBackToCounter1() {
+            document.getElementById('vehicle-status-1-page').classList.add('hidden');
+            document.getElementById('vehicle-status-1-page').style.display = 'none';
+            document.getElementById('keypad-page').classList.remove('hidden');
+            document.getElementById('keypad-page').style.display = 'block';
+        }
+
+        // 차량현황 3센터 페이지 초기화
+        function initializeVehicleStatus3() {
+            updateVehicleStatusDarkMode(); // 다크모드 초기화
+            
+            // 메인 다크모드 버튼 숨김 처리
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                if (window.vehicleStatusThemeHideTimer) {
+                    clearTimeout(window.vehicleStatusThemeHideTimer);
+                }
+                window.vehicleStatusThemeHideTimer = setTimeout(() => {
+                    themeToggle.style.opacity = '0';
+                    themeToggle.style.transform = 'translateX(100px)';
+                    themeToggle.style.pointerEvents = 'none';
+                }, 5000);
+            }
+            
+            const routes = ["진해2", "진해1", "창원1", "창원2", "창원3", "창원3-1"].sort();
+            
+            const routeGrid = document.getElementById("routeGrid3");
+            routeGrid.innerHTML = '';
+            
+            window.selectedRoutes3 = new Set();
+            
+            routes.forEach(route => {
+                const routeItem = document.createElement("div");
+                routeItem.className = "route-item";
+                routeItem.textContent = route;
+                routeItem.style.cssText = "display: flex; align-items: center; justify-content: center; padding: 20px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; background: white; font-size: 18px; font-weight: 500; color: #333; min-height: 70px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;";
+                routeItem.onclick = (e) => toggleRoute3(route, e);
+                routeGrid.appendChild(routeItem);
+            });
+            
+            updateStats3();
+        }
+
+        function toggleRoute3(route, event) {
+            const routeItem = event.target;
+            if (navigator.vibrate) navigator.vibrate(50);
+            
+            if (window.selectedRoutes3.has(route)) {
+                window.selectedRoutes3.delete(route);
+                routeItem.classList.remove("selected");
+                if (isDarkMode) {
+                    routeItem.style.borderColor = "rgba(255,255,255,0.3)";
+                    routeItem.style.backgroundColor = "rgba(255,255,255,0.2)";
+                    routeItem.style.color = "#fff";
+                } else {
+                    routeItem.style.borderColor = "#ddd";
+                    routeItem.style.backgroundColor = "white";
+                    routeItem.style.color = "#333";
+                }
+            } else {
+                window.selectedRoutes3.add(route);
+                routeItem.classList.add("selected");
+                routeItem.style.setProperty('background-color', '#4CAF50', 'important');
+                routeItem.style.setProperty('border-color', '#4CAF50', 'important');
+                routeItem.style.setProperty('color', '#fff', 'important');
+                routeItem.style.setProperty('font-weight', 'bold', 'important');
+            }
+            
+            updateStatus3();
+            updateStats3();
+        }
+
+        function updateStatus3() {
+            const statusText = document.getElementById("statusText3");
+            const selectedArray = Array.from(window.selectedRoutes3);
+            const excludedArray = ["진해2", "진해1", "창원1", "창원2", "창원3", "창원3-1"].filter(route => !window.selectedRoutes3.has(route));
+            
+            let statusHTML = "";
+            if (selectedArray.length === 6) {
+                const color = isDarkMode ? '#4CAF50' : '#2e7d32';
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원3센터 차량현황 총6대 퇴근준비완료</div>`;
+            } else if (excludedArray.length > 0) {
+                const color = isDarkMode ? '#FFD700' : '#f44336';
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원3센터 차량현황 ${excludedArray.join(",")} 노선제외 ${selectedArray.length}대 퇴근준비완료</div>`;
+            } else {
+                statusHTML = `<div style="color: ${isDarkMode ? '#fff' : '#333'};">노선을 선택해주세요.</div>`;
+            }
+            statusText.innerHTML = statusHTML;
+        }
+
+        function updateStats3() {
+            const routes = ["진해2", "진해1", "창원1", "창원2", "창원3", "창원3-1"];
+            document.getElementById("totalCount3").textContent = routes.length;
+            document.getElementById("selectedCount3").textContent = window.selectedRoutes3.size;
+            document.getElementById("excludedCount3").textContent = routes.length - window.selectedRoutes3.size;
+        }
+
+        function resetSelection3() {
+            window.selectedRoutes3.clear();
+            document.querySelectorAll("#routeGrid3 .route-item").forEach(item => {
+                if (isDarkMode) {
+                    item.style.borderColor = "rgba(255,255,255,0.3)";
+                    item.style.backgroundColor = "rgba(255,255,255,0.2)";
+                    item.style.color = "#fff";
+                } else {
+                    item.style.borderColor = "#ddd";
+                    item.style.backgroundColor = "white";
+                    item.style.color = "#333";
+                }
+            });
+            updateStatus3();
+            updateStats3();
+        }
+
+        function shareToKakao3() {
+            const statusText = document.getElementById("statusText3").textContent;
+            if (navigator.share) {
+                navigator.share({ title: '창원3센터차량현황', text: statusText }).catch(err => console.log('공유 실패:', err));
+            } else {
+                navigator.clipboard.writeText(statusText).then(() => alert('클립보드에 복사되었습니다.')).catch(err => alert('복사 실패: ' + err));
+            }
+        }
+
+        function goBackToCounter3() {
+            document.getElementById('vehicle-status-3-page').classList.add('hidden');
+            document.getElementById('vehicle-status-3-page').style.display = 'none';
+            document.getElementById('keypad-page').classList.remove('hidden');
+            document.getElementById('keypad-page').style.display = 'block';
+        }
+
+        // 차량현황 4센터 페이지 초기화
+        function initializeVehicleStatus4() {
+            updateVehicleStatusDarkMode(); // 다크모드 초기화
+            
+            // 메인 다크모드 버튼 숨김 처리
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                if (window.vehicleStatusThemeHideTimer) {
+                    clearTimeout(window.vehicleStatusThemeHideTimer);
+                }
+                window.vehicleStatusThemeHideTimer = setTimeout(() => {
+                    themeToggle.style.opacity = '0';
+                    themeToggle.style.transform = 'translateX(100px)';
+                    themeToggle.style.pointerEvents = 'none';
+                }, 5000);
+            }
+            
+            const routes = ["진주1", "진주2", "통영", "하단"];
+            
+            const routeGrid = document.getElementById("routeGrid4");
+            routeGrid.innerHTML = '';
+            
+            window.selectedRoutes4 = new Set();
+            
+            routes.forEach(route => {
+                const routeItem = document.createElement("div");
+                routeItem.className = "route-item";
+                routeItem.textContent = route;
+                routeItem.style.cssText = "display: flex; align-items: center; justify-content: center; padding: 20px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; background: white; font-size: 18px; font-weight: 500; color: #333; min-height: 70px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;";
+                routeItem.onclick = (e) => toggleRoute4(route, e);
+                routeGrid.appendChild(routeItem);
+            });
+            
+            updateStats4();
+        }
+
+        function toggleRoute4(route, event) {
+            const routeItem = event.target;
+            if (navigator.vibrate) navigator.vibrate(50);
+            
+            if (window.selectedRoutes4.has(route)) {
+                window.selectedRoutes4.delete(route);
+                routeItem.classList.remove("selected");
+                if (isDarkMode) {
+                    routeItem.style.borderColor = "rgba(255,255,255,0.3)";
+                    routeItem.style.backgroundColor = "rgba(255,255,255,0.2)";
+                    routeItem.style.color = "#fff";
+                } else {
+                    routeItem.style.borderColor = "#ddd";
+                    routeItem.style.backgroundColor = "white";
+                    routeItem.style.color = "#333";
+                }
+            } else {
+                window.selectedRoutes4.add(route);
+                routeItem.classList.add("selected");
+                routeItem.style.setProperty('background-color', '#4CAF50', 'important');
+                routeItem.style.setProperty('border-color', '#4CAF50', 'important');
+                routeItem.style.setProperty('color', '#fff', 'important');
+                routeItem.style.setProperty('font-weight', 'bold', 'important');
+            }
+            
+            updateStatus4();
+            updateStats4();
+        }
+
+        function updateStatus4() {
+            const statusText = document.getElementById("statusText4");
+            const selectedArray = Array.from(window.selectedRoutes4);
+            const excludedArray = ["진주1", "진주2", "통영", "하단"].filter(route => !window.selectedRoutes4.has(route));
+            
+            let statusHTML = "";
+            if (selectedArray.length === 4) {
+                const color = isDarkMode ? '#4CAF50' : '#2e7d32';
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원4센터 차량현황 총4대 퇴근준비완료</div>`;
+            } else if (excludedArray.length > 0) {
+                const color = isDarkMode ? '#FFD700' : '#f44336';
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원4센터 차량현황 ${excludedArray.join(",")} 노선제외 ${selectedArray.length}대 퇴근준비완료</div>`;
+            } else {
+                statusHTML = `<div style="color: ${isDarkMode ? '#fff' : '#333'};">노선을 선택해주세요.</div>`;
+            }
+            statusText.innerHTML = statusHTML;
+        }
+
+        function updateStats4() {
+            const routes = ["진주1", "진주2", "통영", "하단"];
+            document.getElementById("totalCount4").textContent = routes.length;
+            document.getElementById("selectedCount4").textContent = window.selectedRoutes4.size;
+            document.getElementById("excludedCount4").textContent = routes.length - window.selectedRoutes4.size;
+        }
+
+        function resetSelection4() {
+            window.selectedRoutes4.clear();
+            document.querySelectorAll("#routeGrid4 .route-item").forEach(item => {
+                if (isDarkMode) {
+                    item.style.borderColor = "rgba(255,255,255,0.3)";
+                    item.style.backgroundColor = "rgba(255,255,255,0.2)";
+                    item.style.color = "#fff";
+                } else {
+                    item.style.borderColor = "#ddd";
+                    item.style.backgroundColor = "white";
+                    item.style.color = "#333";
+                }
+            });
+            updateStatus4();
+            updateStats4();
+        }
+
+        function shareToKakao4() {
+            const statusText = document.getElementById("statusText4").textContent;
+            if (navigator.share) {
+                navigator.share({ title: '창원4센터차량현황', text: statusText }).catch(err => console.log('공유 실패:', err));
+            } else {
+                navigator.clipboard.writeText(statusText).then(() => alert('클립보드에 복사되었습니다.')).catch(err => alert('복사 실패: ' + err));
+            }
+        }
+
+        function goBackToCounter4() {
+            document.getElementById('vehicle-status-4-page').classList.add('hidden');
+            document.getElementById('vehicle-status-4-page').style.display = 'none';
+            document.getElementById('keypad-page').classList.remove('hidden');
+            document.getElementById('keypad-page').style.display = 'block';
+        }
 
         // 공지사항 모달 열기
         function openNoticeModal() {
