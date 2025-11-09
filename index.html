@@ -86,6 +86,8 @@
             /* 다른 페이지들은 숨김 상태 유지 */
             #station-count-page.hidden,
             #station-names-page.hidden,
+            #kurly-station-count-page.hidden,
+            #kurly-station-names-page.hidden,
             #keypad-page.hidden {
                 display: none !important;
             }
@@ -1920,7 +1922,7 @@
         <!-- 시작 페이지 (선택 페이지) -->
         <div id="selection-page">
             <div class="selection-page">
-                <h1>서비스를 선택하세요</h1>
+                <h1>선택하세요</h1>
                 <div class="selection-buttons">
                     <button class="selection-btn coupang-btn" onclick="goToCoupang()">
                         <img src="https://image7.coupangcdn.com/image/coupang/common/logo_coupang_w350.png" alt="Coupang">
@@ -1951,6 +1953,41 @@
                 <h3>정류장 개수를 입력하세요</h3>
                 <input type="number" id="station-count" min="1" max="20" placeholder="정류장 개수" class="number-input" oninput="updateStationCount()">
                 <button id="count-submit" class="submit-btn" onclick="submitStationCount()" disabled>확인</button>
+            </div>
+        </div>
+
+        <!-- 컬리 정류장 개수 입력 페이지 -->
+        <div id="kurly-station-count-page" class="hidden">
+            <!-- 저장된 노선 목록 -->
+            <div class="station-count-input" style="margin-bottom: 20px;">
+                <h2>저장된 노선</h2>
+                <div id="kurly-saved-routes-container">
+                    <p style="color: #999; text-align: center; margin: 10px 0;">저장된 노선이 없습니다.</p>
+                </div>
+            </div>
+            
+            <div class="station-count-input">
+                <h2>노선 정보를 입력하세요</h2>
+                <div style="margin-bottom: 20px;">
+                    <label for="kurly-route-name" style="display: block; margin-bottom: 10px; font-size: 1.1rem;">노선 이름:</label>
+                    <input type="text" id="kurly-route-name" placeholder="예: 명지2 노선" class="number-input" style="width: 300px;" lang="ko" ime-mode="active">
+                </div>
+                <h3>정류장 개수를 입력하세요</h3>
+                <input type="number" id="kurly-station-count" min="1" max="20" placeholder="정류장 개수" class="number-input" oninput="updateKurlyStationCount()">
+                <button id="kurly-count-submit" class="submit-btn" onclick="submitKurlyStationCount()" disabled>확인</button>
+            </div>
+        </div>
+
+        <!-- 컬리 정류장 이름 입력 페이지 -->
+        <div id="kurly-station-names-page" class="hidden">
+            <div class="station-names-input">
+                <h2>정류장 이름을 입력하세요</h2>
+                <div id="kurly-station-inputs" class="station-inputs"></div>
+                <div class="button-group">
+                    <button id="kurly-start-counting" class="start-btn" onclick="startKurlyCounting()" disabled><span class="button-text-top">카운팅</span><br><span class="button-text-bottom">시작</span></button>
+                    <button id="kurly-save-route" class="save-btn" onclick="saveKurlyRoute()" disabled><span class="button-text-top">노선</span><br><span class="button-text-bottom">저장</span></button>
+                    <button onclick="resetKurlySetup()" class="reset-btn"><span class="button-text-top">처음</span><br><span class="button-text-bottom">으로</span></button>
+                </div>
             </div>
         </div>
 
@@ -2227,6 +2264,7 @@
         let selectedTimePeriod = 'morning'; // 'morning' 또는 'afternoon'
         let isLoadedRoute = false; // 불러온 노선인지 추적
         let completedTimePeriods = { morning: false, afternoon: false }; // 완료된 운행 시간대 추적
+        let currentService = 'coupang'; // 'coupang' 또는 'kurly' - 현재 선택된 서비스
 
         // 다크모드 토글 함수
         window.toggleTheme = function() {
@@ -3292,6 +3330,7 @@
         // 정류장 개수 제출 함수
         // 시작 페이지에서 쿠팡으로 이동
         window.goToCoupang = function() {
+            currentService = 'coupang'; // 현재 서비스 설정
             // 저장된 정류장 정보가 있으면 복원하고 키패드 페이지로 이동
             const savedStations = JSON.parse(loadFromLocalStorage('savedStations') || '[]');
             const savedStationCount = loadFromLocalStorage('savedStationCount');
@@ -3329,9 +3368,62 @@
 
         // 시작 페이지에서 컬리로 이동
         window.goToKurly = function() {
-            // 컬리 페이지는 나중에 구현 예정
-            alert('컬리 서비스는 준비 중입니다.');
-            // TODO: 컬리 페이지로 이동하는 로직 추가
+            currentService = 'kurly'; // 현재 서비스 설정
+            // 컬리 저장된 정류장 정보 확인
+            const kurlySavedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
+            const kurlySavedStationCount = loadFromLocalStorage('kurlySavedStationCount');
+            
+            // 모든 페이지 숨김
+            const selectionPage = document.getElementById('selection-page');
+            const stationCountPage = document.getElementById('station-count-page');
+            const stationNamesPage = document.getElementById('station-names-page');
+            const kurlyStationCountPage = document.getElementById('kurly-station-count-page');
+            const kurlyStationNamesPage = document.getElementById('kurly-station-names-page');
+            const keypadPage = document.getElementById('keypad-page');
+            
+            if (selectionPage) {
+                selectionPage.classList.add('hidden');
+                selectionPage.style.display = 'none';
+            }
+            if (stationCountPage) {
+                stationCountPage.classList.add('hidden');
+                stationCountPage.style.display = 'none';
+            }
+            if (stationNamesPage) {
+                stationNamesPage.classList.add('hidden');
+                stationNamesPage.style.display = 'none';
+            }
+            if (kurlyStationNamesPage) {
+                kurlyStationNamesPage.classList.add('hidden');
+                kurlyStationNamesPage.style.display = 'none';
+            }
+            if (keypadPage) {
+                keypadPage.classList.add('hidden');
+                keypadPage.style.display = 'none';
+            }
+            
+            // 컬리 저장된 정류장 정보가 있으면 키패드 페이지로, 없으면 컬리 노선 개수 입력 페이지로
+            if (kurlySavedStationCount && kurlySavedStations.length > 0) {
+                // 컬리 저장된 데이터 복원
+                restoreKurlySavedStations();
+                
+                // 키패드 페이지 표시
+                if (keypadPage) {
+                    keypadPage.classList.remove('hidden');
+                    keypadPage.style.display = 'block';
+                }
+            } else {
+                // 컬리 노선 개수 입력 페이지 표시
+                if (kurlyStationCountPage) {
+                    kurlyStationCountPage.classList.remove('hidden');
+                    kurlyStationCountPage.style.display = 'block';
+                    // 컬리 저장된 노선 목록 업데이트
+                    updateKurlySavedRoutesDisplay();
+                }
+            }
+            
+            // URL 상태 업데이트
+            window.history.pushState({page: kurlySavedStationCount && kurlySavedStations.length > 0 ? 'keypad' : 'kurly-station-count', service: 'kurly'}, '', window.location.pathname);
         }
 
         function submitStationCount() {
@@ -4524,7 +4616,7 @@
                 } else {
                     console.log(`restoreKeypadState: 저장된 인덱스(${parsedIndex})가 유효하지 않습니다. 기본값 0으로 설정합니다.`);
                     currentStationIndex = 0;
-                    updateKeypadPage();
+                updateKeypadPage();
                 }
             }
         }
@@ -4962,6 +5054,362 @@
             // 다크모드 버튼 자동 숨김 (5초 후)
             hideThemeButton();
             });
+        }
+
+        // ========== 컬리 전용 함수들 ==========
+        
+        // 컬리 노선 개수 업데이트
+        function updateKurlyStationCount() {
+            stationCount = parseInt(document.getElementById('kurly-station-count').value) || 0;
+            routeName = document.getElementById('kurly-route-name').value.trim();
+            document.getElementById('kurly-count-submit').disabled = stationCount <= 0 || routeName === '';
+        }
+
+        // 컬리 노선 개수 제출
+        function submitKurlyStationCount() {
+            stationCount = parseInt(document.getElementById('kurly-station-count').value) || 0;
+            routeName = document.getElementById('kurly-route-name').value.trim();
+            isLoadedRoute = false; // 새로운 노선임을 표시
+            
+            if (routeName === '') {
+                return;
+            }
+            
+            if (stationCount > 0) {
+                // 새로운 노선을 위한 완전 초기화
+                stations = Array.from({ length: stationCount }, (_, index) => ({
+                    id: index,
+                    name: '',
+                    count: 0,
+                    morningCount: 0,
+                    afternoonCount: 0,
+                    departureTime: { 
+                        morningHour: 8, 
+                        afternoonHour: 17, 
+                        minute: Math.min(index * 5, 59) 
+                    }
+                }));
+                stationNames = new Array(stationCount).fill('');
+                stationDepartureTimes = new Array(stationCount).fill({ hour: 8, minute: 0, ampm: 'AM' });
+                createKurlyStationInputs();
+                
+                // 페이지 전환
+                const kurlyStationCountPage = document.getElementById('kurly-station-count-page');
+                const kurlyStationNamesPage = document.getElementById('kurly-station-names-page');
+                
+                if (kurlyStationCountPage) {
+                    kurlyStationCountPage.classList.add('hidden');
+                    kurlyStationCountPage.style.display = 'none';
+                }
+                if (kurlyStationNamesPage) {
+                    kurlyStationNamesPage.classList.remove('hidden');
+                    kurlyStationNamesPage.style.display = 'block';
+                }
+                
+                // 버튼 상태 업데이트
+                document.getElementById('kurly-count-submit').disabled = stationCount <= 0 || routeName === '';
+            }
+        }
+
+        // 컬리 정류장 이름 입력 필드 생성
+        function createKurlyStationInputs() {
+            const stationInputs = document.getElementById('kurly-station-inputs');
+            stationInputs.innerHTML = '';
+            stations.forEach((station, index) => {
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'station-input-group';
+                inputGroup.style.flexDirection = 'column';
+                inputGroup.style.alignItems = 'stretch';
+                inputGroup.style.gap = '10px';
+                inputGroup.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">정류장 ${index + 1}:</label>
+                        <input type="text" class="station-name-input" placeholder="정류장 ${index + 1} 이름" 
+                               value="${station.name || ''}" onchange="updateKurlyStationName(${index}, this.value)" lang="ko" ime-mode="active">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">오전시간:</label>
+                        <input type="number" min="1" max="12" placeholder="시" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
+                               value="${station.departureTime.morningHour || 8}" onchange="updateKurlyDepartureTime(${index}, 'morningHour', this.value)">
+                        <span style="color: white;">시</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">오후시간:</label>
+                        <input type="number" min="1" max="12" placeholder="시" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
+                               value="${station.departureTime.afternoonHour || 5}" onchange="updateKurlyDepartureTime(${index}, 'afternoonHour', this.value)">
+                        <span style="color: white;">시</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">분:</label>
+                        <input type="number" min="0" max="59" placeholder="분" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
+                               value="${station.departureTime.minute || 0}" onchange="updateKurlyDepartureTime(${index}, 'minute', this.value)">
+                        <span style="color: white;">분</span>
+                    </div>
+                `;
+                stationInputs.appendChild(inputGroup);
+            });
+        }
+
+        // 컬리 정류장 이름 업데이트
+        function updateKurlyStationName(index, name) {
+            stationNames[index] = name;
+            stations[index].name = name;
+            
+            // 컬리 정류장 이름과 카운팅 데이터를 모두 localStorage에 저장
+            localStorage.setItem('kurlySavedStations', JSON.stringify(stations));
+            
+            checkKurlyAllNamesFilled();
+        }
+
+        // 컬리 출발 시간 업데이트
+        function updateKurlyDepartureTime(index, type, value) {
+            if (!stations[index].departureTime) {
+                stations[index].departureTime = { morningHour: 8, afternoonHour: 5, minute: 0 };
+            }
+            
+            if (type === 'morningHour') {
+                stations[index].departureTime.morningHour = parseInt(value) || 8;
+            } else if (type === 'afternoonHour') {
+                stations[index].departureTime.afternoonHour = parseInt(value) || 5;
+            } else if (type === 'minute') {
+                stations[index].departureTime.minute = parseInt(value) || 0;
+            }
+            
+            // 컬리 출발 시간을 localStorage에 저장
+            const savedDepartureTimes = stations.map(station => station.departureTime);
+            localStorage.setItem('kurlySavedDepartureTimes', JSON.stringify(savedDepartureTimes));
+        }
+
+        // 컬리 모든 정류장 이름이 입력되었는지 확인
+        function checkKurlyAllNamesFilled() {
+            const allFilled = stations.every(station => station.name.trim() !== '');
+            document.getElementById('kurly-start-counting').disabled = !allFilled;
+            document.getElementById('kurly-save-route').disabled = !allFilled;
+        }
+
+        // 컬리 카운팅 시작
+        function startKurlyCounting() {
+            if (stations.every(station => station.name.trim() !== '')) {
+                // 컬리 정류장 개수와 노선이름을 localStorage에 저장
+                localStorage.setItem('kurlySavedStationCount', stationCount.toString());
+                localStorage.setItem('kurlySavedRouteName', routeName);
+                
+                currentStationIndex = 0;
+                saveToLocalStorage('kurlyCurrentStationIndex', '0');
+                
+                // 페이지 전환
+                const kurlyStationNamesPage = document.getElementById('kurly-station-names-page');
+                const keypadPage = document.getElementById('keypad-page');
+                
+                if (kurlyStationNamesPage) {
+                    kurlyStationNamesPage.classList.add('hidden');
+                    kurlyStationNamesPage.style.display = 'none';
+                }
+                if (keypadPage) {
+                    keypadPage.classList.remove('hidden');
+                    keypadPage.style.display = 'block';
+                }
+                
+                // 키패드 페이지 업데이트
+                updateKeypadPage();
+                
+                // 시계 시작
+                updateClock();
+                setInterval(updateClock, 1000);
+            }
+        }
+
+        // 컬리 노선 저장
+        function saveKurlyRoute() {
+            if (stations.every(station => station.name.trim() !== '')) {
+                const savedRoutes = JSON.parse(localStorage.getItem('kurlySavedRoutes') || '[]');
+                const newRoute = {
+                    name: routeName,
+                    stationCount: stationCount,
+                    stations: stations.map(s => ({
+                        name: s.name,
+                        departureTime: s.departureTime
+                    })),
+                    departureTimes: stations.map(s => s.departureTime),
+                    createdAt: new Date().toISOString()
+                };
+                
+                // 중복 체크
+                const existingIndex = savedRoutes.findIndex(r => r.name === routeName);
+                if (existingIndex >= 0) {
+                    savedRoutes[existingIndex] = newRoute;
+                } else {
+                    savedRoutes.push(newRoute);
+                }
+                
+                localStorage.setItem('kurlySavedRoutes', JSON.stringify(savedRoutes));
+                alert('노선이 저장되었습니다.');
+                
+                // 저장된 노선 목록 업데이트
+                updateKurlySavedRoutesDisplay();
+            }
+        }
+
+        // 컬리 설정 초기화
+        function resetKurlySetup() {
+            stationCount = 0;
+            stations = [];
+            stationNames = [];
+            currentStationIndex = 0;
+            currentInput = '';
+            saveToLocalStorage('kurlyCurrentStationIndex', '0');
+            
+            document.getElementById('kurly-station-count').value = '';
+            document.getElementById('kurly-route-name').value = '';
+            document.getElementById('kurly-count-submit').disabled = true;
+            
+            // 시작 페이지로 돌아가기
+            const selectionPage = document.getElementById('selection-page');
+            const kurlyStationCountPage = document.getElementById('kurly-station-count-page');
+            const kurlyStationNamesPage = document.getElementById('kurly-station-names-page');
+            const keypadPage = document.getElementById('keypad-page');
+            
+            if (selectionPage) {
+                selectionPage.classList.remove('hidden');
+                selectionPage.style.display = 'flex';
+            }
+            if (kurlyStationCountPage) {
+                kurlyStationCountPage.classList.add('hidden');
+                kurlyStationCountPage.style.display = 'none';
+            }
+            if (kurlyStationNamesPage) {
+                kurlyStationNamesPage.classList.add('hidden');
+                kurlyStationNamesPage.style.display = 'none';
+            }
+            if (keypadPage) {
+                keypadPage.classList.add('hidden');
+                keypadPage.style.display = 'none';
+            }
+        }
+
+        // 컬리 저장된 노선 목록 표시
+        function updateKurlySavedRoutesDisplay() {
+            const savedRoutes = JSON.parse(localStorage.getItem('kurlySavedRoutes') || '[]');
+            const container = document.getElementById('kurly-saved-routes-container');
+            
+            if (!container) return;
+            
+            if (savedRoutes.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center; margin: 10px 0;">저장된 노선이 없습니다.</p>';
+                return;
+            }
+            
+            container.innerHTML = savedRoutes.map((route, index) => `
+                <div class="saved-route-item">
+                    <button class="saved-route-btn" onclick="loadKurlyRoute('${route.name}')">
+                        ${route.name} (${route.stationCount}개 정류장)
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // 컬리 노선 불러오기
+        function loadKurlyRoute(routeName) {
+            const savedRoutes = JSON.parse(localStorage.getItem('kurlySavedRoutes') || '[]');
+            const route = savedRoutes.find(r => r.name === routeName);
+            
+            if (!route) {
+                alert('노선을 찾을 수 없습니다.');
+                return;
+            }
+            
+            // 컬리 데이터 복원
+            stationCount = route.stationCount;
+            window.routeName = routeName;
+            isLoadedRoute = true;
+            
+            stations = Array.from({ length: stationCount }, (_, index) => {
+                const savedStation = route.stations[index] || {};
+                return {
+                    id: index,
+                    name: savedStation.name || '',
+                    count: 0,
+                    morningCount: 0,
+                    afternoonCount: 0,
+                    departureTime: savedStation.departureTime || route.departureTimes[index] || { morningHour: 8, afternoonHour: 17, minute: 0 }
+                };
+            });
+            
+            stationNames = stations.map(s => s.name);
+            stationDepartureTimes = stations.map(s => s.departureTime);
+            
+            // 컬리 localStorage에 저장
+            localStorage.setItem('kurlySavedStations', JSON.stringify(stations));
+            localStorage.setItem('kurlySavedStationCount', stationCount.toString());
+            localStorage.setItem('kurlySavedRouteName', routeName);
+            localStorage.setItem('kurlySavedDepartureTimes', JSON.stringify(stationDepartureTimes));
+            
+            // 정류장 이름 입력 페이지로 이동
+            createKurlyStationInputs();
+            
+            const kurlyStationCountPage = document.getElementById('kurly-station-count-page');
+            const kurlyStationNamesPage = document.getElementById('kurly-station-names-page');
+            
+            if (kurlyStationCountPage) {
+                kurlyStationCountPage.classList.add('hidden');
+                kurlyStationCountPage.style.display = 'none';
+            }
+            if (kurlyStationNamesPage) {
+                kurlyStationNamesPage.classList.remove('hidden');
+                kurlyStationNamesPage.style.display = 'block';
+            }
+        }
+
+        // 컬리 저장된 정류장 정보 복원
+        function restoreKurlySavedStations() {
+            const savedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
+            const savedStationCount = loadFromLocalStorage('kurlySavedStationCount');
+            const savedDepartureTimes = JSON.parse(loadFromLocalStorage('kurlySavedDepartureTimes') || '[]');
+            const savedRouteName = loadFromLocalStorage('kurlySavedRouteName');
+            
+            if (savedStationCount && savedStations.length > 0) {
+                stationCount = parseInt(savedStationCount);
+                routeName = savedRouteName || '';
+                
+                stations = Array.from({ length: stationCount }, (_, index) => {
+                    const savedStation = savedStations[index];
+                    const stationName = typeof savedStation === 'string' ? savedStation : (savedStation?.name || '');
+                    
+                    const savedCount = typeof savedStation === 'object' ? (savedStation?.count || 0) : 0;
+                    const savedMorningCount = typeof savedStation === 'object' ? (savedStation?.morningCount || 0) : 0;
+                    const savedAfternoonCount = typeof savedStation === 'object' ? (savedStation?.afternoonCount || 0) : 0;
+                    
+                    const departureTime = savedDepartureTimes[index] || savedStation?.departureTime || {
+                        morningHour: 8,
+                        afternoonHour: 17,
+                        minute: Math.min(index * 5, 59)
+                    };
+                    
+                    return {
+                        id: index,
+                        name: stationName,
+                        count: savedCount,
+                        morningCount: savedMorningCount,
+                        afternoonCount: savedAfternoonCount,
+                        departureTime: departureTime
+                    };
+                });
+                
+                stationNames = stations.map(s => s.name);
+                stationDepartureTimes = stations.map(s => s.departureTime);
+                
+                const savedCurrentStationIndex = loadFromLocalStorage('kurlyCurrentStationIndex');
+                if (savedCurrentStationIndex !== null && savedCurrentStationIndex !== '') {
+                    currentStationIndex = parseInt(savedCurrentStationIndex) || 0;
+                } else {
+                    currentStationIndex = 0;
+                }
+                
+                const savedCurrentInput = loadFromLocalStorage('kurlyCurrentInput');
+                currentInput = savedCurrentInput || '';
+                
+                updateKeypadPage();
+            }
         }
     </script>
 </body>
