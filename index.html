@@ -2544,7 +2544,7 @@
         let currentService = 'coupang'; // 'coupang' 또는 'kurly' - 현재 선택된 서비스
         let isEveningMode = false; // 퇴근운행 모드 (역순 카운트)
         let arrivalTime = null; // 도착시간 저장 (14시운행 후)
-        let taxiPassengers = { morning: 0, afternoon: 0 }; // 택시 인원 (쿠팡 전용)
+        let taxiPassengers = { morning: 0, afternoon: 0, evening: 0 }; // 택시 인원 (쿠팡/컬리 공용)
         let taxiInput = ''; // 택시 인원 입력 임시 저장
 
         // 다크모드 토글 함수
@@ -4112,16 +4112,16 @@
                 stationNameElement.textContent = `${currentStation.name || '정류장'}${timeDisplay}`;
             }
             if (stationCountElement) {
-                // 쿠팡일 때는 45명 제한 표시
-                if (currentService === 'coupang' && totalCount >= 45) {
+                // 쿠팡/컬리일 때는 45명 제한 표시
+                if ((currentService === 'coupang' || currentService === 'kurly') && totalCount >= 45) {
                     stationCountElement.textContent = `총 탑승자수: 45명 (최대)`;
                 } else {
                     stationCountElement.textContent = `총 탑승자수: ${totalCount}`;
                 }
             }
             
-            // 쿠팡일 때 45명 이상이면 택시 인원 추가 버튼 표시
-            if (currentService === 'coupang' && totalCount >= 45) {
+            // 쿠팡/컬리일 때 45명 이상이면 택시 인원 추가 버튼 표시
+            if ((currentService === 'coupang' || currentService === 'kurly') && totalCount >= 45) {
                 const taxiSection = document.getElementById('taxi-passenger-section');
                 if (taxiSection) {
                     taxiSection.style.display = 'block';
@@ -4411,9 +4411,9 @@
                 // 완료 상태 초기화
                 completedTimePeriods = { morning: false, afternoon: false, evening: false };
                 
-                // 택시 인원 초기화 (쿠팡일 때만)
-                if (currentService === 'coupang') {
-                    taxiPassengers = { morning: 0, afternoon: 0 };
+                // 택시 인원 초기화 (쿠팡/컬리일 때)
+                if (currentService === 'coupang' || currentService === 'kurly') {
+                    taxiPassengers = { morning: 0, afternoon: 0, evening: 0 };
                     localStorage.removeItem('taxiPassengers');
                 }
                 
@@ -4457,7 +4457,7 @@
                     currentStationIndex = 0;
                     currentInput = '';
                     completedTimePeriods = { morning: false, afternoon: false, evening: false };
-                    taxiPassengers = { morning: 0, afternoon: 0 };
+                    taxiPassengers = { morning: 0, afternoon: 0, evening: 0 };
                     
                     // 도착시간 초기화
                     arrivalTime = null;
@@ -4709,12 +4709,14 @@
             closeTaxiKeypadModal();
             
             // 택시 인원 추가 후 다음 정류장으로 이동 (45명 도달 시)
-            if (currentService === 'coupang' && stations.length > 0) {
+            if ((currentService === 'coupang' || currentService === 'kurly') && stations.length > 0) {
                 let currentTotal = 0;
                 if (selectedTimePeriod === 'morning') {
                     currentTotal = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
                 } else if (selectedTimePeriod === 'afternoon') {
                     currentTotal = stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
+                } else if (selectedTimePeriod === 'evening') {
+                    currentTotal = stations.reduce((sum, station) => sum + (station.eveningCount || 0), 0);
                 }
                 
                 // 45명 도달 시 다음 정류장으로 이동
@@ -4746,9 +4748,14 @@
         function updateTaxiPassengerDisplay() {
             const taxiCountDisplay = document.getElementById('taxi-count-display');
             if (taxiCountDisplay) {
-                const currentTaxiCount = selectedTimePeriod === 'morning' 
-                    ? taxiPassengers.morning 
-                    : taxiPassengers.afternoon;
+                let currentTaxiCount = 0;
+                if (selectedTimePeriod === 'morning') {
+                    currentTaxiCount = taxiPassengers.morning;
+                } else if (selectedTimePeriod === 'afternoon') {
+                    currentTaxiCount = taxiPassengers.afternoon;
+                } else if (selectedTimePeriod === 'evening') {
+                    currentTaxiCount = taxiPassengers.evening || 0;
+                }
                 taxiCountDisplay.textContent = currentTaxiCount;
             }
         }
@@ -4957,7 +4964,7 @@
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // 캔버스 크기 설정 (컬리일 때는 도착시간 행 추가, 쿠팡일 때는 택시 인원 행 추가)
+            // 캔버스 크기 설정 (컬리일 때는 도착시간 행 추가, 쿠팡/컬리일 때는 택시 인원 행 추가)
             const isKurly = currentService === 'kurly';
             const isCoupang = currentService === 'coupang';
             canvas.width = 1300;
@@ -4965,7 +4972,7 @@
             if (isKurly) {
                 extraHeight += 40; // 도착시간 행
             }
-            if (isCoupang) {
+            if (isCoupang || isKurly) {
                 extraHeight += 40; // 택시 인원 행
             }
             canvas.height = 350 + (stations.length * 40) + extraHeight;
@@ -5003,7 +5010,7 @@
             if (isKurly) {
                 totalRows += 1; // 도착시간 행
             }
-            if (isCoupang) {
+            if (isCoupang || isKurly) {
                 totalRows += 1; // 택시 인원 행
             }
             ctx.strokeRect(tableX, tableY, tableWidth, rowHeight + (totalRows * rowHeight));
@@ -5232,8 +5239,8 @@
                 ctx.fillText(eveningTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4] + colWidths[5]/2, totalRowY + rowHeight/2 + 8);
             }
             
-            // 쿠팡일 때 택시 인원 정보 표시 (총계 행 아래)
-            if (isCoupang) {
+            // 쿠팡/컬리일 때 택시 인원 정보 표시 (총계 행 아래)
+            if (isCoupang || isKurly) {
                 const taxiRowY = totalRowY + rowHeight;
                 
                 // 택시 인원 행 배경색 (연두색)
@@ -5259,7 +5266,14 @@
                 ctx.fillStyle = '#000000';
                 ctx.font = 'bold 28px Arial';
                 ctx.textAlign = 'left';
-                const taxiText = `오전택시인원 ${taxiPassengers.morning || 0}명  오후택시인원 ${taxiPassengers.afternoon || 0}명`;
+                let taxiText = '';
+                if (isKurly) {
+                    // 컬리는 오전/오후/퇴근 모두 표시
+                    taxiText = `오전택시인원 ${taxiPassengers.morning || 0}명  오후택시인원 ${taxiPassengers.afternoon || 0}명  퇴근택시인원 ${taxiPassengers.evening || 0}명`;
+                } else {
+                    // 쿠팡은 오전/오후만 표시
+                    taxiText = `오전택시인원 ${taxiPassengers.morning || 0}명  오후택시인원 ${taxiPassengers.afternoon || 0}명`;
+                }
                 ctx.fillText(taxiText, tableX + 10, taxiRowY + rowHeight/2 + 8);
             }
             
