@@ -2080,6 +2080,9 @@
                 <div class="keypad-row">
                     <button class="enter-btn" onclick="enterNumber()">ENTER</button>
                 </div>
+                <div class="keypad-row" id="arrival-time-row" style="display: none;">
+                    <button class="enter-btn" onclick="recordArrivalTime()" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);">도착시간</button>
+                </div>
             </div>
 
             <div class="station-summary">
@@ -2294,6 +2297,7 @@
         let completedTimePeriods = { morning: false, afternoon: false, evening: false }; // 완료된 운행 시간대 추적
         let currentService = 'coupang'; // 'coupang' 또는 'kurly' - 현재 선택된 서비스
         let isEveningMode = false; // 퇴근운행 모드 (역순 카운트)
+        let arrivalTime = null; // 도착시간 저장 (14시운행 후)
 
         // 다크모드 토글 함수
         window.toggleTheme = function() {
@@ -3357,6 +3361,7 @@
             const afternoonBtnKeypad = document.getElementById('afternoon-btn-keypad');
             const eveningBtnKeypad = document.getElementById('evening-btn-keypad');
             const vehicleStatusBtn = document.getElementById('vehicle-status-btn-keypad');
+            const arrivalTimeRow = document.getElementById('arrival-time-row');
             
             // 컬리일 때 입차현황 버튼 숨기기, 퇴근운행 버튼 표시
             if (currentService === 'kurly') {
@@ -3366,12 +3371,20 @@
                 if (eveningBtnKeypad) {
                     eveningBtnKeypad.style.display = 'block';
                 }
+                // 14시운행(morning) 완료 후 도착시간 버튼 표시
+                if (arrivalTimeRow) {
+                    const morningCompleted = completedTimePeriods.morning || false;
+                    arrivalTimeRow.style.display = morningCompleted && !arrivalTime ? 'block' : 'none';
+                }
             } else {
                 if (vehicleStatusBtn) {
                     vehicleStatusBtn.style.display = 'block';
                 }
                 if (eveningBtnKeypad) {
                     eveningBtnKeypad.style.display = 'none';
+                }
+                if (arrivalTimeRow) {
+                    arrivalTimeRow.style.display = 'none';
                 }
             }
             
@@ -3390,6 +3403,30 @@
                     eveningBtnKeypad.classList.add('active');
                 }
             }
+        }
+        
+        // 도착시간 기록 함수
+        function recordArrivalTime() {
+            if (currentService !== 'kurly') {
+                return;
+            }
+            
+            const now = new Date();
+            arrivalTime = {
+                hour: now.getHours(),
+                minute: now.getMinutes()
+            };
+            
+            // localStorage에 저장
+            localStorage.setItem('arrivalTime', JSON.stringify(arrivalTime));
+            
+            // 도착시간 버튼 숨기기
+            const arrivalTimeRow = document.getElementById('arrival-time-row');
+            if (arrivalTimeRow) {
+                arrivalTimeRow.style.display = 'none';
+            }
+            
+            alert(`도착시간이 기록되었습니다: ${String(arrivalTime.hour).padStart(2, '0')}:${String(arrivalTime.minute).padStart(2, '0')}`);
         }
 
         // 정류장 개수 제출 함수
@@ -3991,6 +4028,14 @@
             if (selectedTimePeriod === 'morning') {
                 saveToLocalStorage('morningRunCompleted', 'true');
                 console.log('오전운행 완료 상태 저장');
+                
+                // 컬리일 때 도착시간 버튼 표시
+                if (currentService === 'kurly') {
+                    const arrivalTimeRow = document.getElementById('arrival-time-row');
+                    if (arrivalTimeRow && !arrivalTime) {
+                        arrivalTimeRow.style.display = 'block';
+                    }
+                }
             }
 
             // 키패드 비활성화 상태 저장
@@ -4239,6 +4284,12 @@
                 isEveningMode = (savedPeriod === 'evening');
                 updateTimePeriodButtons();
             }
+            
+            // 도착시간 복원
+            const savedArrivalTime = localStorage.getItem('arrivalTime');
+            if (savedArrivalTime) {
+                arrivalTime = JSON.parse(savedArrivalTime);
+            }
         }
 
         // 저장된 정류장 정보 불러오기 (자동 이동 없이 데이터만 로드)
@@ -4407,9 +4458,10 @@
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // 캔버스 크기 설정 (메인 헤더 제거로 높이 감소)
+            // 캔버스 크기 설정 (컬리일 때는 도착시간 행 추가)
+            const isKurly = currentService === 'kurly';
             canvas.width = 1300;
-            canvas.height = 350 + (stations.length * 40); // 메인 헤더 높이만큼 감소
+            canvas.height = 350 + (stations.length * 40) + (isKurly ? 40 : 0); // 컬리일 때 도착시간 행 추가
             
             // 배경색 설정
             ctx.fillStyle = '#ffffff';
@@ -4430,15 +4482,16 @@
                 tableWidth * 0.1   // 오후승차인원 10%
             ];
             
-            // 테이블 테두리
+            // 테이블 테두리 (컬리일 때는 도착시간 행 추가)
             ctx.strokeStyle = '#000000';
             ctx.lineWidth = 1;
-            ctx.strokeRect(tableX, tableY, tableWidth, rowHeight + (stations.length * rowHeight) + rowHeight);
+            const totalRows = stations.length + 1 + (isKurly ? 1 : 0); // 정류장 행 + 총계 행 + (컬리일 때 도착시간 행)
+            ctx.strokeRect(tableX, tableY, tableWidth, rowHeight + (totalRows * rowHeight));
             
             // 컬럼 헤더 행 (주황색/연두색 배경)
             const headerRowY = tableY;
             
-            // 컬럼 헤더 배경색 (6개 컬럼)
+            // 컬럼 헤더 배경색
             let currentX = tableX;
             for (let i = 0; i < colWidths.length; i++) {
                 if (i === 0) {
@@ -4447,8 +4500,8 @@
                 } else if (i === 1 || i === 3) {
                     // 출발시간 컬럼 - 연두색
                     ctx.fillStyle = '#C6E0B4';
-                } else if (i === 2 || i === 4) {
-                    // 승차인원 컬럼 - 연두색
+                } else if (i === 2 || i === 4 || (isKurly && i === 5)) {
+                    // 승차인원 컬럼 및 퇴근인원 컬럼 - 연두색
                     ctx.fillStyle = '#C6E0B4';
                 } else {
                     // 빈공간 컬럼 - 흰색
@@ -4474,7 +4527,7 @@
             ctx.textAlign = 'center';
             
             currentX = tableX;
-            const headers = ['', '출발시간', '승차인원', '출발시간', '승차인원'];
+            const headers = isKurly ? ['', '출발시간', '승차인원', '출발시간', '승차인원', '퇴근인원'] : ['', '출발시간', '승차인원', '출발시간', '승차인원'];
             for (let i = 0; i < headers.length; i++) {
                 if (i === 0) {
                     // 첫 번째 컬럼에 노선이름 표시 (검은색 텍스트)
@@ -4557,11 +4610,63 @@
                 ctx.fillStyle = '#000000';
                 ctx.fillText(station.afternoonCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, dataRowY + rowHeight/2 + 8);
                 
+                // 퇴근 인원 (6열) - 컬리일 때만 표시
+                if (isKurly) {
+                    ctx.fillStyle = '#000000';
+                    ctx.fillText((station.eveningCount || 0).toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4] + colWidths[5]/2, dataRowY + rowHeight/2 + 8);
+                }
+                
                 ctx.textAlign = 'left';
             });
             
-            // 총계 행 (흰색 배경)
-            const totalRowY = headerRowY + rowHeight + (stations.length * rowHeight);
+            // 컬리일 때 도착시간 행 추가
+            if (isKurly) {
+                const arrivalRowY = headerRowY + rowHeight + (stations.length * rowHeight);
+                
+                // 도착시간 행 배경색 설정
+                let currentX = tableX;
+                for (let i = 0; i < colWidths.length; i++) {
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(currentX, arrivalRowY, colWidths[i], rowHeight);
+                    currentX += colWidths[i];
+                }
+                
+                // 도착시간 행 테두리
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(tableX, arrivalRowY, tableWidth, rowHeight);
+                
+                // 세로선 그리기
+                currentX = tableX;
+                for (let i = 0; i < colWidths.length; i++) {
+                    currentX += colWidths[i];
+                    ctx.beginPath();
+                    ctx.moveTo(currentX, arrivalRowY);
+                    ctx.lineTo(currentX, arrivalRowY + rowHeight);
+                    ctx.stroke();
+                }
+                
+                // 도착시간 행 텍스트
+                ctx.fillStyle = '#000000';
+                ctx.font = '28px Arial';
+                ctx.textAlign = 'left';
+                const arrivalText = `${stations.length + 1}. 마켓컬리 창원센터 도착 시간 기재`;
+                ctx.fillText(arrivalText, tableX + 10, arrivalRowY + rowHeight/2 + 8);
+                
+                // 도착시간 표시 (14시운행 후 기록된 시간)
+                if (arrivalTime) {
+                    ctx.textAlign = 'center';
+                    const timeStr = `${String(arrivalTime.hour).padStart(2, '0')}:${String(arrivalTime.minute).padStart(2, '0')}`;
+                    // 14시운행 출발시간 열에 표시
+                    const morningTimeColX = tableX + colWidths[0] + colWidths[1]/2;
+                    ctx.fillText(timeStr, morningTimeColX, arrivalRowY + rowHeight/2 + 8);
+                }
+                
+                ctx.textAlign = 'left';
+            }
+            
+            // 총계 행 (흰색 배경) - 컬리일 때는 도착시간 행 다음
+            const totalRowY = headerRowY + rowHeight + (stations.length * rowHeight) + (isKurly ? rowHeight : 0);
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(tableX, totalRowY, tableWidth, rowHeight);
             
@@ -4593,12 +4698,18 @@
             ctx.textAlign = 'center';
             const morningTotal = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
             const afternoonTotal = stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
+            const eveningTotal = isKurly ? stations.reduce((sum, station) => sum + (station.eveningCount || 0), 0) : 0;
             
             // 오전 총계 (3열)
             ctx.fillText(morningTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2]/2, totalRowY + rowHeight/2 + 8);
             
             // 오후 총계 (5열)
             ctx.fillText(afternoonTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, totalRowY + rowHeight/2 + 8);
+            
+            // 퇴근 총계 (6열) - 컬리일 때만 표시
+            if (isKurly) {
+                ctx.fillText(eveningTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4] + colWidths[5]/2, totalRowY + rowHeight/2 + 8);
+            }
             
             return canvas.toDataURL('image/png');
         }
