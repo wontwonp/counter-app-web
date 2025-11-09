@@ -4201,16 +4201,20 @@
             const arrivalTimeRow = document.getElementById('arrival-time-row');
             if (arrivalTimeRow) {
                 if (currentService === 'kurly') {
+                    // 컬리일 때는 모든 시간대 완료 여부 확인
                     const allTimePeriodsCompleted = completedTimePeriods.morning && 
                                                      completedTimePeriods.afternoon && 
                                                      completedTimePeriods.evening;
                     if (!arrivalTime && allTimePeriodsCompleted) {
+                        // 모든 시간대 완료 시 도착시간 버튼 표시
                         arrivalTimeRow.style.display = 'block';
                         arrivalTimeRow.style.visibility = 'visible';
                         arrivalTimeRow.style.opacity = '1';
                         arrivalTimeRow.style.height = 'auto';
                         arrivalTimeRow.style.marginTop = '25px';
                         arrivalTimeRow.style.marginBottom = '35px';
+                        arrivalTimeRow.style.padding = '0 10px';
+                        arrivalTimeRow.style.overflow = 'visible';
                         const arrivalTimeBtn = document.getElementById('arrival-time-btn');
                         if (arrivalTimeBtn) {
                             arrivalTimeBtn.disabled = false;
@@ -4218,6 +4222,7 @@
                             arrivalTimeBtn.style.cursor = 'pointer';
                         }
                     } else {
+                        // 모든 시간대가 완료되지 않았거나 도착시간이 이미 기록된 경우 숨기기
                         arrivalTimeRow.style.display = 'none';
                         arrivalTimeRow.style.visibility = 'hidden';
                         arrivalTimeRow.style.opacity = '0';
@@ -6275,6 +6280,19 @@
                 
                 // 시간대 버튼 표시/숨김 업데이트
                 updateTimePeriodButtons();
+                
+                // 컬리일 때 도착시간 버튼 초기 상태 설정 (아직 완료되지 않았으므로 숨김)
+                if (currentService === 'kurly') {
+                    const arrivalTimeRow = document.getElementById('arrival-time-row');
+                    if (arrivalTimeRow) {
+                        arrivalTimeRow.style.display = 'none';
+                        arrivalTimeRow.style.visibility = 'hidden';
+                        arrivalTimeRow.style.opacity = '0';
+                        arrivalTimeRow.style.height = '0';
+                        arrivalTimeRow.style.marginTop = '0';
+                        arrivalTimeRow.style.marginBottom = '0';
+                    }
+                }
                 
                 // 시계 시작
                 updateClock();
