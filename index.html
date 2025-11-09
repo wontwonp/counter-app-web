@@ -2043,6 +2043,7 @@
                 <div style="display: flex; gap: 15px; justify-content: center;">
                     <button id="morning-btn-keypad" class="time-period-btn active" onclick="selectTimePeriod('morning')">오전 운행</button>
                     <button id="afternoon-btn-keypad" class="time-period-btn" onclick="selectTimePeriod('afternoon')">오후 운행</button>
+                    <button id="evening-btn-keypad" class="time-period-btn" onclick="selectTimePeriod('evening')" style="display: none;">퇴근운행</button>
                 </div>
             </div>
 
@@ -2098,7 +2099,7 @@
                 <button onclick="resetApp()" class="reset-btn" id="reset-to-start">
                     처음으로
                 </button>
-                <button onclick="openVehicleStatus()" class="vehicle-status-btn">
+                <button id="vehicle-status-btn-keypad" onclick="openVehicleStatus()" class="vehicle-status-btn">
                     입차현황
                 </button>
             </div>
@@ -2288,10 +2289,11 @@
         let isDarkMode = false;
         let routeName = '';
         let stationDepartureTimes = [];
-        let selectedTimePeriod = 'morning'; // 'morning' 또는 'afternoon'
+        let selectedTimePeriod = 'morning'; // 'morning', 'afternoon', 또는 'evening'
         let isLoadedRoute = false; // 불러온 노선인지 추적
-        let completedTimePeriods = { morning: false, afternoon: false }; // 완료된 운행 시간대 추적
+        let completedTimePeriods = { morning: false, afternoon: false, evening: false }; // 완료된 운행 시간대 추적
         let currentService = 'coupang'; // 'coupang' 또는 'kurly' - 현재 선택된 서비스
+        let isEveningMode = false; // 퇴근운행 모드 (역순 카운트)
 
         // 다크모드 토글 함수
         window.toggleTheme = function() {
@@ -3311,23 +3313,33 @@
             
             // 완료된 운행 시간대로 전환하려는 경우 경고
             if (completedTimePeriods[period]) {
-                alert(`${period === 'morning' ? '오전' : '오후'}운행이 이미 완료되었습니다. 카운팅을 다시 시작할 수 없습니다.`);
+                const periodName = period === 'morning' ? '오전' : period === 'afternoon' ? '오후' : '퇴근';
+                alert(`${periodName}운행이 이미 완료되었습니다. 카운팅을 다시 시작할 수 없습니다.`);
                 return;
             }
             
             const previousPeriod = selectedTimePeriod;
             selectedTimePeriod = period;
+            
+            // 퇴근운행 모드 설정
+            isEveningMode = (period === 'evening');
+            
             updateTimePeriodButtons();
             
             // 키패드 페이지 업데이트 (시간 표시 변경)
             if (!document.getElementById('keypad-page').classList.contains('hidden')) {
-                // 오전에서 오후로 전환하거나 오후에서 오전으로 전환할 때 키패드 재활성화 및 첫 번째 정류장으로 이동
+                // 시간대 전환 시 키패드 재활성화 및 정류장 인덱스 초기화
                 if (previousPeriod !== period) {
                     enableKeypad();
-                    currentStationIndex = 0; // 첫 번째 정류장부터 시작
+                    // 퇴근운행 모드일 때는 마지막 정류장부터 시작, 아니면 첫 번째 정류장부터
+                    if (isEveningMode) {
+                        currentStationIndex = stations.length - 1;
+                    } else {
+                        currentStationIndex = 0;
+                    }
                     currentInput = ''; // 입력 초기화
-                    saveToLocalStorage('currentStationIndex', '0');
-                    console.log(`${previousPeriod}에서 ${period}로 전환 - 키패드 재활성화, 첫 번째 정류장으로 이동`);
+                    saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
+                    console.log(`${previousPeriod}에서 ${period}로 전환 - 키패드 재활성화, ${isEveningMode ? '마지막' : '첫 번째'} 정류장으로 이동`);
                 }
                 
                 updateKeypadPage();
@@ -3335,6 +3347,7 @@
             
             // localStorage에 저장
             localStorage.setItem('selectedTimePeriod', period);
+            localStorage.setItem('isEveningMode', isEveningMode.toString());
         }
 
         // 시간대 버튼 업데이트 함수
@@ -3342,14 +3355,39 @@
             // 키패드 화면 버튼 업데이트
             const morningBtnKeypad = document.getElementById('morning-btn-keypad');
             const afternoonBtnKeypad = document.getElementById('afternoon-btn-keypad');
+            const eveningBtnKeypad = document.getElementById('evening-btn-keypad');
+            const vehicleStatusBtn = document.getElementById('vehicle-status-btn-keypad');
+            
+            // 컬리일 때 입차현황 버튼 숨기기, 퇴근운행 버튼 표시
+            if (currentService === 'kurly') {
+                if (vehicleStatusBtn) {
+                    vehicleStatusBtn.style.display = 'none';
+                }
+                if (eveningBtnKeypad) {
+                    eveningBtnKeypad.style.display = 'block';
+                }
+            } else {
+                if (vehicleStatusBtn) {
+                    vehicleStatusBtn.style.display = 'block';
+                }
+                if (eveningBtnKeypad) {
+                    eveningBtnKeypad.style.display = 'none';
+                }
+            }
+            
             if (morningBtnKeypad && afternoonBtnKeypad) {
                 morningBtnKeypad.classList.remove('active');
                 afternoonBtnKeypad.classList.remove('active');
+                if (eveningBtnKeypad) {
+                    eveningBtnKeypad.classList.remove('active');
+                }
                 
                 if (selectedTimePeriod === 'morning') {
                     morningBtnKeypad.classList.add('active');
-                } else {
+                } else if (selectedTimePeriod === 'afternoon') {
                     afternoonBtnKeypad.classList.add('active');
+                } else if (selectedTimePeriod === 'evening' && eveningBtnKeypad) {
+                    eveningBtnKeypad.classList.add('active');
                 }
             }
         }
@@ -3621,23 +3659,13 @@
                 return;
             }
             
-            // 오전 시간 (morningHour) - 시와 분 표시
+            // 오전 시간 (morningHour) - 시만 표시
             const morningHour = firstStation.departureTime.morningHour || 8;
-            const morningMinute = firstStation.departureTime.morningMinute || 0;
-            let morningTimeStr = `${morningHour}시`;
-            if (morningMinute > 0) {
-                morningTimeStr += `${morningMinute}분`;
-            }
-            morningTimeStr += '운행';
+            const morningTimeStr = `${morningHour}시운행`;
             
-            // 오후 시간 (afternoonHour) - 시와 분 표시
+            // 오후 시간 (afternoonHour) - 시만 표시
             const afternoonHour = firstStation.departureTime.afternoonHour || 17;
-            const afternoonMinute = firstStation.departureTime.afternoonMinute || 0;
-            let afternoonTimeStr = `${afternoonHour}시`;
-            if (afternoonMinute > 0) {
-                afternoonTimeStr += `${afternoonMinute}분`;
-            }
-            afternoonTimeStr += '운행';
+            const afternoonTimeStr = `${afternoonHour}시운행`;
             
             console.log('updateTimePeriodButtonLabels: 버튼 텍스트 업데이트', {
                 morningTimeStr,
@@ -3709,9 +3737,14 @@
         // 키패드 페이지 업데이트
         function updateKeypadPage() {
             // 선택된 시간대에 따른 총 카운트 계산
-            const totalCount = selectedTimePeriod === 'morning' ? 
-                stations.reduce((sum, station) => sum + (station.morningCount || 0), 0) :
-                stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
+            let totalCount = 0;
+            if (selectedTimePeriod === 'morning') {
+                totalCount = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
+            } else if (selectedTimePeriod === 'afternoon') {
+                totalCount = stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
+            } else if (selectedTimePeriod === 'evening') {
+                totalCount = stations.reduce((sum, station) => sum + (station.eveningCount || 0), 0);
+            }
             
             // stations 배열이 비어있거나 currentStationIndex가 유효하지 않은 경우 체크
             if (!stations || stations.length === 0) {
@@ -3722,7 +3755,8 @@
             // currentStationIndex가 유효한 범위인지 확인
             if (currentStationIndex < 0 || currentStationIndex >= stations.length) {
                 console.error(`updateKeypadPage: currentStationIndex(${currentStationIndex})가 유효하지 않습니다. stations.length: ${stations.length}`);
-                currentStationIndex = 0; // 기본값으로 설정
+                // 퇴근운행 모드일 때는 마지막 정류장부터, 아니면 첫 번째 정류장부터
+                currentStationIndex = isEveningMode ? stations.length - 1 : 0;
             }
             
             const currentStation = stations[currentStationIndex];
@@ -3743,9 +3777,15 @@
                     minute = currentService === 'kurly' ? 
                         (currentStation.departureTime.morningMinute || 0) : 
                         (currentStation.departureTime.minute || 0);
-                } else {
+                } else if (selectedTimePeriod === 'afternoon') {
                     hour = currentStation.departureTime.afternoonHour || 17;
                     // 컬리일 때는 afternoonMinute 사용, 쿠팡일 때는 minute 사용
+                    minute = currentService === 'kurly' ? 
+                        (currentStation.departureTime.afternoonMinute || 0) : 
+                        (currentStation.departureTime.minute || 0);
+                } else if (selectedTimePeriod === 'evening') {
+                    // 퇴근운행은 오후 시간 사용
+                    hour = currentStation.departureTime.afternoonHour || 17;
                     minute = currentService === 'kurly' ? 
                         (currentStation.departureTime.afternoonMinute || 0) : 
                         (currentStation.departureTime.minute || 0);
@@ -3869,14 +3909,14 @@
             // 키패드 사용 통계 기록
             recordKeypadUsage();
             
-            if (currentStationIndex < stations.length) {
+            if (currentStationIndex < stations.length && currentStationIndex >= 0) {
                 // 입력된 숫자가 있으면 그 값을, 없으면 0을 추가
                 const inputValue = currentInput ? parseInt(currentInput) : 0;
                 
                 // 선택된 시간대에 따라 카운트 저장
                 if (selectedTimePeriod === 'morning') {
                     stations[currentStationIndex].morningCount += inputValue;
-                } else {
+                } else if (selectedTimePeriod === 'afternoon') {
                     stations[currentStationIndex].afternoonCount += inputValue;
                     
                     // 오후운행 시작 시 오전운행 완료 플래그 초기화
@@ -3885,6 +3925,12 @@
                         saveToLocalStorage('morningRunCompleted', 'false');
                         console.log('오후운행 시작, 오전운행 완료 플래그 초기화');
                     }
+                } else if (selectedTimePeriod === 'evening') {
+                    // 퇴근운행은 eveningCount 필드 사용 (없으면 생성)
+                    if (!stations[currentStationIndex].eveningCount) {
+                        stations[currentStationIndex].eveningCount = 0;
+                    }
+                    stations[currentStationIndex].eveningCount += inputValue;
                 }
                 
                 // 기존 count도 업데이트 (호환성)
@@ -3893,19 +3939,32 @@
                 currentInput = '';
                 document.getElementById('number-display').textContent = '0';
                 
-                // 마지막 정류장에서 머물도록 수정
-                if (currentStationIndex < stations.length - 1) {
-                    currentStationIndex++;
+                // 퇴근운행 모드일 때는 역순으로 이동
+                if (isEveningMode) {
+                    // 역순: 마지막 정류장에서 첫 번째 정류장으로
+                    if (currentStationIndex > 0) {
+                        currentStationIndex--;
+                    } else {
+                        // 첫 번째 정류장(역순 기준)에서는 입력 완료 상태로 변경
+                        disableKeypad();
+                    }
                 } else {
-                    // 마지막 정류장에서는 입력 완료 상태로 변경 (하지만 시간대 전환 시 재활성화 가능)
-                    disableKeypad();
+                    // 정순: 첫 번째 정류장에서 마지막 정류장으로
+                    if (currentStationIndex < stations.length - 1) {
+                        currentStationIndex++;
+                    } else {
+                        // 마지막 정류장에서는 입력 완료 상태로 변경 (하지만 시간대 전환 시 재활성화 가능)
+                        disableKeypad();
+                    }
                 }
                 
                 updateKeypadPage();
                 
                 // localStorage에 저장 (오류 처리 포함)
-                saveToLocalStorage('savedStations', JSON.stringify(stations));
-                saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
+                const storageKey = currentService === 'kurly' ? 'kurlySavedStations' : 'savedStations';
+                const indexKey = currentService === 'kurly' ? 'kurlyCurrentStationIndex' : 'currentStationIndex';
+                saveToLocalStorage(storageKey, JSON.stringify(stations));
+                saveToLocalStorage(indexKey, currentStationIndex.toString());
             }
         }
 
@@ -4161,6 +4220,14 @@
 
         // 저장된 시간대 설정 불러오기
         function loadSavedTimePeriod() {
+            // 퇴근운행 모드 복원
+            const savedEveningMode = localStorage.getItem('isEveningMode');
+            if (savedEveningMode === 'true') {
+                isEveningMode = true;
+            } else {
+                isEveningMode = false;
+            }
+            
             // 자동 시간대 선택 먼저 실행
             autoSelectTimePeriod();
             
@@ -4168,6 +4235,8 @@
             const savedPeriod = localStorage.getItem('selectedTimePeriod');
             if (savedPeriod) {
                 selectedTimePeriod = savedPeriod;
+                // 퇴근운행 모드 설정
+                isEveningMode = (savedPeriod === 'evening');
                 updateTimePeriodButtons();
             }
         }
@@ -4729,10 +4798,16 @@
                 selectionPage.style.display = 'flex';
             }
             
-            loadTheme();
-            loadSavedStations();
-            loadSavedTimePeriod();
-            setKoreanInputMode();
+           loadTheme();
+           loadSavedStations();
+           loadSavedTimePeriod();
+           setKoreanInputMode();
+           
+           // 퇴근운행 모드 복원
+           const savedEveningMode = localStorage.getItem('isEveningMode');
+           if (savedEveningMode === 'true') {
+               isEveningMode = true;
+           }
             
             // 저장된 노선 목록 표시
             updateSavedRoutesDisplay();
@@ -5294,6 +5369,9 @@
                 // 키패드 페이지 업데이트
                 updateKeypadPage();
                 
+                // 시간대 버튼 표시/숨김 업데이트
+                updateTimePeriodButtons();
+                
                 // 시계 시작
                 updateClock();
                 setInterval(updateClock, 1000);
@@ -5566,6 +5644,9 @@
                 currentInput = savedCurrentInput || '';
                 
                 updateKeypadPage();
+                
+                // 시간대 버튼 표시/숨김 업데이트
+                updateTimePeriodButtons();
                 
                 // 시간대 버튼 텍스트 업데이트 (키패드 페이지가 표시된 후)
                 setTimeout(() => {
