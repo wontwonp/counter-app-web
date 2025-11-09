@@ -3740,8 +3740,12 @@
                 localStorage.setItem('savedStationCount', stationCount.toString());
                 localStorage.setItem('savedRouteName', routeName);
                 
+                // 첫 번째 정류장부터 시작하도록 명시적으로 초기화
                 currentStationIndex = 0;
+                currentInput = '';
                 saveToLocalStorage('currentStationIndex', '0');
+                saveToLocalStorage('currentInput', '');
+                console.log(`카운팅 시작: 정류장 ${currentStationIndex + 1}/${stations.length}부터 시작`);
                 
                 // 페이지 전환
                 const stationNamesPage = document.getElementById('station-names-page');
@@ -4086,12 +4090,17 @@
                     }
                 } else {
                     // 정순: 첫 번째 정류장에서 마지막 정류장으로
+                    // 모든 정류장을 순회했는지 확인
                     if (currentStationIndex < stations.length - 1) {
+                        // 아직 마지막 정류장이 아니면 다음 정류장으로 이동
                         currentStationIndex++;
+                        console.log(`다음 정류장으로 이동: ${currentStationIndex + 1}/${stations.length}`);
                     } else {
-                        // 마지막 정류장에서는 입력 완료 상태로 변경 (하지만 시간대 전환 시 재활성화 가능)
+                        // 마지막 정류장에 도달했을 때만 완료 처리
                         // 단, 정류장이 1개만 있을 때는 완료하지 않음 (계속 입력 가능)
+                        console.log(`마지막 정류장 입력 완료: ${currentStationIndex + 1}/${stations.length}`);
                         if (stations.length > 1) {
+                            // 마지막 정류장에서 입력했을 때만 완료
                             disableKeypad();
                         }
                     }
@@ -5614,8 +5623,12 @@
                 localStorage.setItem('kurlySavedStationCount', stationCount.toString());
                 localStorage.setItem('kurlySavedRouteName', routeName);
                 
+                // 첫 번째 정류장부터 시작하도록 명시적으로 초기화
                 currentStationIndex = 0;
+                currentInput = '';
                 saveToLocalStorage('kurlyCurrentStationIndex', '0');
+                saveToLocalStorage('kurlyCurrentInput', '');
+                console.log(`컬리 카운팅 시작: 정류장 ${currentStationIndex + 1}/${stations.length}부터 시작`);
                 
                 // 페이지 전환
                 const kurlyStationNamesPage = document.getElementById('kurly-station-names-page');
