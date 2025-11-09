@@ -4075,16 +4075,31 @@
                     station.count = 0;
                     station.morningCount = 0;
                     station.afternoonCount = 0;
+                    if (station.eveningCount !== undefined) {
+                        station.eveningCount = 0;
+                    }
                 });
                 currentStationIndex = 0;
                 currentInput = '';
                 
                 // 완료 상태 초기화
-                completedTimePeriods = { morning: false, afternoon: false };
+                completedTimePeriods = { morning: false, afternoon: false, evening: false };
+                
+                // 도착시간 초기화
+                arrivalTime = null;
+                localStorage.removeItem('arrivalTime');
+                
+                // 도착시간 버튼 숨기기
+                const arrivalTimeRow = document.getElementById('arrival-time-row');
+                if (arrivalTimeRow) {
+                    arrivalTimeRow.style.display = 'none';
+                }
                 
                 enableKeypad(); // 키패드 다시 활성화
                 updateKeypadPage();
-                localStorage.setItem('savedStations', JSON.stringify(stations));
+                
+                const storageKey = currentService === 'kurly' ? 'kurlySavedStations' : 'savedStations';
+                localStorage.setItem(storageKey, JSON.stringify(stations));
                 saveToLocalStorage('currentStationIndex', '0');
                 
                 console.log('수동 초기화: 오전/오후 모든 카운팅이 초기화되었습니다.');
@@ -4101,16 +4116,30 @@
                         station.count = 0;
                         station.morningCount = 0;
                         station.afternoonCount = 0;
+                        if (station.eveningCount !== undefined) {
+                            station.eveningCount = 0;
+                        }
                     });
                     
                     // 모든 카운트를 0으로 만들고 저장
                     currentStationIndex = 0;
                     currentInput = '';
-                    completedTimePeriods = { morning: false, afternoon: false };
+                    completedTimePeriods = { morning: false, afternoon: false, evening: false };
                     taxiPassengers = { morning: 0, afternoon: 0 };
                     
+                    // 도착시간 초기화
+                    arrivalTime = null;
+                    localStorage.removeItem('arrivalTime');
+                    
+                    // 도착시간 버튼 숨기기
+                    const arrivalTimeRow = document.getElementById('arrival-time-row');
+                    if (arrivalTimeRow) {
+                        arrivalTimeRow.style.display = 'none';
+                    }
+                    
                     // 완료 상태 저장
-                    saveToLocalStorage('savedStations', JSON.stringify(stations));
+                    const storageKey = currentService === 'kurly' ? 'kurlySavedStations' : 'savedStations';
+                    localStorage.setItem(storageKey, JSON.stringify(stations));
                     saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
                     saveToLocalStorage('currentInput', currentInput);
                     saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
@@ -4135,6 +4164,13 @@
                 localStorage.removeItem('savedStationCount');
                 localStorage.removeItem('savedRouteName');
                 localStorage.removeItem('currentStationIndex');
+                localStorage.removeItem('arrivalTime');
+                
+                // 컬리 관련 localStorage도 초기화
+                localStorage.removeItem('kurlySavedStations');
+                localStorage.removeItem('kurlySavedStationCount');
+                localStorage.removeItem('kurlySavedRouteName');
+                localStorage.removeItem('kurlyCurrentStationIndex');
                 
                 document.getElementById('station-count').value = '';
                 document.getElementById('count-submit').disabled = true;
@@ -4629,10 +4665,10 @@
             if (isKurly) {
                 const arrivalRowY = headerRowY + rowHeight + (stations.length * rowHeight);
                 
-                // 도착시간 행 배경색 설정
+                // 도착시간 행 배경색 설정 (상아색)
                 let currentX = tableX;
                 for (let i = 0; i < colWidths.length; i++) {
-                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillStyle = '#F5F5DC'; // 상아색
                     ctx.fillRect(currentX, arrivalRowY, colWidths[i], rowHeight);
                     currentX += colWidths[i];
                 }
