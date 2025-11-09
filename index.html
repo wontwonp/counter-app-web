@@ -2080,8 +2080,8 @@
                 <div class="keypad-row">
                     <button class="enter-btn" onclick="enterNumber()">ENTER</button>
                 </div>
-                <div class="keypad-row" id="arrival-time-row" style="display: none;">
-                    <button class="enter-btn" onclick="recordArrivalTime()" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);">도착시간</button>
+                <div class="keypad-row" id="arrival-time-row" style="display: none; width: 100%; max-width: 100%; margin-top: 10px;">
+                    <button class="enter-btn" onclick="recordArrivalTime()" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); width: 100%; max-width: 100%;">도착시간</button>
                 </div>
             </div>
 
@@ -3983,7 +3983,10 @@
                         currentStationIndex--;
                     } else {
                         // 첫 번째 정류장(역순 기준)에서는 입력 완료 상태로 변경
-                        disableKeypad();
+                        // 단, 정류장이 1개만 있을 때는 완료하지 않음
+                        if (stations.length > 1) {
+                            disableKeypad();
+                        }
                     }
                 } else {
                     // 정순: 첫 번째 정류장에서 마지막 정류장으로
@@ -3991,7 +3994,10 @@
                         currentStationIndex++;
                     } else {
                         // 마지막 정류장에서는 입력 완료 상태로 변경 (하지만 시간대 전환 시 재활성화 가능)
-                        disableKeypad();
+                        // 단, 정류장이 1개만 있을 때는 완료하지 않음 (계속 입력 가능)
+                        if (stations.length > 1) {
+                            disableKeypad();
+                        }
                     }
                 }
                 
