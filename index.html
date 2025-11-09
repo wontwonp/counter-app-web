@@ -3811,11 +3811,18 @@
                     eveningBtnKeypad.style.cursor = 'pointer';
                 }
             } else {
+                // 쿠팡일 때 입차현황 버튼 표시, 퇴근운행 버튼 완전히 숨기기
                 if (vehicleStatusBtn) {
                     vehicleStatusBtn.style.display = 'block';
                 }
                 if (eveningBtnKeypad) {
                     eveningBtnKeypad.style.display = 'none';
+                    eveningBtnKeypad.style.visibility = 'hidden';
+                    eveningBtnKeypad.style.opacity = '0';
+                    eveningBtnKeypad.style.height = '0';
+                    eveningBtnKeypad.style.width = '0';
+                    eveningBtnKeypad.style.padding = '0';
+                    eveningBtnKeypad.style.margin = '0';
                 }
                 if (arrivalTimeRow) {
                     arrivalTimeRow.style.display = 'none';
