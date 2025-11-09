@@ -146,6 +146,14 @@
                 box-sizing: border-box;
             }
             
+            /* 도착시간 버튼이 있는 keypad-row는 간격 완전히 제거 */
+            #arrival-time-row.keypad-row {
+                margin: 0 !important;
+                padding: 0 10px !important;
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            
             .keypad-btn, .enter-btn {
                 flex: 1;
                 max-width: 80px;
@@ -2361,8 +2369,8 @@
                 <div class="keypad-row">
                     <button class="enter-btn" onclick="enterNumber()">ENTER</button>
                 </div>
-                <div class="keypad-row" id="arrival-time-row" style="display: none; width: 100%; max-width: 100%; margin-top: 0; margin-bottom: 0; padding-top: 0;">
-                    <button id="arrival-time-btn" class="enter-btn" onclick="recordArrivalTime()" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); width: 100%; max-width: 100%; margin-top: 0;">도착시간</button>
+                <div class="keypad-row" id="arrival-time-row" style="display: none; width: 100%; max-width: 100%; margin: 0; padding: 0 10px;">
+                    <button id="arrival-time-btn" class="enter-btn" onclick="recordArrivalTime()" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); width: 100%; max-width: 100%; margin: 0;">도착시간</button>
                 </div>
             </div>
 
