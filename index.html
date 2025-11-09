@@ -4226,8 +4226,8 @@
                 // 입력된 숫자가 있으면 그 값을, 없으면 0을 추가
                 const inputValue = currentInput ? parseInt(currentInput) : 0;
                 
-                // 쿠팡일 때 45명 제한 로직 (0명이 아닐 때만 체크)
-                if (currentService === 'coupang') {
+                // 쿠팡/컬리일 때 45명 제한 로직 (0명이 아닐 때만 체크)
+                if (currentService === 'coupang' || currentService === 'kurly') {
                     let currentTotal = 0;
                     if (selectedTimePeriod === 'morning') {
                         currentTotal = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
@@ -4238,6 +4238,14 @@
                         }
                     } else if (selectedTimePeriod === 'afternoon') {
                         currentTotal = stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
+                        const newTotal = currentTotal + inputValue;
+                        if (newTotal > 45) {
+                            alert('총 인원은 45명을 초과할 수 없습니다.');
+                            return;
+                        }
+                    } else if (selectedTimePeriod === 'evening') {
+                        // 퇴근운행도 45명 제한 적용
+                        currentTotal = stations.reduce((sum, station) => sum + (station.eveningCount || 0), 0);
                         const newTotal = currentTotal + inputValue;
                         if (newTotal > 45) {
                             alert('총 인원은 45명을 초과할 수 없습니다.');
@@ -4341,19 +4349,19 @@
             if (selectedTimePeriod === 'morning') {
                 saveToLocalStorage('morningRunCompleted', 'true');
                 console.log('오전운행 완료 상태 저장');
-                
-                // 컬리일 때 도착시간 버튼 표시
-                if (currentService === 'kurly') {
-                    const arrivalTimeRow = document.getElementById('arrival-time-row');
-                    const arrivalTimeBtn = document.getElementById('arrival-time-btn');
-                    if (arrivalTimeRow && !arrivalTime) {
-                        arrivalTimeRow.style.display = 'block';
-                        // 도착시간 버튼 명시적으로 활성화
-                        if (arrivalTimeBtn) {
-                            arrivalTimeBtn.disabled = false;
-                            arrivalTimeBtn.style.opacity = '1';
-                            arrivalTimeBtn.style.cursor = 'pointer';
-                        }
+            }
+            
+            // 컬리일 때 모든 시간대 완료 시 도착시간 버튼 표시
+            if (currentService === 'kurly') {
+                const arrivalTimeRow = document.getElementById('arrival-time-row');
+                const arrivalTimeBtn = document.getElementById('arrival-time-btn');
+                if (arrivalTimeRow && !arrivalTime) {
+                    arrivalTimeRow.style.display = 'block';
+                    // 도착시간 버튼 명시적으로 활성화
+                    if (arrivalTimeBtn) {
+                        arrivalTimeBtn.disabled = false;
+                        arrivalTimeBtn.style.opacity = '1';
+                        arrivalTimeBtn.style.cursor = 'pointer';
                     }
                 }
             }
@@ -4690,6 +4698,8 @@
                 taxiPassengers.morning += taxiCount;
             } else if (selectedTimePeriod === 'afternoon') {
                 taxiPassengers.afternoon += taxiCount;
+            } else if (selectedTimePeriod === 'evening') {
+                taxiPassengers.evening += taxiCount;
             }
             
             // localStorage에 저장
