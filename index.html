@@ -2545,6 +2545,7 @@
         let isEveningMode = false; // 퇴근운행 모드 (역순 카운트)
         let arrivalTime = null; // 도착시간 저장 (14시운행 후)
         let taxiPassengers = { morning: 0, afternoon: 0 }; // 택시 인원 (쿠팡 전용)
+        let taxiInput = ''; // 택시 인원 입력 임시 저장
 
         // 다크모드 토글 함수
         window.toggleTheme = function() {
