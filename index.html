@@ -5002,11 +5002,13 @@
             const isKurly = currentService === 'kurly';
             const isCoupang = currentService === 'coupang';
             canvas.width = 1300;
+            // 택시 인원이 있을 때만 행 추가
+            const hasTaxiPassengers = (taxiPassengers.morning > 0 || taxiPassengers.afternoon > 0 || (isKurly && taxiPassengers.evening > 0));
             let extraHeight = 0;
             if (isKurly) {
                 extraHeight += 40; // 도착시간 행
             }
-            if (isCoupang || isKurly) {
+            if ((isCoupang || isKurly) && hasTaxiPassengers) {
                 extraHeight += 40; // 택시 인원 행
             }
             canvas.height = 350 + (stations.length * 40) + extraHeight;
@@ -5057,14 +5059,16 @@
                 otherColWidth   // 오후승차인원
             ];
             
-            // 테이블 테두리 (컬리일 때는 도착시간 행 추가, 쿠팡일 때는 택시 인원 행 추가)
+            // 테이블 테두리 (컬리일 때는 도착시간 행 추가, 쿠팡/컬리일 때는 택시 인원 행 추가 - 택시 인원이 있을 때만)
             ctx.strokeStyle = '#000000';
             ctx.lineWidth = 1;
+            // 택시 인원이 있을 때만 행 추가
+            const hasTaxiPassengers = (taxiPassengers.morning > 0 || taxiPassengers.afternoon > 0 || (isKurly && taxiPassengers.evening > 0));
             let totalRows = stations.length + 1; // 정류장 행 + 총계 행
             if (isKurly) {
                 totalRows += 1; // 도착시간 행
             }
-            if (isCoupang || isKurly) {
+            if ((isCoupang || isKurly) && hasTaxiPassengers) {
                 totalRows += 1; // 택시 인원 행
             }
             ctx.strokeRect(tableX, tableY, tableWidth, rowHeight + (totalRows * rowHeight));
