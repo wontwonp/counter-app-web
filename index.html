@@ -4697,6 +4697,39 @@
             
             updateTaxiPassengerDisplay();
             closeTaxiKeypadModal();
+            
+            // 택시 인원 추가 후 다음 정류장으로 이동 (45명 도달 시)
+            if (currentService === 'coupang' && stations.length > 0) {
+                let currentTotal = 0;
+                if (selectedTimePeriod === 'morning') {
+                    currentTotal = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
+                } else if (selectedTimePeriod === 'afternoon') {
+                    currentTotal = stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
+                }
+                
+                // 45명 도달 시 다음 정류장으로 이동
+                if (currentTotal >= 45 && currentStationIndex < stations.length - 1) {
+                    if (isEveningMode) {
+                        // 퇴근운행 모드일 때는 역순
+                        if (currentStationIndex > 0) {
+                            currentStationIndex--;
+                        }
+                    } else {
+                        // 정순 모드일 때는 다음 정류장으로
+                        currentStationIndex++;
+                    }
+                    
+                    // 키패드 재활성화
+                    enableKeypad();
+                    updateKeypadPage();
+                    
+                    // localStorage에 저장
+                    const indexKey = currentService === 'kurly' ? 'kurlyCurrentStationIndex' : 'currentStationIndex';
+                    saveToLocalStorage(indexKey, currentStationIndex.toString());
+                    
+                    console.log(`택시 인원 추가 후 다음 정류장으로 이동: ${currentStationIndex + 1}/${stations.length}`);
+                }
+            }
         }
         
         // 택시 인원 표시 업데이트
@@ -4914,10 +4947,18 @@
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // 캔버스 크기 설정 (컬리일 때는 도착시간 행 추가)
+            // 캔버스 크기 설정 (컬리일 때는 도착시간 행 추가, 쿠팡일 때는 택시 인원 행 추가)
             const isKurly = currentService === 'kurly';
+            const isCoupang = currentService === 'coupang';
             canvas.width = 1300;
-            canvas.height = 350 + (stations.length * 40) + (isKurly ? 40 : 0); // 컬리일 때 도착시간 행 추가
+            let extraHeight = 0;
+            if (isKurly) {
+                extraHeight += 40; // 도착시간 행
+            }
+            if (isCoupang) {
+                extraHeight += 40; // 택시 인원 행
+            }
+            canvas.height = 350 + (stations.length * 40) + extraHeight;
             
             // 배경색 설정
             ctx.fillStyle = '#ffffff';
@@ -5173,6 +5214,37 @@
             // 퇴근 총계 (6열) - 컬리일 때만 표시
             if (isKurly) {
                 ctx.fillText(eveningTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4] + colWidths[5]/2, totalRowY + rowHeight/2 + 8);
+            }
+            
+            // 쿠팡일 때 택시 인원 정보 표시 (총계 행 아래)
+            if (isCoupang) {
+                const taxiRowY = totalRowY + rowHeight;
+                
+                // 택시 인원 행 배경색 (연두색)
+                ctx.fillStyle = '#C6E0B4';
+                ctx.fillRect(tableX, taxiRowY, tableWidth, rowHeight);
+                
+                // 택시 인원 행 테두리
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(tableX, taxiRowY, tableWidth, rowHeight);
+                
+                // 세로선 그리기
+                currentX = tableX;
+                for (let i = 0; i < colWidths.length; i++) {
+                    currentX += colWidths[i];
+                    ctx.beginPath();
+                    ctx.moveTo(currentX, taxiRowY);
+                    ctx.lineTo(currentX, taxiRowY + rowHeight);
+                    ctx.stroke();
+                }
+                
+                // 택시 인원 텍스트 표시
+                ctx.fillStyle = '#000000';
+                ctx.font = 'bold 28px Arial';
+                ctx.textAlign = 'left';
+                const taxiText = `오전택시인원 ${taxiPassengers.morning || 0}명  오후택시인원 ${taxiPassengers.afternoon || 0}명`;
+                ctx.fillText(taxiText, tableX + 10, taxiRowY + rowHeight/2 + 8);
             }
             
             return canvas.toDataURL('image/png');
