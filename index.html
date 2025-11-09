@@ -2177,7 +2177,7 @@
                     <button class="enter-btn" onclick="enterNumber()">ENTER</button>
                 </div>
                 <div class="keypad-row" id="arrival-time-row" style="display: none; width: 100%; max-width: 100%; margin-top: 10px;">
-                    <button class="enter-btn" onclick="recordArrivalTime()" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); width: 100%; max-width: 100%;">도착시간</button>
+                    <button id="arrival-time-btn" class="enter-btn" onclick="recordArrivalTime()" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); width: 100%; max-width: 100%;">도착시간</button>
                 </div>
             </div>
 
@@ -4111,6 +4111,10 @@
         function disableKeypad() {
             const keypadButtons = document.querySelectorAll('.keypad-btn, .enter-btn');
             keypadButtons.forEach(button => {
+                // 도착시간 버튼은 비활성화하지 않음
+                if (button.id === 'arrival-time-btn' || button.onclick && button.onclick.toString().includes('recordArrivalTime')) {
+                    return;
+                }
                 button.disabled = true;
                 button.style.opacity = '0.5';
                 button.style.cursor = 'not-allowed';
@@ -4134,8 +4138,15 @@
                 // 컬리일 때 도착시간 버튼 표시
                 if (currentService === 'kurly') {
                     const arrivalTimeRow = document.getElementById('arrival-time-row');
+                    const arrivalTimeBtn = document.getElementById('arrival-time-btn');
                     if (arrivalTimeRow && !arrivalTime) {
                         arrivalTimeRow.style.display = 'block';
+                        // 도착시간 버튼 명시적으로 활성화
+                        if (arrivalTimeBtn) {
+                            arrivalTimeBtn.disabled = false;
+                            arrivalTimeBtn.style.opacity = '1';
+                            arrivalTimeBtn.style.cursor = 'pointer';
+                        }
                     }
                 }
             }
@@ -4149,6 +4160,10 @@
         function enableKeypad() {
             const keypadButtons = document.querySelectorAll('.keypad-btn, .enter-btn');
             keypadButtons.forEach(button => {
+                // 도착시간 버튼은 별도로 관리 (비활성화하지 않음)
+                if (button.id === 'arrival-time-btn' || (button.onclick && button.onclick.toString().includes('recordArrivalTime'))) {
+                    return;
+                }
                 button.disabled = false;
                 button.style.opacity = '1';
                 button.style.cursor = 'pointer';
