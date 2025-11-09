@@ -287,18 +287,30 @@
                 margin-right: auto !important;
             }
             
-            /* 도착시간 버튼 모바일 스타일 */
+            /* 도착시간 버튼 모바일 스타일 - 컬리 전용 */
             #arrival-time-row {
                 width: 100% !important;
                 max-width: 100% !important;
-                margin-top: 20px !important;
-                margin-bottom: 30px !important;
+                margin-top: 25px !important;
+                margin-bottom: 35px !important;
                 padding: 0 10px !important;
                 display: flex !important;
                 justify-content: center !important;
                 position: relative !important;
                 z-index: 9999 !important;
                 clear: both !important;
+            }
+            
+            /* 쿠팡일 때 도착시간 버튼 완전히 숨기기 */
+            body:not(.kurly-service) #arrival-time-row,
+            #keypad-page:not(.kurly-keypad) #arrival-time-row {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
             }
             
             #arrival-time-row button {
@@ -312,12 +324,18 @@
                 width: 100% !important;
                 max-width: 100% !important;
                 padding: 15px !important;
-                margin-top: 30px !important;
+                margin-top: 40px !important;
                 margin-bottom: 10px !important;
                 box-sizing: border-box !important;
                 position: relative !important;
                 z-index: 1 !important;
                 clear: both !important;
+            }
+            
+            /* 컬리일 때 도착시간 버튼이 있을 때 정류장 카운트 섹션 간격 추가 */
+            #arrival-time-row[style*="display: block"] ~ .station-summary,
+            #arrival-time-row:not([style*="display: none"]):not([style*="display:none"]) ~ .station-summary {
+                margin-top: 60px !important;
             }
             
             /* 버튼 그룹 모바일 스타일 */
@@ -3930,10 +3948,17 @@
                     keypadPage.style.display = 'block';
                 }
                 
-                // 도착시간 버튼 숨기기 (쿠팡 전용이므로)
+                // 도착시간 버튼 완전히 숨기기 (쿠팡 전용이므로)
                 const arrivalTimeRow = document.getElementById('arrival-time-row');
                 if (arrivalTimeRow) {
                     arrivalTimeRow.style.display = 'none';
+                    arrivalTimeRow.style.visibility = 'hidden';
+                    arrivalTimeRow.style.opacity = '0';
+                    arrivalTimeRow.style.height = '0';
+                    arrivalTimeRow.style.marginTop = '0';
+                    arrivalTimeRow.style.marginBottom = '0';
+                    arrivalTimeRow.style.padding = '0';
+                    arrivalTimeRow.style.overflow = 'hidden';
                 }
                 
                 // 키패드 페이지 업데이트
@@ -4164,6 +4189,11 @@
                                                      completedTimePeriods.evening;
                     if (!arrivalTime && allTimePeriodsCompleted) {
                         arrivalTimeRow.style.display = 'block';
+                        arrivalTimeRow.style.visibility = 'visible';
+                        arrivalTimeRow.style.opacity = '1';
+                        arrivalTimeRow.style.height = 'auto';
+                        arrivalTimeRow.style.marginTop = '25px';
+                        arrivalTimeRow.style.marginBottom = '35px';
                         const arrivalTimeBtn = document.getElementById('arrival-time-btn');
                         if (arrivalTimeBtn) {
                             arrivalTimeBtn.disabled = false;
@@ -4172,10 +4202,22 @@
                         }
                     } else {
                         arrivalTimeRow.style.display = 'none';
+                        arrivalTimeRow.style.visibility = 'hidden';
+                        arrivalTimeRow.style.opacity = '0';
+                        arrivalTimeRow.style.height = '0';
+                        arrivalTimeRow.style.marginTop = '0';
+                        arrivalTimeRow.style.marginBottom = '0';
                     }
                 } else {
-                    // 쿠팡일 때는 항상 숨기기
+                    // 쿠팡일 때는 항상 완전히 숨기기
                     arrivalTimeRow.style.display = 'none';
+                    arrivalTimeRow.style.visibility = 'hidden';
+                    arrivalTimeRow.style.opacity = '0';
+                    arrivalTimeRow.style.height = '0';
+                    arrivalTimeRow.style.marginTop = '0';
+                    arrivalTimeRow.style.marginBottom = '0';
+                    arrivalTimeRow.style.padding = '0';
+                    arrivalTimeRow.style.overflow = 'hidden';
                 }
             }
         }
@@ -4340,17 +4382,17 @@
                 } else {
                     // 정순: 첫 번째 정류장에서 마지막 정류장으로
                     // 모든 정류장을 순회했는지 확인
-                    if (currentStationIndex < stations.length - 1) {
+                if (currentStationIndex < stations.length - 1) {
                         // 아직 마지막 정류장이 아니면 다음 정류장으로 이동
-                        currentStationIndex++;
+                    currentStationIndex++;
                         console.log(`다음 정류장으로 이동: ${currentStationIndex + 1}/${stations.length}`);
-                    } else {
+                } else {
                         // 마지막 정류장에 도달했을 때만 완료 처리
                         // 단, 정류장이 1개만 있을 때는 완료하지 않음 (계속 입력 가능)
                         console.log(`마지막 정류장 입력 완료: ${currentStationIndex + 1}/${stations.length}`);
                         if (stations.length > 1) {
                             // 마지막 정류장에서 입력했을 때만 완료
-                            disableKeypad();
+                    disableKeypad();
                         }
                     }
                 }
@@ -4405,6 +4447,11 @@
                                                      completedTimePeriods.evening;
                     if (!arrivalTime && allTimePeriodsCompleted) {
                         arrivalTimeRow.style.display = 'block';
+                        arrivalTimeRow.style.visibility = 'visible';
+                        arrivalTimeRow.style.opacity = '1';
+                        arrivalTimeRow.style.height = 'auto';
+                        arrivalTimeRow.style.marginTop = '25px';
+                        arrivalTimeRow.style.marginBottom = '35px';
                         // 도착시간 버튼 명시적으로 활성화
                         if (arrivalTimeBtn) {
                             arrivalTimeBtn.disabled = false;
@@ -4414,10 +4461,22 @@
                     } else {
                         // 모든 시간대가 완료되지 않았으면 도착시간 버튼 숨기기
                         arrivalTimeRow.style.display = 'none';
+                        arrivalTimeRow.style.visibility = 'hidden';
+                        arrivalTimeRow.style.opacity = '0';
+                        arrivalTimeRow.style.height = '0';
+                        arrivalTimeRow.style.marginTop = '0';
+                        arrivalTimeRow.style.marginBottom = '0';
                     }
                 } else {
-                    // 쿠팡일 때는 항상 숨기기
+                    // 쿠팡일 때는 항상 완전히 숨기기
                     arrivalTimeRow.style.display = 'none';
+                    arrivalTimeRow.style.visibility = 'hidden';
+                    arrivalTimeRow.style.opacity = '0';
+                    arrivalTimeRow.style.height = '0';
+                    arrivalTimeRow.style.marginTop = '0';
+                    arrivalTimeRow.style.marginBottom = '0';
+                    arrivalTimeRow.style.padding = '0';
+                    arrivalTimeRow.style.overflow = 'hidden';
                 }
             }
 
@@ -5283,7 +5342,7 @@
                     // 퇴근인원 열 (6열) - 연한 회색
                     ctx.fillStyle = '#E0E0E0';
                 } else {
-                    ctx.fillStyle = '#FFFFFF';
+            ctx.fillStyle = '#FFFFFF';
                 }
                 ctx.fillRect(currentXTotal, totalRowY, colWidths[i], rowHeight);
                 currentXTotal += colWidths[i];
