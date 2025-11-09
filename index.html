@@ -5309,8 +5309,8 @@
                 ctx.fillText(eveningTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4] + colWidths[5]/2, totalRowY + rowHeight/2 + 8);
             }
             
-            // 쿠팡/컬리일 때 택시 인원 정보 표시 (총계 행 아래)
-            if (isCoupang || isKurly) {
+            // 쿠팡/컬리일 때 택시 인원 정보 표시 (총계 행 아래, 택시 인원이 있을 때만)
+            if ((isCoupang || isKurly) && hasTaxiPassengers) {
                 const taxiRowY = totalRowY + rowHeight;
                 
                 // 택시 인원 행 배경색 (연두색)
