@@ -3593,6 +3593,61 @@
                 setInterval(updateClock, 1000);
             }
         }
+        
+        // 시간대 버튼 라벨 업데이트 (첫 번째 정류장 시간 기준) - 컬리 전용
+        function updateTimePeriodButtonLabels() {
+            // 컬리 서비스일 때만 업데이트
+            if (currentService !== 'kurly') {
+                console.log('updateTimePeriodButtonLabels: currentService가 kurly가 아님:', currentService);
+                return;
+            }
+            
+            if (!stations || stations.length === 0) {
+                console.log('updateTimePeriodButtonLabels: stations가 비어있음');
+                return;
+            }
+            
+            const firstStation = stations[0];
+            if (!firstStation || !firstStation.departureTime) {
+                console.log('updateTimePeriodButtonLabels: firstStation 또는 departureTime이 없음');
+                return;
+            }
+            
+            const morningBtn = document.getElementById('morning-btn-keypad');
+            const afternoonBtn = document.getElementById('afternoon-btn-keypad');
+            
+            if (!morningBtn || !afternoonBtn) {
+                console.log('updateTimePeriodButtonLabels: 버튼을 찾을 수 없음');
+                return;
+            }
+            
+            // 오전 시간 (morningHour) - 시와 분 표시
+            const morningHour = firstStation.departureTime.morningHour || 8;
+            const morningMinute = firstStation.departureTime.morningMinute || 0;
+            let morningTimeStr = `${morningHour}시`;
+            if (morningMinute > 0) {
+                morningTimeStr += `${morningMinute}분`;
+            }
+            morningTimeStr += '운행';
+            
+            // 오후 시간 (afternoonHour) - 시와 분 표시
+            const afternoonHour = firstStation.departureTime.afternoonHour || 17;
+            const afternoonMinute = firstStation.departureTime.afternoonMinute || 0;
+            let afternoonTimeStr = `${afternoonHour}시`;
+            if (afternoonMinute > 0) {
+                afternoonTimeStr += `${afternoonMinute}분`;
+            }
+            afternoonTimeStr += '운행';
+            
+            console.log('updateTimePeriodButtonLabels: 버튼 텍스트 업데이트', {
+                morningTimeStr,
+                afternoonTimeStr,
+                firstStation: firstStation.departureTime
+            });
+            
+            morningBtn.textContent = morningTimeStr;
+            afternoonBtn.textContent = afternoonTimeStr;
+        }
 
         // 다시 설정 (시작 페이지로 돌아가기)
         function resetSetup() {
@@ -3678,13 +3733,23 @@
                 return;
             }
             
-            // 현재 정류장 이름과 운행 시간 표시
+            // 현재 정류장 이름과 운행 시간 표시 (저장된 내용 그대로 표시)
             let timeDisplay = '';
             if (currentStation && currentStation.departureTime) {
-                const hour = selectedTimePeriod === 'morning' ? 
-                    (currentStation.departureTime.morningHour || 8) : 
-                    (currentStation.departureTime.afternoonHour || 17);
-                const minute = currentStation.departureTime.minute || 0;
+                let hour, minute;
+                if (selectedTimePeriod === 'morning') {
+                    hour = currentStation.departureTime.morningHour || 8;
+                    // 컬리일 때는 morningMinute 사용, 쿠팡일 때는 minute 사용
+                    minute = currentService === 'kurly' ? 
+                        (currentStation.departureTime.morningMinute || 0) : 
+                        (currentStation.departureTime.minute || 0);
+                } else {
+                    hour = currentStation.departureTime.afternoonHour || 17;
+                    // 컬리일 때는 afternoonMinute 사용, 쿠팡일 때는 minute 사용
+                    minute = currentService === 'kurly' ? 
+                        (currentStation.departureTime.afternoonMinute || 0) : 
+                        (currentStation.departureTime.minute || 0);
+                }
                 const timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
                 timeDisplay = ` (${timeStr})`;
             }
@@ -5232,6 +5297,11 @@
                 // 시계 시작
                 updateClock();
                 setInterval(updateClock, 1000);
+                
+                // 시간대 버튼 텍스트 업데이트 (키패드 페이지가 표시된 후)
+                setTimeout(() => {
+                    updateTimePeriodButtonLabels();
+                }, 100);
             }
         }
 
@@ -5394,11 +5464,14 @@
                 kurlyStationNamesPage.style.display = 'block';
             }
             
-            // 정류장 이름이 모두 입력되어 있으면 버튼 활성화
-            setTimeout(() => {
-                checkKurlyAllNamesFilled();
-            }, 100);
-        }
+           // 정류장 이름이 모두 입력되어 있으면 버튼 활성화
+           setTimeout(() => {
+               checkKurlyAllNamesFilled();
+           }, 100);
+           
+           // 시간대 버튼 텍스트 업데이트 (정류장 이름 입력 페이지에서도 표시)
+           updateTimePeriodButtonLabels();
+       }
 
         // 컬리 정류장 추가
         function addKurlyStation() {
@@ -5493,6 +5566,11 @@
                 currentInput = savedCurrentInput || '';
                 
                 updateKeypadPage();
+                
+                // 시간대 버튼 텍스트 업데이트 (키패드 페이지가 표시된 후)
+                setTimeout(() => {
+                    updateTimePeriodButtonLabels();
+                }, 100);
             }
         }
     </script>
