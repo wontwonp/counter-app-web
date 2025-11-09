@@ -4351,10 +4351,11 @@
                 console.log('오전운행 완료 상태 저장');
             }
             
-            // 컬리일 때 모든 시간대 완료 시 도착시간 버튼 표시
+            // 컬리일 때 모든 시간대 완료 시 도착시간 버튼 표시 (오전/오후/퇴근 모두)
             if (currentService === 'kurly') {
                 const arrivalTimeRow = document.getElementById('arrival-time-row');
                 const arrivalTimeBtn = document.getElementById('arrival-time-btn');
+                // 모든 시간대(오전/오후/퇴근) 완료 시 도착시간 버튼 표시
                 if (arrivalTimeRow && !arrivalTime) {
                     arrivalTimeRow.style.display = 'block';
                     // 도착시간 버튼 명시적으로 활성화
