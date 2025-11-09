@@ -15,6 +15,10 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="정류장 카운터">
     
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
     <!-- 매니페스트 링크 -->
     <link rel="manifest" href="manifest.json">
     
@@ -2637,6 +2641,29 @@
         let eveningArrivalTime = null; // 퇴근운행 도착시간
         let taxiPassengers = { morning: 0, afternoon: 0, evening: 0 }; // 택시 인원 (쿠팡/컬리 공용)
         let taxiInput = ''; // 택시 인원 입력 임시 저장
+        
+        // Firebase 초기화 (공지사항 동기화용)
+        // TODO: 아래 Firebase 설정을 본인의 Firebase 프로젝트 정보로 변경해주세요
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        // Firebase 초기화 (설정이 없으면 localStorage 사용)
+        let database = null;
+        try {
+            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                firebase.initializeApp(firebaseConfig);
+                database = firebase.database();
+            }
+        } catch (e) {
+            console.log('Firebase 초기화 실패, localStorage 사용:', e);
+        }
 
         // 다크모드 토글 함수
         window.toggleTheme = function() {
@@ -2812,7 +2839,6 @@
                 return;
             }
             
-            const notices = JSON.parse(localStorage.getItem('notices') || '[]');
             const newNotice = {
                 id: Date.now(),
                 title: title,
@@ -2820,18 +2846,57 @@
                 createdAt: new Date().toISOString()
             };
             
+            // Firebase가 설정되어 있으면 Firebase에 저장, 아니면 localStorage에 저장
+            if (database) {
+                database.ref('notices').once('value', (snapshot) => {
+                    const notices = snapshot.val() || [];
+                    notices.push(newNotice);
+                    database.ref('notices').set(notices).then(() => {
+                        alert('공지사항이 저장되었습니다. (모든 사용자에게 동기화됩니다)');
+                        document.getElementById('notice-title').value = '';
+                        document.getElementById('notice-content').value = '';
+                        loadNotices();
+                    }).catch((error) => {
+                        console.error('Firebase 저장 실패:', error);
+                        alert('저장에 실패했습니다. localStorage에 저장합니다.');
+                        // 실패 시 localStorage에 저장
+                        const localNotices = JSON.parse(localStorage.getItem('notices') || '[]');
+                        localNotices.push(newNotice);
+                        localStorage.setItem('notices', JSON.stringify(localNotices));
+                        loadNotices();
+                    });
+                });
+            } else {
+                // localStorage 사용
+                const notices = JSON.parse(localStorage.getItem('notices') || '[]');
             notices.push(newNotice);
             localStorage.setItem('notices', JSON.stringify(notices));
-            
-            alert('공지사항이 저장되었습니다.');
+                alert('공지사항이 저장되었습니다. (현재 기기에만 저장됩니다)');
             document.getElementById('notice-title').value = '';
             document.getElementById('notice-content').value = '';
             loadNotices();
+            }
         };
 
         // 공지사항 목록 불러오기
         function loadNotices() {
+            const noticeList = document.getElementById('notice-list');
+            
+            if (database) {
+                // Firebase에서 불러오기
+                database.ref('notices').on('value', (snapshot) => {
+                    const notices = snapshot.val() || [];
+                    displayNotices(notices);
+                });
+            } else {
+                // localStorage에서 불러오기
             const notices = JSON.parse(localStorage.getItem('notices') || '[]');
+                displayNotices(notices);
+            }
+        }
+        
+        // 공지사항 표시 함수
+        function displayNotices(notices) {
             const noticeList = document.getElementById('notice-list');
             
             if (notices.length === 0) {
@@ -2853,10 +2918,25 @@
         // 공지사항 삭제
         window.deleteNotice = function(id) {
             if (confirm('이 공지사항을 삭제하시겠습니까?')) {
-                const notices = JSON.parse(localStorage.getItem('notices') || '[]');
-                const filteredNotices = notices.filter(notice => notice.id !== id);
-                localStorage.setItem('notices', JSON.stringify(filteredNotices));
-                loadNotices();
+                if (database) {
+                    // Firebase에서 삭제
+                    database.ref('notices').once('value', (snapshot) => {
+                        const notices = snapshot.val() || [];
+                        const filteredNotices = notices.filter(notice => notice.id !== id);
+                        database.ref('notices').set(filteredNotices).then(() => {
+                            loadNotices();
+                        }).catch((error) => {
+                            console.error('Firebase 삭제 실패:', error);
+                            alert('삭제에 실패했습니다.');
+                        });
+                    });
+                } else {
+                    // localStorage에서 삭제
+                    const notices = JSON.parse(localStorage.getItem('notices') || '[]');
+                    const filteredNotices = notices.filter(notice => notice.id !== id);
+                    localStorage.setItem('notices', JSON.stringify(filteredNotices));
+                    loadNotices();
+                }
             }
         };
 
@@ -3493,15 +3573,30 @@
 
         // 공지사항 모달 열기
         function openNoticeModal() {
-            // 저장된 공지사항 불러오기
-            const notices = JSON.parse(localStorage.getItem('notices') || '[]');
             const noticeDisplay = document.getElementById('notice-content-display');
             
+            // Firebase가 설정되어 있으면 Firebase에서 불러오기, 아니면 localStorage에서 불러오기
+            if (database) {
+                database.ref('notices').once('value', (snapshot) => {
+                    const notices = snapshot.val() || [];
+                    displayNoticeContent(notices, noticeDisplay);
+                });
+            } else {
+                const notices = JSON.parse(localStorage.getItem('notices') || '[]');
+                displayNoticeContent(notices, noticeDisplay);
+            }
+        }
+        
+        // 공지사항 내용 표시 함수
+        function displayNoticeContent(notices, noticeDisplay) {
             if (notices.length === 0) {
                 // 기본 공지사항 표시 (번호 없이, 줄바꿈 유지)
                 noticeDisplay.innerHTML = `
-                    <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">총인원 합계는 45명이상 집계되지 않습니다.</div>
-                    <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">택시인원은 총 인원 45명 도달시 택시인원추가 버튼이 나타납니다.</div>
+                    <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">업데이트 25.11.09</div>
+                    <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">1. 총인원 합계는 45명이상 집계되지 않음</div>
+                    <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">2. 택시인원은 총 인원 45명 도달시 택시인원추가 버튼이 나타남</div>
+                    <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">3. 컬리 출 퇴근 추가 / 도착시간 버튼 클릭시 도착시간버튼누른시간으로 기입됌</div>
+                    <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">4. 퇴근운행추가 퇴근운행은 역순으로 카운트가능함 정류장 0명하차시에는 그냥 엔터누르면 다음정류장으로 이동됨</div>
                 `;
             } else {
                 // 저장된 공지사항 표시 (번호 없이, 줄바꿈 유지)
