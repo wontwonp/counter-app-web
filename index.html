@@ -5393,6 +5393,11 @@
                 kurlyStationNamesPage.classList.remove('hidden');
                 kurlyStationNamesPage.style.display = 'block';
             }
+            
+            // 정류장 이름이 모두 입력되어 있으면 버튼 활성화
+            setTimeout(() => {
+                checkKurlyAllNamesFilled();
+            }, 100);
         }
 
         // 컬리 정류장 추가
