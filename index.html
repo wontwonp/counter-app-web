@@ -1485,6 +1485,52 @@
             max-width: 500px;
             width: 90%;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            color: #333;
+        }
+        
+        /* 라이트 모드에서 공지사항 텍스트 색상 */
+        .notice-modal-content h2 {
+            color: #333 !important;
+        }
+        
+        .notice-modal-content p {
+            color: #555 !important;
+        }
+        
+        .notice-modal-content span {
+            color: #666 !important;
+        }
+        
+        .notice-modal-content div {
+            color: #555 !important;
+        }
+        
+        .notice-modal-content label {
+            color: #666 !important;
+        }
+        
+        #notice-content-display {
+            color: #555 !important;
+        }
+        
+        #notice-content-display * {
+            color: #555 !important;
+        }
+        
+        .notice-title {
+            color: #333 !important;
+        }
+        
+        .notice-content {
+            color: #555 !important;
+        }
+        
+        .notice-label {
+            color: #666 !important;
+        }
+        
+        .notice-checkbox-text {
+            color: #666 !important;
         }
 
         body.dark-mode .notice-modal-content {
@@ -2330,6 +2376,12 @@
                 const allTextElements = noticeDisplay.querySelectorAll('p, strong, span, div');
                 allTextElements.forEach(el => {
                     el.style.color = '#ffffff';
+                });
+            } else {
+                // 라이트모드일 경우 모든 텍스트를 어두운 색상으로 설정
+                const allTextElements = noticeDisplay.querySelectorAll('p, strong, span, div');
+                allTextElements.forEach(el => {
+                    el.style.color = '#555';
                 });
             }
             
