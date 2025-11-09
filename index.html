@@ -123,7 +123,7 @@
                 box-sizing: border-box;
             }
             
-            .clock-display, .input-display {
+            .clock-display {
                 width: 100%;
                 max-width: 100%;
                 padding: 10px;
@@ -132,6 +132,14 @@
                 margin-right: 5px !important;
                 margin-left: 5px !important;
                 margin-top: 5px !important;
+                box-sizing: border-box;
+            }
+            
+            .input-display {
+                width: 100%;
+                max-width: 100%;
+                padding: 10px;
+                margin: 5px;
                 box-sizing: border-box;
             }
             
@@ -902,11 +910,23 @@
         }
         
         /* 모든 화면 크기에서 clock-display margin 강제 */
+        @media screen and (max-width: 768px) {
+            .clock-display {
+                margin: 5px !important;
+                margin-bottom: 5px !important;
+                margin-right: 5px !important;
+                margin-left: 5px !important;
+                margin-top: 5px !important;
+            }
+        }
+        
         @media screen and (max-width: 414px) {
             .clock-display {
                 margin: 5px !important;
                 margin-bottom: 5px !important;
                 margin-right: 5px !important;
+                margin-left: 5px !important;
+                margin-top: 5px !important;
             }
         }
         
@@ -915,6 +935,8 @@
                 margin: 5px !important;
                 margin-bottom: 5px !important;
                 margin-right: 5px !important;
+                margin-left: 5px !important;
+                margin-top: 5px !important;
             }
         }
 
