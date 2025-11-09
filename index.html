@@ -2244,6 +2244,21 @@
                 localStorage.setItem('darkMode', 'false');
             }
             
+            // 입차현황 페이지가 열려있으면 다크모드 업데이트
+            const vehicleStatus1Page = document.getElementById('vehicle-status-1-page');
+            const vehicleStatus3Page = document.getElementById('vehicle-status-3-page');
+            const vehicleStatus4Page = document.getElementById('vehicle-status-4-page');
+            
+            if (vehicleStatus1Page && !vehicleStatus1Page.classList.contains('hidden')) {
+                updateVehicleStatusDarkMode();
+            }
+            if (vehicleStatus3Page && !vehicleStatus3Page.classList.contains('hidden')) {
+                updateVehicleStatusDarkMode();
+            }
+            if (vehicleStatus4Page && !vehicleStatus4Page.classList.contains('hidden')) {
+                updateVehicleStatusDarkMode();
+            }
+            
             // 다크모드 버튼 자동 숨김 (5초 후)
             hideThemeButton();
         }
@@ -2544,22 +2559,117 @@
                 // 컨테이너
                 const container = page.querySelector('div > div');
                 if (container) {
-                    const containerStyle = container.getAttribute('style') || '';
-                    if (isDarkMode) {
-                        container.setAttribute('style', containerStyle + ' background: transparent !important; box-shadow: 0 2px 10px rgba(0,0,0,0.3) !important;');
-                    }
+                    const bgColor = 'transparent';
+                    const boxShadow = 'none';
+                    container.style.background = bgColor;
+                    container.style.boxShadow = boxShadow;
                 }
                 
-                // 제목 색상
+                // h1
                 const h1 = page.querySelector('h1');
-                if (h1) {
-                    h1.style.color = isDarkMode ? '#fff' : '#333';
+                if (h1) h1.style.color = isDarkMode ? '#fff' : '#333';
+                
+                // contentBox 배경색 업데이트
+                const contentBoxes = ['contentBox1', 'contentBox3', 'contentBox4'];
+                contentBoxes.forEach(boxId => {
+                    const box = document.getElementById(boxId);
+                    if (box) {
+                        box.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : 'transparent';
+                    }
+                });
+                
+                // 통계 배경색 및 텍스트 색상
+                const allDivs = page.querySelectorAll('div');
+                allDivs.forEach(div => {
+                    const style = div.getAttribute('style') || '';
+                    if (style.includes('background-color: #e3f2fd')) {
+                        div.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : '#e3f2fd';
+                    }
+                    if (style.includes('background: #f5f5f5')) {
+                        div.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : '#f5f5f5';
+                    }
+                });
+                
+                // 통계 박스 배경색 직접 업데이트
+                const statsBox1 = document.getElementById('statsBox1');
+                const statsBox3 = document.getElementById('statsBox3');
+                const statsBox4 = document.getElementById('statsBox4');
+                [statsBox1, statsBox3, statsBox4].forEach(box => {
+                    if (box) {
+                        box.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : '#e3f2fd';
+                    }
+                });
+                
+                // 통계 라벨과 숫자 색상
+                for (let i = 1; i <= 4; i++) {
+                    const totalLabel = document.getElementById(`totalLabel${i}`);
+                    const selectedLabel = document.getElementById(`selectedLabel${i}`);
+                    const excludedLabel = document.getElementById(`excludedLabel${i}`);
+                    const totalCount = document.getElementById(`totalCount${i}`);
+                    const selectedCount = document.getElementById(`selectedCount${i}`);
+                    const excludedCount = document.getElementById(`excludedCount${i}`);
+                    
+                    if (totalLabel) totalLabel.style.color = isDarkMode ? '#fff' : '#333';
+                    if (selectedLabel) selectedLabel.style.color = isDarkMode ? '#fff' : '#333';
+                    if (excludedLabel) excludedLabel.style.color = isDarkMode ? '#fff' : '#333';
+                    if (totalCount) totalCount.style.color = isDarkMode ? '#fff' : '#1976d2';
+                    if (selectedCount) selectedCount.style.color = isDarkMode ? '#fff' : '#1976d2';
+                    if (excludedCount) excludedCount.style.color = isDarkMode ? '#fff' : '#1976d2';
                 }
                 
-                // 통계 박스
-                const statsBox = page.querySelector('[id^="statsBox"]');
-                if (statsBox) {
-                    statsBox.style.backgroundColor = isDarkMode ? 'rgba(255,255,255,0.1)' : '#e3f2fd';
+                const statusText = page.querySelectorAll('div[style*="margin-top: 40px"], div[style*="font-weight: bold"][style*="margin-bottom: 10px"]');
+                statusText.forEach(text => {
+                    // 현재 색상이 녹색이나 빨간색이 아니면만 색상 적용
+                    const currentColor = text.style.color || '';
+                    if (!currentColor.includes('rgb(46, 125, 50)') && 
+                        !currentColor.includes('rgb(244, 67, 54)') && 
+                        !currentColor.includes('#2e7d32') && 
+                        !currentColor.includes('#f44336')) {
+                        if (isDarkMode) {
+                            text.style.color = '#fff';
+                        } else {
+                            text.style.color = '#333';
+                        }
+                    }
+                });
+                
+                // 카카오톡 공유 버튼 텍스트 색상 유지 (항상 검정색)
+                const kakaoButtons = page.querySelectorAll('button[style*="background: #FFD700"]');
+                kakaoButtons.forEach(btn => {
+                    btn.style.color = 'black';
+                });
+                
+                // 노선 버튼들
+                const routeItems = page.querySelectorAll('.route-item');
+                routeItems.forEach(item => {
+                    // selected 클래스 확인
+                    const isSelected = item.classList.contains('selected');
+                    
+                    if (isSelected) {
+                        // 선택된 항목은 다크모드에서도 초록색으로 밝게 표시
+                        item.style.setProperty('background-color', '#4CAF50', 'important');
+                        item.style.setProperty('border-color', '#4CAF50', 'important');
+                        item.style.setProperty('color', '#fff', 'important');
+                        item.style.setProperty('font-weight', 'bold', 'important');
+                    } else {
+                        item.style.setProperty('background-color', isDarkMode ? 'rgba(255,255,255,0.2)' : 'white', 'important');
+                        item.style.setProperty('border-color', isDarkMode ? 'rgba(255,255,255,0.3)' : '#ddd', 'important');
+                        item.style.setProperty('color', isDarkMode ? '#fff' : '#333', 'important');
+                    }
+                });
+                
+                // 상태 섹션 배경 및 텍스트
+                const statusSection = page.querySelector('div[style*="background: #f5f5f5"]');
+                if (statusSection) {
+                    statusSection.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : '#f5f5f5';
+                    const statusText = statusSection.querySelector('div[style*="margin-top: 40px"]');
+                    if (statusText) {
+                        statusText.style.color = isDarkMode ? '#fff' : '#333';
+                    }
+                    const statusTitle = statusSection.querySelector('div[style*="font-weight: bold"]');
+                    if (statusTitle) {
+                        statusTitle.style.color = isDarkMode ? '#fff' : '#333';
+                    }
                 }
             });
         }
@@ -4465,6 +4575,11 @@
             setTimeout(() => {
                 restoreKeypadState();
             }, 100);
+            
+            // 입차현황 페이지 다크모드 적용 (페이지 로드 시)
+            if (isDarkMode) {
+                updateVehicleStatusDarkMode();
+            }
         });
 
         // 공유 중인지 확인하는 변수
