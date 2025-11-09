@@ -3717,6 +3717,19 @@
         // 시작 페이지에서 쿠팡으로 이동
         window.goToCoupang = function() {
             currentService = 'coupang'; // 현재 서비스 설정
+            
+            // 도착시간 버튼 완전히 숨기기 (쿠팡에서는 사용하지 않음)
+            const arrivalTimeRow = document.getElementById('arrival-time-row');
+            if (arrivalTimeRow) {
+                arrivalTimeRow.style.display = 'none';
+                arrivalTimeRow.style.visibility = 'hidden';
+                arrivalTimeRow.style.opacity = '0';
+                arrivalTimeRow.style.height = '0';
+                arrivalTimeRow.style.marginTop = '0';
+                arrivalTimeRow.style.marginBottom = '0';
+                arrivalTimeRow.style.padding = '0';
+                arrivalTimeRow.style.overflow = 'hidden';
+            }
             // 저장된 정류장 정보가 있으면 복원하고 키패드 페이지로 이동
             const savedStations = JSON.parse(loadFromLocalStorage('savedStations') || '[]');
             const savedStationCount = loadFromLocalStorage('savedStationCount');
@@ -3755,6 +3768,20 @@
         // 시작 페이지에서 컬리로 이동
         window.goToKurly = function() {
             currentService = 'kurly'; // 현재 서비스 설정
+            
+            // 도착시간 버튼 인라인 스타일 초기화 (쿠팡에서 설정한 스타일 제거)
+            const arrivalTimeRow = document.getElementById('arrival-time-row');
+            if (arrivalTimeRow) {
+                arrivalTimeRow.style.display = '';
+                arrivalTimeRow.style.visibility = '';
+                arrivalTimeRow.style.opacity = '';
+                arrivalTimeRow.style.height = '';
+                arrivalTimeRow.style.marginTop = '';
+                arrivalTimeRow.style.marginBottom = '';
+                arrivalTimeRow.style.padding = '';
+                arrivalTimeRow.style.overflow = '';
+            }
+            
             // 컬리 저장된 정류장 정보 확인
             const kurlySavedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
             const kurlySavedStationCount = loadFromLocalStorage('kurlySavedStationCount');
@@ -6196,6 +6223,19 @@
         // 컬리 카운팅 시작
         function startKurlyCounting() {
             if (stations.every(station => station.name.trim() !== '')) {
+                // 도착시간 버튼 인라인 스타일 초기화 (쿠팡에서 설정한 스타일 제거)
+                const arrivalTimeRow = document.getElementById('arrival-time-row');
+                if (arrivalTimeRow) {
+                    arrivalTimeRow.style.display = '';
+                    arrivalTimeRow.style.visibility = '';
+                    arrivalTimeRow.style.opacity = '';
+                    arrivalTimeRow.style.height = '';
+                    arrivalTimeRow.style.marginTop = '';
+                    arrivalTimeRow.style.marginBottom = '';
+                    arrivalTimeRow.style.padding = '';
+                    arrivalTimeRow.style.overflow = '';
+                }
+                
                 // 컬리 정류장 개수와 노선이름을 localStorage에 저장
                 localStorage.setItem('kurlySavedStationCount', stationCount.toString());
                 localStorage.setItem('kurlySavedRouteName', routeName);
