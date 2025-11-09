@@ -1855,17 +1855,7 @@
             margin-top: 20px;
         }
 
-        .add-station-btn {
-            background: #2196F3;
-            color: white;
-        }
-
-        .add-station-btn:hover {
-            background: #1976D2;
-            transform: translateY(-2px);
-        }
-
-        .start-btn, .save-btn {
+        .start-btn, .save-btn, .add-station-btn {
             font-size: 1rem;
             padding: 12px 24px;
             border: none;
@@ -1888,6 +1878,32 @@
             background: #666;
             cursor: not-allowed;
             transform: none;
+        }
+
+        .save-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .save-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .add-station-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .add-station-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
         }
     </style>
 </head>
@@ -5140,7 +5156,6 @@
                                value="${station.name || ''}" onchange="updateKurlyStationName(${index}, this.value)" lang="ko" ime-mode="active">
                     </div>
                     <div style="display: flex; align-items: center; gap: 15px;">
-                        <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">오전시간:</label>
                         <input type="number" min="1" max="12" placeholder="시" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
                                value="${station.departureTime.morningHour || 8}" onchange="updateKurlyDepartureTime(${index}, 'morningHour', this.value)">
                         <span style="color: white;">시</span>
@@ -5149,7 +5164,6 @@
                         <span style="color: white;">분</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 15px;">
-                        <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">오후시간:</label>
                         <input type="number" min="1" max="12" placeholder="시" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
                                value="${station.departureTime.afternoonHour || 17}" onchange="updateKurlyDepartureTime(${index}, 'afternoonHour', this.value)">
                         <span style="color: white;">시</span>
