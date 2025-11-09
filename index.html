@@ -5150,12 +5150,12 @@
                 inputGroup.style.alignItems = 'stretch';
                 inputGroup.style.gap = '10px';
                 inputGroup.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
                         <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">정류장 ${index + 1}:</label>
                         <input type="text" class="station-name-input" placeholder="정류장 ${index + 1} 이름" 
                                value="${station.name || ''}" onchange="updateKurlyStationName(${index}, this.value)" lang="ko" ime-mode="active">
                     </div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-left: 115px; margin-bottom: 10px;">
                         <input type="number" min="1" max="12" placeholder="시" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
                                value="${station.departureTime.morningHour || 8}" onchange="updateKurlyDepartureTime(${index}, 'morningHour', this.value)">
                         <span style="color: white;">시</span>
@@ -5163,7 +5163,7 @@
                                value="${station.departureTime.morningMinute || 0}" onchange="updateKurlyDepartureTime(${index}, 'morningMinute', this.value)">
                         <span style="color: white;">분</span>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-left: 115px;">
                         <input type="number" min="1" max="12" placeholder="시" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
                                value="${station.departureTime.afternoonHour || 17}" onchange="updateKurlyDepartureTime(${index}, 'afternoonHour', this.value)">
                         <span style="color: white;">시</span>
