@@ -4084,13 +4084,7 @@
                 // 입력된 숫자가 있으면 그 값을, 없으면 0을 추가
                 const inputValue = currentInput ? parseInt(currentInput) : 0;
                 
-                // 입력값이 0이면 다음 정류장으로 이동하지 않음
-                if (inputValue === 0) {
-                    console.log('입력값이 0이므로 다음 정류장으로 이동하지 않습니다.');
-                    return;
-                }
-                
-                // 쿠팡일 때 45명 제한 로직
+                // 쿠팡일 때 45명 제한 로직 (0명이 아닐 때만 체크)
                 if (currentService === 'coupang') {
                     let currentTotal = 0;
                     if (selectedTimePeriod === 'morning') {
