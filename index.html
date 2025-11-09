@@ -896,6 +896,19 @@
             font-family: 'Courier New', monospace;
             box-sizing: border-box;
         }
+        
+        /* 모든 화면 크기에서 clock-display margin-bottom 강제 */
+        @media screen and (max-width: 414px) {
+            .clock-display {
+                margin-bottom: 5px !important;
+            }
+        }
+        
+        @media screen and (max-width: 360px) {
+            .clock-display {
+                margin-bottom: 5px !important;
+            }
+        }
 
         .clock-time {
             font-size: clamp(1.6rem, 6vw, 2.6rem);
