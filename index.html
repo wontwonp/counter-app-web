@@ -3863,13 +3863,19 @@
             const vehicleStatusBtn = document.getElementById('vehicle-status-btn-keypad');
             const arrivalTimeRow = document.getElementById('arrival-time-row');
             
-            // 컬리일 때 입차현황 버튼 숨기기, 퇴근운행 버튼 표시
+            // 컬리일 때 입차현황 버튼 숨기기, 퇴근운행 버튼 표시 (한 번만 설정)
             if (currentService === 'kurly') {
-                if (vehicleStatusBtn) {
+                if (vehicleStatusBtn && vehicleStatusBtn.style.display !== 'none') {
                     vehicleStatusBtn.style.display = 'none';
                 }
-                if (eveningBtnKeypad) {
+                if (eveningBtnKeypad && eveningBtnKeypad.style.display !== 'block') {
                     eveningBtnKeypad.style.display = 'block';
+                    eveningBtnKeypad.style.visibility = 'visible';
+                    eveningBtnKeypad.style.opacity = '1';
+                    eveningBtnKeypad.style.height = 'auto';
+                    eveningBtnKeypad.style.width = 'auto';
+                    eveningBtnKeypad.style.padding = '';
+                    eveningBtnKeypad.style.margin = '';
                 }
                 // 14시운행(morning) 완료 후 도착시간 버튼 표시 (각 시간대별로 확인)
                 if (arrivalTimeRow) {
@@ -3906,11 +3912,11 @@
                     eveningBtnKeypad.style.cursor = 'pointer';
                 }
             } else {
-                // 쿠팡일 때 입차현황 버튼 표시, 퇴근운행 버튼 완전히 숨기기
-                if (vehicleStatusBtn) {
+                // 쿠팡일 때 입차현황 버튼 표시, 퇴근운행 버튼 완전히 숨기기 (한 번만 설정)
+                if (vehicleStatusBtn && vehicleStatusBtn.style.display !== 'block') {
                     vehicleStatusBtn.style.display = 'block';
                 }
-                if (eveningBtnKeypad) {
+                if (eveningBtnKeypad && eveningBtnKeypad.style.display !== 'none') {
                     eveningBtnKeypad.style.display = 'none';
                     eveningBtnKeypad.style.visibility = 'hidden';
                     eveningBtnKeypad.style.opacity = '0';
@@ -3919,17 +3925,24 @@
                     eveningBtnKeypad.style.padding = '0';
                     eveningBtnKeypad.style.margin = '0';
                 }
-                if (arrivalTimeRow) {
+                if (arrivalTimeRow && arrivalTimeRow.style.display !== 'none') {
                     arrivalTimeRow.style.display = 'none';
+                    arrivalTimeRow.style.visibility = 'hidden';
+                    arrivalTimeRow.style.opacity = '0';
+                    arrivalTimeRow.style.height = '0';
+                    arrivalTimeRow.style.marginTop = '0';
+                    arrivalTimeRow.style.marginBottom = '0';
+                    arrivalTimeRow.style.padding = '0';
+                    arrivalTimeRow.style.overflow = 'hidden';
                 }
                 
                 // 쿠팡일 때는 모든 버튼 활성화
-                if (morningBtnKeypad) {
+                if (morningBtnKeypad && morningBtnKeypad.disabled) {
                     morningBtnKeypad.disabled = false;
                     morningBtnKeypad.style.opacity = '1';
                     morningBtnKeypad.style.cursor = 'pointer';
                 }
-                if (afternoonBtnKeypad) {
+                if (afternoonBtnKeypad && afternoonBtnKeypad.disabled) {
                     afternoonBtnKeypad.disabled = false;
                     afternoonBtnKeypad.style.opacity = '1';
                     afternoonBtnKeypad.style.cursor = 'pointer';
@@ -4468,16 +4481,13 @@
                 }
             }
             
-            // 쿠팡/컬리일 때 45명 이상이면 택시 인원 추가 버튼 표시
-            if ((currentService === 'coupang' || currentService === 'kurly') && totalCount >= 45) {
-                const taxiSection = document.getElementById('taxi-passenger-section');
-                if (taxiSection) {
+            // 택시 인원 추가 버튼 표시 (쿠팡/컬리일 때만, 45명 이상일 때만)
+            const taxiSection = document.getElementById('taxi-passenger-section');
+            if (taxiSection) {
+                if ((currentService === 'coupang' || currentService === 'kurly') && totalCount >= 45) {
                     taxiSection.style.display = 'block';
-                }
-                updateTaxiPassengerDisplay();
-            } else {
-                const taxiSection = document.getElementById('taxi-passenger-section');
-                if (taxiSection) {
+                    updateTaxiPassengerDisplay();
+                } else {
                     taxiSection.style.display = 'none';
                 }
             }
@@ -4499,7 +4509,11 @@
                         currentArrivalTime = eveningArrivalTime;
                     }
                     
-                    if (currentPeriodCompleted && !currentArrivalTime) {
+                    // 조건이 변경되었을 때만 업데이트 (불필요한 DOM 조작 방지)
+                    const shouldShow = currentPeriodCompleted && !currentArrivalTime;
+                    const isCurrentlyVisible = arrivalTimeRow.style.display === 'block';
+                    
+                    if (shouldShow && !isCurrentlyVisible) {
                         // 현재 시간대 완료 시 도착시간 버튼 표시
                         arrivalTimeRow.style.display = 'block';
                         arrivalTimeRow.style.visibility = 'visible';
@@ -4516,7 +4530,7 @@
                             arrivalTimeBtn.style.opacity = '1';
                             arrivalTimeBtn.style.cursor = 'pointer';
                         }
-                    } else {
+                    } else if (!shouldShow && isCurrentlyVisible) {
                         // 현재 시간대가 완료되지 않았거나 도착시간이 이미 기록된 경우 숨기기
                         arrivalTimeRow.style.display = 'none';
                         arrivalTimeRow.style.visibility = 'hidden';
