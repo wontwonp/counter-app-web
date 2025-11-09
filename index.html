@@ -1855,6 +1855,16 @@
             margin-top: 20px;
         }
 
+        .add-station-btn {
+            background: #2196F3;
+            color: white;
+        }
+
+        .add-station-btn:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+
         .start-btn, .save-btn {
             font-size: 1rem;
             padding: 12px 24px;
@@ -1984,6 +1994,7 @@
                 <h2>정류장 이름을 입력하세요</h2>
                 <div id="kurly-station-inputs" class="station-inputs"></div>
                 <div class="button-group">
+                    <button id="kurly-add-station" class="add-station-btn" onclick="addKurlyStation()"><span class="button-text-top">정류장</span><br><span class="button-text-bottom">추가</span></button>
                     <button id="kurly-start-counting" class="start-btn" onclick="startKurlyCounting()" disabled><span class="button-text-top">카운팅</span><br><span class="button-text-bottom">시작</span></button>
                     <button id="kurly-save-route" class="save-btn" onclick="saveKurlyRoute()" disabled><span class="button-text-top">노선</span><br><span class="button-text-bottom">저장</span></button>
                     <button onclick="resetKurlySetup()" class="reset-btn"><span class="button-text-top">처음</span><br><span class="button-text-bottom">으로</span></button>
@@ -5085,12 +5096,13 @@
                     afternoonCount: 0,
                     departureTime: { 
                         morningHour: 8, 
+                        morningMinute: 0,
                         afternoonHour: 17, 
-                        minute: Math.min(index * 5, 59) 
+                        afternoonMinute: 0
                     }
                 }));
                 stationNames = new Array(stationCount).fill('');
-                stationDepartureTimes = new Array(stationCount).fill({ hour: 8, minute: 0, ampm: 'AM' });
+                stationDepartureTimes = new Array(stationCount).fill({ morningHour: 8, morningMinute: 0, afternoonHour: 17, afternoonMinute: 0 });
                 createKurlyStationInputs();
                 
                 // 페이지 전환
@@ -5132,17 +5144,17 @@
                         <input type="number" min="1" max="12" placeholder="시" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
                                value="${station.departureTime.morningHour || 8}" onchange="updateKurlyDepartureTime(${index}, 'morningHour', this.value)">
                         <span style="color: white;">시</span>
+                        <input type="number" min="0" max="59" placeholder="분" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
+                               value="${station.departureTime.morningMinute || 0}" onchange="updateKurlyDepartureTime(${index}, 'morningMinute', this.value)">
+                        <span style="color: white;">분</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">오후시간:</label>
                         <input type="number" min="1" max="12" placeholder="시" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
-                               value="${station.departureTime.afternoonHour || 5}" onchange="updateKurlyDepartureTime(${index}, 'afternoonHour', this.value)">
+                               value="${station.departureTime.afternoonHour || 17}" onchange="updateKurlyDepartureTime(${index}, 'afternoonHour', this.value)">
                         <span style="color: white;">시</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">분:</label>
                         <input type="number" min="0" max="59" placeholder="분" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
-                               value="${station.departureTime.minute || 0}" onchange="updateKurlyDepartureTime(${index}, 'minute', this.value)">
+                               value="${station.departureTime.afternoonMinute || 0}" onchange="updateKurlyDepartureTime(${index}, 'afternoonMinute', this.value)">
                         <span style="color: white;">분</span>
                     </div>
                 `;
@@ -5164,15 +5176,17 @@
         // 컬리 출발 시간 업데이트
         function updateKurlyDepartureTime(index, type, value) {
             if (!stations[index].departureTime) {
-                stations[index].departureTime = { morningHour: 8, afternoonHour: 5, minute: 0 };
+                stations[index].departureTime = { morningHour: 8, morningMinute: 0, afternoonHour: 17, afternoonMinute: 0 };
             }
             
             if (type === 'morningHour') {
                 stations[index].departureTime.morningHour = parseInt(value) || 8;
+            } else if (type === 'morningMinute') {
+                stations[index].departureTime.morningMinute = parseInt(value) || 0;
             } else if (type === 'afternoonHour') {
-                stations[index].departureTime.afternoonHour = parseInt(value) || 5;
-            } else if (type === 'minute') {
-                stations[index].departureTime.minute = parseInt(value) || 0;
+                stations[index].departureTime.afternoonHour = parseInt(value) || 17;
+            } else if (type === 'afternoonMinute') {
+                stations[index].departureTime.afternoonMinute = parseInt(value) || 0;
             }
             
             // 컬리 출발 시간을 localStorage에 저장
@@ -5325,13 +5339,32 @@
             
             stations = Array.from({ length: stationCount }, (_, index) => {
                 const savedStation = route.stations[index] || {};
+                let departureTime = savedStation.departureTime || route.departureTimes[index] || { morningHour: 8, morningMinute: 0, afternoonHour: 17, afternoonMinute: 0 };
+                
+                // 기존 데이터 호환성 처리
+                if (departureTime.minute !== undefined && departureTime.morningMinute === undefined) {
+                    departureTime = {
+                        morningHour: departureTime.morningHour || 8,
+                        morningMinute: departureTime.minute || 0,
+                        afternoonHour: departureTime.afternoonHour || 17,
+                        afternoonMinute: departureTime.minute || 0
+                    };
+                }
+                
+                if (departureTime.morningMinute === undefined) {
+                    departureTime.morningMinute = 0;
+                }
+                if (departureTime.afternoonMinute === undefined) {
+                    departureTime.afternoonMinute = 0;
+                }
+                
                 return {
                     id: index,
                     name: savedStation.name || '',
                     count: 0,
                     morningCount: 0,
                     afternoonCount: 0,
-                    departureTime: savedStation.departureTime || route.departureTimes[index] || { morningHour: 8, afternoonHour: 17, minute: 0 }
+                    departureTime: departureTime
                 };
             });
             
@@ -5360,6 +5393,33 @@
             }
         }
 
+        // 컬리 정류장 추가
+        function addKurlyStation() {
+            const newStation = {
+                id: stations.length,
+                name: '',
+                count: 0,
+                morningCount: 0,
+                afternoonCount: 0,
+                departureTime: { 
+                    morningHour: 8, 
+                    morningMinute: 0,
+                    afternoonHour: 17, 
+                    afternoonMinute: 0
+                }
+            };
+            
+            stations.push(newStation);
+            stationNames.push('');
+            stationCount = stations.length;
+            
+            // 정류장 입력 필드 다시 생성
+            createKurlyStationInputs();
+            
+            // 버튼 상태 업데이트
+            checkKurlyAllNamesFilled();
+        }
+
         // 컬리 저장된 정류장 정보 복원
         function restoreKurlySavedStations() {
             const savedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
@@ -5379,11 +5439,28 @@
                     const savedMorningCount = typeof savedStation === 'object' ? (savedStation?.morningCount || 0) : 0;
                     const savedAfternoonCount = typeof savedStation === 'object' ? (savedStation?.afternoonCount || 0) : 0;
                     
-                    const departureTime = savedDepartureTimes[index] || savedStation?.departureTime || {
+                    // 기존 데이터 호환성 처리
+                    let departureTime = savedDepartureTimes[index] || savedStation?.departureTime || {
                         morningHour: 8,
+                        morningMinute: 0,
                         afternoonHour: 17,
-                        minute: Math.min(index * 5, 59)
+                        afternoonMinute: 0
                     };
+                    
+                    // 기존 minute 필드가 있으면 morningMinute와 afternoonMinute로 변환
+                    if (departureTime.minute !== undefined && departureTime.morningMinute === undefined) {
+                        departureTime.morningMinute = departureTime.minute;
+                        departureTime.afternoonMinute = departureTime.minute;
+                        delete departureTime.minute;
+                    }
+                    
+                    // morningMinute나 afternoonMinute가 없으면 0으로 설정
+                    if (departureTime.morningMinute === undefined) {
+                        departureTime.morningMinute = 0;
+                    }
+                    if (departureTime.afternoonMinute === undefined) {
+                        departureTime.afternoonMinute = 0;
+                    }
                     
                     return {
                         id: index,
