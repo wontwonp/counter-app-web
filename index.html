@@ -4050,6 +4050,12 @@
                 // 입력된 숫자가 있으면 그 값을, 없으면 0을 추가
                 const inputValue = currentInput ? parseInt(currentInput) : 0;
                 
+                // 입력값이 0이면 다음 정류장으로 이동하지 않음
+                if (inputValue === 0) {
+                    console.log('입력값이 0이므로 다음 정류장으로 이동하지 않습니다.');
+                    return;
+                }
+                
                 // 선택된 시간대에 따라 카운트 저장
                 if (selectedTimePeriod === 'morning') {
                     stations[currentStationIndex].morningCount += inputValue;
@@ -4081,9 +4087,11 @@
                     // 역순: 마지막 정류장에서 첫 번째 정류장으로
                     if (currentStationIndex > 0) {
                         currentStationIndex--;
+                        console.log(`퇴근운행: 이전 정류장으로 이동: ${currentStationIndex + 1}/${stations.length}`);
                     } else {
                         // 첫 번째 정류장(역순 기준)에서는 입력 완료 상태로 변경
                         // 단, 정류장이 1개만 있을 때는 완료하지 않음
+                        console.log(`퇴근운행: 첫 번째 정류장 입력 완료: ${currentStationIndex + 1}/${stations.length}`);
                         if (stations.length > 1) {
                             disableKeypad();
                         }
