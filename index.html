@@ -888,7 +888,7 @@
             background: rgba(0, 0, 0, 0.3);
             padding: 10px;
             margin: 5px;
-            margin-bottom: 5px;
+            margin-bottom: 5px !important;
             border-radius: 10px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -2955,10 +2955,10 @@
                     });
                 } else {
                     // localStorage에서 삭제
-                    const notices = JSON.parse(localStorage.getItem('notices') || '[]');
-                    const filteredNotices = notices.filter(notice => notice.id !== id);
-                    localStorage.setItem('notices', JSON.stringify(filteredNotices));
-                    loadNotices();
+                const notices = JSON.parse(localStorage.getItem('notices') || '[]');
+                const filteredNotices = notices.filter(notice => notice.id !== id);
+                localStorage.setItem('notices', JSON.stringify(filteredNotices));
+                loadNotices();
                 }
             }
         };
