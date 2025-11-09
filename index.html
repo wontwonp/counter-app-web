@@ -6497,6 +6497,19 @@
 
         // 컬리 저장된 정류장 정보 복원
         function restoreKurlySavedStations() {
+            // 도착시간 버튼 인라인 스타일 초기화 (쿠팡에서 설정한 스타일 제거)
+            const arrivalTimeRow = document.getElementById('arrival-time-row');
+            if (arrivalTimeRow) {
+                arrivalTimeRow.style.display = '';
+                arrivalTimeRow.style.visibility = '';
+                arrivalTimeRow.style.opacity = '';
+                arrivalTimeRow.style.height = '';
+                arrivalTimeRow.style.marginTop = '';
+                arrivalTimeRow.style.marginBottom = '';
+                arrivalTimeRow.style.padding = '';
+                arrivalTimeRow.style.overflow = '';
+            }
+            
             const savedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
             const savedStationCount = loadFromLocalStorage('kurlySavedStationCount');
             const savedDepartureTimes = JSON.parse(loadFromLocalStorage('kurlySavedDepartureTimes') || '[]');
