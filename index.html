@@ -146,10 +146,15 @@
                 box-sizing: border-box;
             }
             
-            /* ENTER 버튼이 있는 keypad-row는 하단 여백 제거 */
+            /* ENTER 버튼이 있는 keypad-row는 하단 여백 완전히 제거 */
             .keypad-row:has(.enter-btn) {
                 margin-bottom: 0 !important;
                 padding-bottom: 0 !important;
+            }
+            
+            /* ENTER 버튼이 있는 keypad-row 다음에 오는 arrival-time-row 상단 여백 음수로 제거 */
+            .keypad-row:has(.enter-btn) + #arrival-time-row {
+                margin-top: -5px !important;
             }
             
             /* 도착시간 버튼이 있는 keypad-row는 간격 완전히 제거 */
@@ -342,19 +347,18 @@
                 padding-bottom: 0 !important;
             }
             
-            /* ENTER 버튼이 있는 keypad-row 다음에 오는 arrival-time-row 간격 완전히 제거 */
+            /* ENTER 버튼이 있는 keypad-row 다음에 오는 arrival-time-row 간격 완전히 제거 (음수 margin 사용) */
             .keypad-row:has(.enter-btn) + #arrival-time-row {
-                margin-top: 0 !important;
+                margin-top: -5px !important;
                 margin-bottom: 0 !important;
                 padding-top: 0 !important;
                 padding-bottom: 0 !important;
-                margin: 0 !important;
                 padding: 0 10px !important;
             }
             
-            /* ENTER 버튼과 도착시간 버튼 사이 간격 제거 (더 강력한 선택자) */
+            /* ENTER 버튼과 도착시간 버튼 사이 간격 제거 (더 강력한 선택자, 음수 margin 사용) */
             .keypad-row:has(.enter-btn[onclick*="enterNumber"]) + #arrival-time-row {
-                margin-top: 0 !important;
+                margin-top: -5px !important;
                 margin-bottom: 0 !important;
                 padding-top: 0 !important;
                 padding-bottom: 0 !important;
@@ -919,6 +923,11 @@
             max-height: 45vh;
             z-index: 100;
             position: relative;
+        }
+        
+        /* ENTER 버튼 row와 도착시간 row 사이 gap 제거 */
+        .keypad-row:has(.enter-btn) + #arrival-time-row {
+            margin-top: -3px !important;
         }
 
         .keypad-row {
@@ -4394,7 +4403,7 @@
                         arrivalTimeRow.style.visibility = 'visible';
                         arrivalTimeRow.style.opacity = '1';
                         arrivalTimeRow.style.height = 'auto';
-                        arrivalTimeRow.style.marginTop = '0';
+                        arrivalTimeRow.style.marginTop = '-5px';
                         arrivalTimeRow.style.marginBottom = '0';
                         arrivalTimeRow.style.paddingTop = '0';
                         arrivalTimeRow.style.padding = '0 10px';
@@ -4666,7 +4675,7 @@
                         arrivalTimeRow.style.visibility = 'visible';
                         arrivalTimeRow.style.opacity = '1';
                         arrivalTimeRow.style.height = 'auto';
-                        arrivalTimeRow.style.marginTop = '0';
+                        arrivalTimeRow.style.marginTop = '-5px';
                         arrivalTimeRow.style.marginBottom = '0';
                         arrivalTimeRow.style.paddingTop = '0';
                         arrivalTimeRow.style.padding = '0 10px';
