@@ -3429,28 +3429,16 @@
                 keypadPage.style.display = 'none';
             }
             
-            // 컬리 저장된 정류장 정보가 있으면 키패드 페이지로, 없으면 컬리 노선 개수 입력 페이지로
-            if (kurlySavedStationCount && kurlySavedStations.length > 0) {
-                // 컬리 저장된 데이터 복원
-                restoreKurlySavedStations();
-                
-                // 키패드 페이지 표시
-                if (keypadPage) {
-                    keypadPage.classList.remove('hidden');
-                    keypadPage.style.display = 'block';
-                }
-            } else {
-                // 컬리 노선 개수 입력 페이지 표시
-                if (kurlyStationCountPage) {
-                    kurlyStationCountPage.classList.remove('hidden');
-                    kurlyStationCountPage.style.display = 'block';
-                    // 컬리 저장된 노선 목록 업데이트
-                    updateKurlySavedRoutesDisplay();
-                }
+            // 컬리 노선 개수 입력 페이지 표시 (저장된 노선 목록 표시)
+            if (kurlyStationCountPage) {
+                kurlyStationCountPage.classList.remove('hidden');
+                kurlyStationCountPage.style.display = 'block';
+                // 컬리 저장된 노선 목록 업데이트
+                updateKurlySavedRoutesDisplay();
             }
             
             // URL 상태 업데이트
-            window.history.pushState({page: kurlySavedStationCount && kurlySavedStations.length > 0 ? 'keypad' : 'kurly-station-count', service: 'kurly'}, '', window.location.pathname);
+            window.history.pushState({page: 'kurly-station-count', service: 'kurly'}, '', window.location.pathname);
         }
 
         function submitStationCount() {
