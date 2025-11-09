@@ -4978,10 +4978,18 @@
                 updateTimePeriodButtons();
             }
             
-            // 도착시간 복원
-            const savedArrivalTime = localStorage.getItem('arrivalTime');
-            if (savedArrivalTime) {
-                arrivalTime = JSON.parse(savedArrivalTime);
+            // 도착시간 복원 (각 시간대별)
+            const savedMorningArrivalTime = localStorage.getItem('morningArrivalTime');
+            if (savedMorningArrivalTime) {
+                morningArrivalTime = JSON.parse(savedMorningArrivalTime);
+            }
+            const savedAfternoonArrivalTime = localStorage.getItem('afternoonArrivalTime');
+            if (savedAfternoonArrivalTime) {
+                afternoonArrivalTime = JSON.parse(savedAfternoonArrivalTime);
+            }
+            const savedEveningArrivalTime = localStorage.getItem('eveningArrivalTime');
+            if (savedEveningArrivalTime) {
+                eveningArrivalTime = JSON.parse(savedEveningArrivalTime);
             }
             
             // 택시 인원 복원
