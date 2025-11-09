@@ -2202,7 +2202,7 @@
                     입차현황
                 </button>
             </div>
-            <!-- 택시 인원 추가 버튼 (쿠팡 전용, 45명 이상일 때만 표시) -->
+            <!-- 택시 인원 추가 버튼 (쿠팡 전용) -->
             <div id="taxi-passenger-section" style="display: none; margin-top: 20px; text-align: center;">
                 <button id="add-taxi-btn" onclick="addTaxiPassenger()" class="taxi-btn" style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); color: white; border: none; padding: 15px 30px; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);">
                     택시 인원 추가
@@ -3978,8 +3978,8 @@
                 }
             }
             
-            // 쿠팡일 때 45명 이상이면 택시 인원 추가 버튼 표시
-            if (currentService === 'coupang' && totalCount >= 45) {
+            // 쿠팡일 때 택시 인원 추가 버튼 표시
+            if (currentService === 'coupang') {
                 const taxiSection = document.getElementById('taxi-passenger-section');
                 if (taxiSection) {
                     taxiSection.style.display = 'block';
