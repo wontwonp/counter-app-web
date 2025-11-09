@@ -6388,6 +6388,19 @@
 
         // 컬리 노선 불러오기
         function loadKurlyRoute(routeName) {
+            // 도착시간 버튼 인라인 스타일 초기화 (쿠팡에서 설정한 스타일 제거)
+            const arrivalTimeRow = document.getElementById('arrival-time-row');
+            if (arrivalTimeRow) {
+                arrivalTimeRow.style.display = '';
+                arrivalTimeRow.style.visibility = '';
+                arrivalTimeRow.style.opacity = '';
+                arrivalTimeRow.style.height = '';
+                arrivalTimeRow.style.marginTop = '';
+                arrivalTimeRow.style.marginBottom = '';
+                arrivalTimeRow.style.padding = '';
+                arrivalTimeRow.style.overflow = '';
+            }
+            
             const savedRoutes = JSON.parse(localStorage.getItem('kurlySavedRoutes') || '[]');
             const route = savedRoutes.find(r => r.name === routeName);
             
