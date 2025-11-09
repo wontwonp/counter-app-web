@@ -2564,7 +2564,9 @@
         let completedTimePeriods = { morning: false, afternoon: false, evening: false }; // 완료된 운행 시간대 추적
         let currentService = 'coupang'; // 'coupang' 또는 'kurly' - 현재 선택된 서비스
         let isEveningMode = false; // 퇴근운행 모드 (역순 카운트)
-        let arrivalTime = null; // 도착시간 저장 (14시운행 후)
+        let morningArrivalTime = null; // 14시운행 도착시간
+        let afternoonArrivalTime = null; // 17시운행 도착시간
+        let eveningArrivalTime = null; // 퇴근운행 도착시간
         let taxiPassengers = { morning: 0, afternoon: 0, evening: 0 }; // 택시 인원 (쿠팡/컬리 공용)
         let taxiInput = ''; // 택시 인원 입력 임시 저장
 
@@ -3686,21 +3688,34 @@
             }
             
             const now = new Date();
-            arrivalTime = {
+            const arrivalTimeData = {
                 hour: now.getHours(),
                 minute: now.getMinutes()
             };
             
-            // localStorage에 저장
-            localStorage.setItem('arrivalTime', JSON.stringify(arrivalTime));
+            // 현재 선택된 시간대에 맞게 저장
+            if (selectedTimePeriod === 'morning') {
+                morningArrivalTime = arrivalTimeData;
+                localStorage.setItem('morningArrivalTime', JSON.stringify(morningArrivalTime));
+                alert(`14시운행 도착시간이 기록되었습니다: ${String(arrivalTimeData.hour).padStart(2, '0')}:${String(arrivalTimeData.minute).padStart(2, '0')}`);
+            } else if (selectedTimePeriod === 'afternoon') {
+                afternoonArrivalTime = arrivalTimeData;
+                localStorage.setItem('afternoonArrivalTime', JSON.stringify(afternoonArrivalTime));
+                alert(`17시운행 도착시간이 기록되었습니다: ${String(arrivalTimeData.hour).padStart(2, '0')}:${String(arrivalTimeData.minute).padStart(2, '0')}`);
+            } else if (selectedTimePeriod === 'evening') {
+                eveningArrivalTime = arrivalTimeData;
+                localStorage.setItem('eveningArrivalTime', JSON.stringify(eveningArrivalTime));
+                alert(`퇴근운행 도착시간이 기록되었습니다: ${String(arrivalTimeData.hour).padStart(2, '0')}:${String(arrivalTimeData.minute).padStart(2, '0')}`);
+            }
             
-            // 도착시간 버튼 숨기기
+            // 도착시간 버튼 숨기기 (현재 시간대의 도착시간이 기록되었으므로)
             const arrivalTimeRow = document.getElementById('arrival-time-row');
             if (arrivalTimeRow) {
                 arrivalTimeRow.style.display = 'none';
             }
             
-            alert(`도착시간이 기록되었습니다: ${String(arrivalTime.hour).padStart(2, '0')}:${String(arrivalTime.minute).padStart(2, '0')}`);
+            // 키패드 페이지 업데이트 (다음 시간대의 도착시간 버튼 표시 여부 확인)
+            updateKeypadPage();
         }
 
         // 정류장 개수 제출 함수
@@ -4197,16 +4212,23 @@
             
             updateSummary();
             
-            // 도착시간 버튼 표시 상태 업데이트 (컬리 전용)
+            // 도착시간 버튼 표시 상태 업데이트 (컬리 전용, 각 시간대별로 표시)
             const arrivalTimeRow = document.getElementById('arrival-time-row');
             if (arrivalTimeRow) {
                 if (currentService === 'kurly') {
-                    // 컬리일 때는 모든 시간대 완료 여부 확인
-                    const allTimePeriodsCompleted = completedTimePeriods.morning && 
-                                                     completedTimePeriods.afternoon && 
-                                                     completedTimePeriods.evening;
-                    if (!arrivalTime && allTimePeriodsCompleted) {
-                        // 모든 시간대 완료 시 도착시간 버튼 표시
+                    // 컬리일 때는 현재 선택된 시간대가 완료되었고 해당 시간대의 도착시간이 기록되지 않았을 때 표시
+                    const currentPeriodCompleted = completedTimePeriods[selectedTimePeriod];
+                    let currentArrivalTime = null;
+                    if (selectedTimePeriod === 'morning') {
+                        currentArrivalTime = morningArrivalTime;
+                    } else if (selectedTimePeriod === 'afternoon') {
+                        currentArrivalTime = afternoonArrivalTime;
+                    } else if (selectedTimePeriod === 'evening') {
+                        currentArrivalTime = eveningArrivalTime;
+                    }
+                    
+                    if (currentPeriodCompleted && !currentArrivalTime) {
+                        // 현재 시간대 완료 시 도착시간 버튼 표시
                         arrivalTimeRow.style.display = 'block';
                         arrivalTimeRow.style.visibility = 'visible';
                         arrivalTimeRow.style.opacity = '1';
@@ -4222,7 +4244,7 @@
                             arrivalTimeBtn.style.cursor = 'pointer';
                         }
                     } else {
-                        // 모든 시간대가 완료되지 않았거나 도착시간이 이미 기록된 경우 숨기기
+                        // 현재 시간대가 완료되지 않았거나 도착시간이 이미 기록된 경우 숨기기
                         arrivalTimeRow.style.display = 'none';
                         arrivalTimeRow.style.visibility = 'hidden';
                         arrivalTimeRow.style.opacity = '0';
@@ -4458,16 +4480,23 @@
                 console.log('오전운행 완료 상태 저장');
             }
             
-            // 도착시간 버튼 표시 (컬리 전용, 모든 시간대 완료 시)
+            // 도착시간 버튼 표시 (컬리 전용, 각 시간대별로 표시)
             const arrivalTimeRow = document.getElementById('arrival-time-row');
             if (arrivalTimeRow) {
                 if (currentService === 'kurly') {
                     const arrivalTimeBtn = document.getElementById('arrival-time-btn');
-                    // 모든 시간대(오전/오후/퇴근)가 완료되었을 때만 도착시간 버튼 표시
-                    const allTimePeriodsCompleted = completedTimePeriods.morning && 
-                                                     completedTimePeriods.afternoon && 
-                                                     completedTimePeriods.evening;
-                    if (!arrivalTime && allTimePeriodsCompleted) {
+                    // 현재 선택된 시간대가 완료되었고 해당 시간대의 도착시간이 기록되지 않았을 때 표시
+                    const currentPeriodCompleted = completedTimePeriods[selectedTimePeriod];
+                    let currentArrivalTime = null;
+                    if (selectedTimePeriod === 'morning') {
+                        currentArrivalTime = morningArrivalTime;
+                    } else if (selectedTimePeriod === 'afternoon') {
+                        currentArrivalTime = afternoonArrivalTime;
+                    } else if (selectedTimePeriod === 'evening') {
+                        currentArrivalTime = eveningArrivalTime;
+                    }
+                    
+                    if (currentPeriodCompleted && !currentArrivalTime) {
                         arrivalTimeRow.style.display = 'block';
                         arrivalTimeRow.style.visibility = 'visible';
                         arrivalTimeRow.style.opacity = '1';
@@ -4483,7 +4512,7 @@
                             arrivalTimeBtn.style.cursor = 'pointer';
                         }
                     } else {
-                        // 모든 시간대가 완료되지 않았으면 도착시간 버튼 숨기기
+                        // 현재 시간대가 완료되지 않았거나 도착시간이 이미 기록된 경우 숨기기
                         arrivalTimeRow.style.display = 'none';
                         arrivalTimeRow.style.visibility = 'hidden';
                         arrivalTimeRow.style.opacity = '0';
@@ -4555,9 +4584,13 @@
                     localStorage.removeItem('taxiPassengers');
                 }
                 
-                // 도착시간 초기화
-                arrivalTime = null;
-                localStorage.removeItem('arrivalTime');
+                // 도착시간 초기화 (각 시간대별)
+                morningArrivalTime = null;
+                afternoonArrivalTime = null;
+                eveningArrivalTime = null;
+                localStorage.removeItem('morningArrivalTime');
+                localStorage.removeItem('afternoonArrivalTime');
+                localStorage.removeItem('eveningArrivalTime');
                 
                 // 도착시간 버튼 숨기기 (컬리일 때는 스타일 초기화, 쿠팡일 때는 완전히 숨김)
                 const arrivalTimeRow = document.getElementById('arrival-time-row');
@@ -4617,9 +4650,13 @@
                     completedTimePeriods = { morning: false, afternoon: false, evening: false };
                     taxiPassengers = { morning: 0, afternoon: 0, evening: 0 };
                     
-                    // 도착시간 초기화
-                    arrivalTime = null;
-                    localStorage.removeItem('arrivalTime');
+                    // 도착시간 초기화 (각 시간대별)
+                    morningArrivalTime = null;
+                    afternoonArrivalTime = null;
+                    eveningArrivalTime = null;
+                    localStorage.removeItem('morningArrivalTime');
+                    localStorage.removeItem('afternoonArrivalTime');
+                    localStorage.removeItem('eveningArrivalTime');
                     
                     // 도착시간 버튼 숨기기
                     const arrivalTimeRow = document.getElementById('arrival-time-row');
@@ -4654,7 +4691,9 @@
                 localStorage.removeItem('savedStationCount');
                 localStorage.removeItem('savedRouteName');
                 localStorage.removeItem('currentStationIndex');
-                localStorage.removeItem('arrivalTime');
+                localStorage.removeItem('morningArrivalTime');
+                localStorage.removeItem('afternoonArrivalTime');
+                localStorage.removeItem('eveningArrivalTime');
                 
                 // 컬리 관련 localStorage도 초기화
                 localStorage.removeItem('kurlySavedStations');
@@ -5364,9 +5403,29 @@
                 const arrivalText = `${stations.length + 1}. 마켓컬리 창원센터 도착 시간 기재`;
                 ctx.fillText(arrivalText, tableX + 10, arrivalRowY + rowHeight/2 + 8);
                 
-                // 도착시간 표시 (14시운행 후 기록된 시간)
-                if (arrivalTime) {
-                    ctx.textAlign = 'center';
+                // 각 시간대별 도착시간 표시
+                ctx.textAlign = 'center';
+                
+                // 14시운행 도착시간 (오전 출발시간 컬럼에 표시)
+                if (morningArrivalTime) {
+                    const morningTimeStr = `${String(morningArrivalTime.hour).padStart(2, '0')}:${String(morningArrivalTime.minute).padStart(2, '0')}`;
+                    ctx.fillText(morningTimeStr, tableX + colWidths[0] + colWidths[1]/2, arrivalRowY + rowHeight/2 + 8);
+                }
+                
+                // 17시운행 도착시간 (오후 출발시간 컬럼에 표시)
+                if (afternoonArrivalTime) {
+                    const afternoonTimeStr = `${String(afternoonArrivalTime.hour).padStart(2, '0')}:${String(afternoonArrivalTime.minute).padStart(2, '0')}`;
+                    ctx.fillText(afternoonTimeStr, tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3]/2, arrivalRowY + rowHeight/2 + 8);
+                }
+                
+                // 퇴근운행 도착시간 (퇴근인원 컬럼에 표시)
+                if (eveningArrivalTime) {
+                    const eveningTimeStr = `${String(eveningArrivalTime.hour).padStart(2, '0')}:${String(eveningArrivalTime.minute).padStart(2, '0')}`;
+                    ctx.fillText(eveningTimeStr, tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4] + colWidths[5]/2, arrivalRowY + rowHeight/2 + 8);
+                }
+                
+                // 기존 코드 제거 (arrivalTime 사용하던 부분)
+                if (false) {
                     const timeStr = `${String(arrivalTime.hour).padStart(2, '0')}:${String(arrivalTime.minute).padStart(2, '0')}`;
                     // 14시운행 출발시간 열에 표시
                     const morningTimeColX = tableX + colWidths[0] + colWidths[1]/2;
