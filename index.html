@@ -1345,6 +1345,118 @@
             display: flex !important;
         }
 
+        /* 택시 인원 입력 키패드 모달 */
+        .taxi-keypad-modal {
+            display: none !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .taxi-keypad-modal.show {
+            display: flex !important;
+        }
+
+        .taxi-keypad-modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark-mode .taxi-keypad-modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .taxi-keypad-display {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .taxi-keypad-display h3 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .taxi-keypad-number-display {
+            font-size: 3rem;
+            color: white;
+            font-weight: bold;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .taxi-keypad-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .taxi-keypad-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 8px;
+            padding: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .taxi-keypad-btn:hover {
+            background: white;
+            transform: scale(1.05);
+        }
+
+        .taxi-keypad-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .taxi-keypad-action-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .taxi-keypad-action-btn.confirm {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .taxi-keypad-action-btn.confirm:hover {
+            background: #45a049;
+        }
+
+        .taxi-keypad-action-btn.cancel {
+            background: #f44336;
+            color: white;
+        }
+
+        .taxi-keypad-action-btn.cancel:hover {
+            background: #da190b;
+        }
+
         .password-modal-content {
             background: white;
             padding: 30px;
@@ -2036,6 +2148,34 @@
                     <button class="password-modal-btn cancel" onclick="closeNoticeAdmin()">닫기</button>
                     <button class="password-modal-btn confirm" onclick="saveNotice()">저장</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 택시 인원 입력 키패드 모달 -->
+    <div class="taxi-keypad-modal" id="taxi-keypad-modal">
+        <div class="taxi-keypad-modal-content">
+            <div class="taxi-keypad-display">
+                <h3>택시 인원 입력</h3>
+                <div class="taxi-keypad-number-display" id="taxi-keypad-display">0</div>
+            </div>
+            <div class="taxi-keypad-buttons">
+                <button class="taxi-keypad-btn" onclick="taxiInputDigit('1')">1</button>
+                <button class="taxi-keypad-btn" onclick="taxiInputDigit('2')">2</button>
+                <button class="taxi-keypad-btn" onclick="taxiInputDigit('3')">3</button>
+                <button class="taxi-keypad-btn" onclick="taxiInputDigit('4')">4</button>
+                <button class="taxi-keypad-btn" onclick="taxiInputDigit('5')">5</button>
+                <button class="taxi-keypad-btn" onclick="taxiInputDigit('6')">6</button>
+                <button class="taxi-keypad-btn" onclick="taxiInputDigit('7')">7</button>
+                <button class="taxi-keypad-btn" onclick="taxiInputDigit('8')">8</button>
+                <button class="taxi-keypad-btn" onclick="taxiInputDigit('9')">9</button>
+                <button class="taxi-keypad-btn" onclick="taxiClearInput()">C</button>
+                <button class="taxi-keypad-btn" onclick="taxiInputDigit('0')">0</button>
+                <button class="taxi-keypad-btn" onclick="taxiBackspace()">⌫</button>
+            </div>
+            <div class="taxi-keypad-actions">
+                <button class="taxi-keypad-action-btn cancel" onclick="closeTaxiKeypadModal()">취소</button>
+                <button class="taxi-keypad-action-btn confirm" onclick="confirmTaxiInput()">확인</button>
             </div>
         </div>
     </div>
@@ -4489,19 +4629,58 @@
         // 오후 마지막 정류장 출발시간 50분 후 초기화 가능 여부 확인
 
         // 저장된 시간대 설정 불러오기
-        // 택시 인원 추가 함수
+        // 택시 인원 추가 함수 - 키패드 모달 열기
         function addTaxiPassenger() {
             if (currentService !== 'coupang') {
                 return;
             }
             
-            const input = prompt('택시 인원을 입력하세요:');
-            if (input === null || input === '') {
-                return;
+            taxiInput = '';
+            openTaxiKeypadModal();
+        }
+        
+        // 택시 키패드 모달 열기
+        function openTaxiKeypadModal() {
+            const modal = document.getElementById('taxi-keypad-modal');
+            if (modal) {
+                modal.classList.add('show');
+                document.getElementById('taxi-keypad-display').textContent = '0';
+                taxiInput = '';
             }
+        }
+        
+        // 택시 키패드 모달 닫기
+        function closeTaxiKeypadModal() {
+            const modal = document.getElementById('taxi-keypad-modal');
+            if (modal) {
+                modal.classList.remove('show');
+                taxiInput = '';
+            }
+        }
+        
+        // 택시 키패드 숫자 입력
+        function taxiInputDigit(digit) {
+            taxiInput += digit;
+            document.getElementById('taxi-keypad-display').textContent = taxiInput || '0';
+        }
+        
+        // 택시 키패드 입력 초기화
+        function taxiClearInput() {
+            taxiInput = '';
+            document.getElementById('taxi-keypad-display').textContent = '0';
+        }
+        
+        // 택시 키패드 백스페이스
+        function taxiBackspace() {
+            taxiInput = taxiInput.slice(0, -1);
+            document.getElementById('taxi-keypad-display').textContent = taxiInput || '0';
+        }
+        
+        // 택시 인원 입력 확인
+        function confirmTaxiInput() {
+            const taxiCount = parseInt(taxiInput) || 0;
             
-            const taxiCount = parseInt(input);
-            if (isNaN(taxiCount) || taxiCount < 0) {
+            if (taxiCount < 0) {
                 alert('올바른 숫자를 입력해주세요.');
                 return;
             }
@@ -4516,6 +4695,7 @@
             saveToLocalStorage('taxiPassengers', JSON.stringify(taxiPassengers));
             
             updateTaxiPassengerDisplay();
+            closeTaxiKeypadModal();
         }
         
         // 택시 인원 표시 업데이트
