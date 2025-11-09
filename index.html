@@ -888,8 +888,9 @@
         .clock-display {
             background: rgba(0, 0, 0, 0.3);
             padding: 10px;
-            margin: 5px;
+            margin: 5px !important;
             margin-bottom: 5px !important;
+            margin-right: 5px !important;
             border-radius: 10px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -897,16 +898,20 @@
             box-sizing: border-box;
         }
         
-        /* 모든 화면 크기에서 clock-display margin-bottom 강제 */
+        /* 모든 화면 크기에서 clock-display margin 강제 */
         @media screen and (max-width: 414px) {
             .clock-display {
+                margin: 5px !important;
                 margin-bottom: 5px !important;
+                margin-right: 5px !important;
             }
         }
         
         @media screen and (max-width: 360px) {
             .clock-display {
+                margin: 5px !important;
                 margin-bottom: 5px !important;
+                margin-right: 5px !important;
             }
         }
 
