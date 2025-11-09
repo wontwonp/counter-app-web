@@ -3921,6 +3921,12 @@
                     keypadPage.style.display = 'block';
                 }
                 
+                // 도착시간 버튼 숨기기 (쿠팡 전용이므로)
+                const arrivalTimeRow = document.getElementById('arrival-time-row');
+                if (arrivalTimeRow) {
+                    arrivalTimeRow.style.display = 'none';
+                }
+                
                 // 키패드 페이지 업데이트
                 updateKeypadPage();
                 
@@ -4140,13 +4146,13 @@
             
             updateSummary();
             
-            // 컬리일 때 도착시간 버튼 표시 상태 업데이트
-            if (currentService === 'kurly') {
-                const arrivalTimeRow = document.getElementById('arrival-time-row');
-                const allTimePeriodsCompleted = completedTimePeriods.morning && 
-                                                 completedTimePeriods.afternoon && 
-                                                 completedTimePeriods.evening;
-                if (arrivalTimeRow) {
+            // 도착시간 버튼 표시 상태 업데이트 (컬리 전용)
+            const arrivalTimeRow = document.getElementById('arrival-time-row');
+            if (arrivalTimeRow) {
+                if (currentService === 'kurly') {
+                    const allTimePeriodsCompleted = completedTimePeriods.morning && 
+                                                     completedTimePeriods.afternoon && 
+                                                     completedTimePeriods.evening;
                     if (!arrivalTime && allTimePeriodsCompleted) {
                         arrivalTimeRow.style.display = 'block';
                         const arrivalTimeBtn = document.getElementById('arrival-time-btn');
@@ -4158,6 +4164,9 @@
                     } else {
                         arrivalTimeRow.style.display = 'none';
                     }
+                } else {
+                    // 쿠팡일 때는 항상 숨기기
+                    arrivalTimeRow.style.display = 'none';
                 }
             }
         }
@@ -4376,27 +4385,30 @@
                 console.log('오전운행 완료 상태 저장');
             }
             
-            // 컬리일 때 모든 시간대 완료 시 도착시간 버튼 표시 (오전/오후/퇴근 모두 완료되어야 함)
-            if (currentService === 'kurly') {
-                const arrivalTimeRow = document.getElementById('arrival-time-row');
-                const arrivalTimeBtn = document.getElementById('arrival-time-btn');
-                // 모든 시간대(오전/오후/퇴근)가 완료되었을 때만 도착시간 버튼 표시
-                const allTimePeriodsCompleted = completedTimePeriods.morning && 
-                                                 completedTimePeriods.afternoon && 
-                                                 completedTimePeriods.evening;
-                if (arrivalTimeRow && !arrivalTime && allTimePeriodsCompleted) {
-                    arrivalTimeRow.style.display = 'block';
-                    // 도착시간 버튼 명시적으로 활성화
-                    if (arrivalTimeBtn) {
-                        arrivalTimeBtn.disabled = false;
-                        arrivalTimeBtn.style.opacity = '1';
-                        arrivalTimeBtn.style.cursor = 'pointer';
-                    }
-                } else {
-                    // 모든 시간대가 완료되지 않았으면 도착시간 버튼 숨기기
-                    if (arrivalTimeRow) {
+            // 도착시간 버튼 표시 (컬리 전용, 모든 시간대 완료 시)
+            const arrivalTimeRow = document.getElementById('arrival-time-row');
+            if (arrivalTimeRow) {
+                if (currentService === 'kurly') {
+                    const arrivalTimeBtn = document.getElementById('arrival-time-btn');
+                    // 모든 시간대(오전/오후/퇴근)가 완료되었을 때만 도착시간 버튼 표시
+                    const allTimePeriodsCompleted = completedTimePeriods.morning && 
+                                                     completedTimePeriods.afternoon && 
+                                                     completedTimePeriods.evening;
+                    if (!arrivalTime && allTimePeriodsCompleted) {
+                        arrivalTimeRow.style.display = 'block';
+                        // 도착시간 버튼 명시적으로 활성화
+                        if (arrivalTimeBtn) {
+                            arrivalTimeBtn.disabled = false;
+                            arrivalTimeBtn.style.opacity = '1';
+                            arrivalTimeBtn.style.cursor = 'pointer';
+                        }
+                    } else {
+                        // 모든 시간대가 완료되지 않았으면 도착시간 버튼 숨기기
                         arrivalTimeRow.style.display = 'none';
                     }
+                } else {
+                    // 쿠팡일 때는 항상 숨기기
+                    arrivalTimeRow.style.display = 'none';
                 }
             }
 
