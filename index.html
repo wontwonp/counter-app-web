@@ -6665,6 +6665,21 @@
             localStorage.setItem('kurlySavedRouteName', routeName);
             localStorage.setItem('kurlySavedDepartureTimes', JSON.stringify(stationDepartureTimes));
             
+            // 완료 상태 및 키패드 비활성화 상태 초기화 (새로운 노선을 불러올 때)
+            completedTimePeriods = { morning: false, afternoon: false, evening: false };
+            currentStationIndex = 0;
+            currentInput = '';
+            saveToLocalStorage('kurlyCurrentStationIndex', '0');
+            saveToLocalStorage('kurlyCurrentInput', '');
+            saveToLocalStorage('keypadDisabled', 'false');
+            saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
+            localStorage.removeItem('morningArrivalTime');
+            localStorage.removeItem('afternoonArrivalTime');
+            localStorage.removeItem('eveningArrivalTime');
+            morningArrivalTime = null;
+            afternoonArrivalTime = null;
+            eveningArrivalTime = null;
+            
             // 정류장 이름 입력 페이지로 이동
             createKurlyStationInputs();
             
@@ -6793,6 +6808,40 @@
                 
                 const savedCurrentInput = loadFromLocalStorage('kurlyCurrentInput');
                 currentInput = savedCurrentInput || '';
+                
+                // 완료 상태 확인 및 초기화 (모든 카운트가 0이면 완료 상태도 초기화)
+                const allCountsZero = stations.every(station => 
+                    (station.morningCount || 0) === 0 && 
+                    (station.afternoonCount || 0) === 0 && 
+                    (station.eveningCount || 0) === 0
+                );
+                
+                if (allCountsZero) {
+                    // 모든 카운트가 0이면 완료 상태 초기화
+                    completedTimePeriods = { morning: false, afternoon: false, evening: false };
+                    saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
+                    saveToLocalStorage('keypadDisabled', 'false');
+                    // 키패드 활성화
+                    enableKeypad();
+                } else {
+                    // 카운트가 있으면 저장된 완료 상태 확인
+                    const savedCompletedTimePeriods = loadFromLocalStorage('completedTimePeriods');
+                    if (savedCompletedTimePeriods) {
+                        try {
+                            completedTimePeriods = JSON.parse(savedCompletedTimePeriods);
+                        } catch (e) {
+                            completedTimePeriods = { morning: false, afternoon: false, evening: false };
+                        }
+                    }
+                    
+                    // 키패드 비활성화 상태 확인
+                    const savedKeypadDisabled = loadFromLocalStorage('keypadDisabled');
+                    if (savedKeypadDisabled === 'true') {
+                        disableKeypad();
+                    } else {
+                        enableKeypad();
+                    }
+                }
                 
                 updateKeypadPage();
                 
