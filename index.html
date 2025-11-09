@@ -291,8 +291,8 @@
             #arrival-time-row {
                 width: 100% !important;
                 max-width: 100% !important;
-                margin-top: 25px !important;
-                margin-bottom: 35px !important;
+                margin-top: 5px !important;
+                margin-bottom: 20px !important;
                 padding: 0 10px !important;
                 display: flex !important;
                 justify-content: center !important;
@@ -325,7 +325,7 @@
             /* 컬리일 때 도착시간 버튼이 있을 때 정류장 카운트 섹션 간격 추가 */
             #arrival-time-row[style*="display: block"] ~ .station-summary,
             #arrival-time-row:not([style*="display: none"]):not([style*="display:none"]) ~ .station-summary {
-                margin-top: 60px !important;
+                margin-top: 30px !important;
             }
             
             /* 버튼 그룹 모바일 스타일 */
@@ -2347,7 +2347,7 @@
                 <div class="keypad-row">
                     <button class="enter-btn" onclick="enterNumber()">ENTER</button>
                 </div>
-                <div class="keypad-row" id="arrival-time-row" style="display: none; width: 100%; max-width: 100%; margin-top: 10px;">
+                <div class="keypad-row" id="arrival-time-row" style="display: none; width: 100%; max-width: 100%; margin-top: 5px;">
                     <button id="arrival-time-btn" class="enter-btn" onclick="recordArrivalTime()" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); width: 100%; max-width: 100%;">도착시간</button>
                 </div>
             </div>
@@ -4233,8 +4233,8 @@
                         arrivalTimeRow.style.visibility = 'visible';
                         arrivalTimeRow.style.opacity = '1';
                         arrivalTimeRow.style.height = 'auto';
-                        arrivalTimeRow.style.marginTop = '25px';
-                        arrivalTimeRow.style.marginBottom = '35px';
+                        arrivalTimeRow.style.marginTop = '5px';
+                        arrivalTimeRow.style.marginBottom = '20px';
                         arrivalTimeRow.style.padding = '0 10px';
                         arrivalTimeRow.style.overflow = 'visible';
                         const arrivalTimeBtn = document.getElementById('arrival-time-btn');
@@ -4426,17 +4426,20 @@
                 } else {
                     // 정순: 첫 번째 정류장에서 마지막 정류장으로
                     // 모든 정류장을 순회했는지 확인
-                if (currentStationIndex < stations.length - 1) {
+                    if (currentStationIndex < stations.length - 1) {
                         // 아직 마지막 정류장이 아니면 다음 정류장으로 이동
-                    currentStationIndex++;
+                        currentStationIndex++;
                         console.log(`다음 정류장으로 이동: ${currentStationIndex + 1}/${stations.length}`);
-                } else {
+                    } else {
                         // 마지막 정류장에 도달했을 때만 완료 처리
                         // 단, 정류장이 1개만 있을 때는 완료하지 않음 (계속 입력 가능)
-                        console.log(`마지막 정류장 입력 완료: ${currentStationIndex + 1}/${stations.length}`);
+                        console.log(`마지막 정류장 입력 완료: ${currentStationIndex + 1}/${stations.length}, 총 정류장 수: ${stations.length}`);
                         if (stations.length > 1) {
                             // 마지막 정류장에서 입력했을 때만 완료
-                    disableKeypad();
+                            disableKeypad();
+                        } else {
+                            // 단일 정류장일 때는 완료하지 않고 계속 입력 가능
+                            console.log('단일 정류장: 완료하지 않고 계속 입력 가능');
                         }
                     }
                 }
@@ -4501,8 +4504,8 @@
                         arrivalTimeRow.style.visibility = 'visible';
                         arrivalTimeRow.style.opacity = '1';
                         arrivalTimeRow.style.height = 'auto';
-                        arrivalTimeRow.style.marginTop = '25px';
-                        arrivalTimeRow.style.marginBottom = '35px';
+                        arrivalTimeRow.style.marginTop = '5px';
+                        arrivalTimeRow.style.marginBottom = '20px';
                         arrivalTimeRow.style.padding = '0 10px';
                         arrivalTimeRow.style.overflow = 'visible';
                         // 도착시간 버튼 명시적으로 활성화
