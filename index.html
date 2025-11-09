@@ -6470,6 +6470,14 @@
                 currentInput = '';
                 saveToLocalStorage('kurlyCurrentStationIndex', '0');
                 saveToLocalStorage('kurlyCurrentInput', '');
+                
+                // 완료 상태 및 키패드 비활성화 상태 초기화 (카운팅 시작 시)
+                completedTimePeriods = { morning: false, afternoon: false, evening: false };
+                saveToLocalStorage('keypadDisabled', 'false');
+                saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
+                // 키패드 활성화
+                enableKeypad();
+                
                 console.log(`컬리 카운팅 시작: 정류장 ${currentStationIndex + 1}/${stations.length}부터 시작`);
                 
                 // 페이지 전환
