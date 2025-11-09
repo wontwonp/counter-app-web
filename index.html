@@ -2,13 +2,26 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>정류장 카운터</title>
     <!-- 화면 자동 꺼짐 방지 -->
     <script src="https://unpkg.com/nosleep.js@0.12.0/dist/NoSleep.min.js"></script>
+
+    <!-- PWA 설정 -->
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="정류장 카운터">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="정류장 카운터">
+    
+    <!-- 매니페스트 링크 -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- 아이콘 링크 -->
+    <link rel="icon" type="image/svg+xml" sizes="192x192" href="icons/icon-192x192.svg">
+    <link rel="icon" type="image/svg+xml" sizes="512x512" href="icons/icon-512x512.svg">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.svg">
     <style>
         * {
             margin: 0;
@@ -22,6 +35,9 @@
             -moz-text-size-adjust: 100%;
             -ms-text-size-adjust: 100%;
             text-size-adjust: 100%;
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
         }
 
         body {
@@ -30,6 +46,8 @@
             -ms-text-size-adjust: 100%;
             text-size-adjust: 100%;
             overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
             height: 100vh;
             max-height: 100vh;
         }
@@ -37,27 +55,103 @@
         /* 모바일 화면 최적화 */
         @media screen and (max-width: 768px) {
             body {
-                padding-top: 10px;
-                padding-bottom: 10px;
-                align-items: flex-start;
+                padding: 0;
+                margin: 0;
+                overflow-x: hidden;
+                align-items: center;
                 justify-content: center;
             }
             
             .container {
-                padding: 10px;
-                justify-content: flex-start;
-                align-items: stretch;
-                min-height: auto;
-                height: auto;
-                max-height: none;
+                padding: 5px;
+                margin: 0;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                overflow-x: hidden;
+            }
+            
+            /* 시작 페이지가 보일 때만 중앙 정렬 */
+            #selection-page:not(.hidden) {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            /* 다른 페이지들은 숨김 상태 유지 */
+            #station-count-page.hidden,
+            #station-names-page.hidden,
+            #keypad-page.hidden {
+                display: none !important;
             }
             
             .station-count-input, .station-names-input, .keypad-container {
                 margin: 5px;
                 padding: 10px;
                 width: 100%;
-                max-width: 95%;
+                max-width: 100%;
                 box-sizing: border-box;
+            }
+            
+            /* 키패드 페이지 모바일 스타일 */
+            #keypad-page {
+                width: 100%;
+                max-width: 100%;
+                padding: 5px;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .current-station {
+                width: 100%;
+                max-width: 100%;
+                padding: 10px;
+                margin: 5px;
+                box-sizing: border-box;
+            }
+            
+            .clock-display, .input-display {
+                width: 100%;
+                max-width: 100%;
+                padding: 10px;
+                margin: 5px;
+                box-sizing: border-box;
+            }
+            
+            .keypad {
+                width: 100%;
+                max-width: 100%;
+                padding: 5px;
+                box-sizing: border-box;
+                margin: 0 auto;
+            }
+            
+            .keypad-row {
+                width: 100%;
+                max-width: 100%;
+                display: flex;
+                justify-content: center;
+                gap: 5px;
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            .keypad-btn, .enter-btn {
+                flex: 1;
+                max-width: 80px;
+                box-sizing: border-box;
+            }
+            
+            .enter-btn {
+                max-width: 100%;
             }
             
             .station-names-input {
@@ -259,52 +353,127 @@
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
         }
 
-        /* 차량현황 페이지 다크모드 */
-        body.dark-mode #vehicle-status-1-page,
-        body.dark-mode #vehicle-status-3-page,
-        body.dark-mode #vehicle-status-4-page {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+        /* 시작 페이지 스타일 */
+        .selection-page {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 60px 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        body.dark-mode #vehicle-status-1-page > div > div,
-        body.dark-mode #vehicle-status-3-page > div > div,
-        body.dark-mode #vehicle-status-4-page > div > div {
-            background: transparent !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3) !important;
+        .selection-page h1 {
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        body.dark-mode #vehicle-status-1-page h1,
-        body.dark-mode #vehicle-status-3-page h1,
-        body.dark-mode #vehicle-status-4-page h1 {
-            color: #fff !important;
+        .selection-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
         }
 
-        body.dark-mode #vehicle-status-1-page .route-item,
-        body.dark-mode #vehicle-status-3-page .route-item,
-        body.dark-mode #vehicle-status-4-page .route-item {
-            background: rgba(255, 255, 255, 0.2) !important;
-            border-color: rgba(255, 255, 255, 0.3) !important;
-            color: #fff !important;
+        .selection-btn {
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        body.dark-mode #vehicle-status-1-page button,
-        body.dark-mode #vehicle-status-3-page button,
-        body.dark-mode #vehicle-status-4-page button {
-            color: white !important;
+        .selection-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 1);
         }
+
+        .selection-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .selection-btn img {
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .coupang-btn img {
+            max-height: 36px;
+        }
+
+        .kurly-btn img {
+            max-height: 42px;
+        }
+
+        body.dark-mode .selection-page {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .selection-page h1 {
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+            }
+            
+            #selection-page {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .selection-page {
+                padding: 40px 20px;
+                width: 100%;
+                max-width: 90%;
+            }
+
+            .selection-page h1 {
+                font-size: 2rem;
+                margin-bottom: 40px;
+            }
+
+            .selection-btn {
+                padding: 25px;
+            }
+
+            .coupang-btn img {
+                max-height: 30px;
+            }
+
+            .kurly-btn img {
+                max-height: 36px;
+            }
+        }
+
 
         .container {
             text-align: center;
-            padding: 5px;
+            padding: 10px;
             max-width: 100%;
             width: 100%;
             margin: 0 auto;
             box-sizing: border-box;
-            height: 100vh;
-            max-height: 100vh;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
+            overflow-x: hidden;
         }
 
         h1 {
@@ -473,6 +642,9 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         .current-station h2 {
@@ -511,14 +683,13 @@
 
         .clock-display {
             background: rgba(0, 0, 0, 0.3);
-            padding: 8px;
-            margin-bottom: 3px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+            margin-bottom: 5px;
             border-radius: 10px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             font-family: 'Courier New', monospace;
-            max-height: 80px;
-            overflow: hidden;
         }
 
         .clock-time {
@@ -526,23 +697,24 @@
             font-weight: 900;
             color: #fff;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            margin-bottom: 2px;
+            margin-bottom: 5px;
         }
 
         .clock-date {
-            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+            font-size: 1rem;
             color: rgba(255, 255, 255, 0.8);
         }
 
         .input-display {
             background: rgba(0, 0, 0, 0.3);
-            padding: 8px;
-            margin-bottom: 3px;
+            padding-bottom: 0px;
+            padding-top: 0px;
+            border-top-width: 0px;
+            border-bottom-width: 0px;
+            margin-bottom: 5px;
             border-radius: 15px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            max-height: 60px;
-            overflow: hidden;
         }
 
         .number-display {
@@ -550,26 +722,13 @@
             font-weight: bold;
             color: #fff;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            margin: 0;
-            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100%;
             line-height: 1;
-        }
-
-        /* 숫자 입력 시 색상 변화 효과 */
-        .number-display.changed {
-            color: #FFD700;
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
-            animation: numberChange 0.6s ease-in-out;
-        }
-
-        @keyframes numberChange {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+            margin: 0;
+            transition: all 0.3s ease;
         }
 
         .keypad {
@@ -620,21 +779,6 @@
             background: rgba(255, 255, 255, 0.4);
             transform: translateY(-1px) scale(0.95);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        /* 키패드 버튼 클릭 시 색상 변화 효과 */
-        .keypad-btn.clicked {
-            background: rgba(76, 175, 80, 0.6);
-            border: 2px solid #4CAF50;
-            color: #4CAF50;
-            text-shadow: 0 0 10px rgba(76, 175, 80, 0.8);
-            animation: keypadClick 0.4s ease-in-out;
-        }
-
-        @keyframes keypadClick {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-            100% { transform: scale(1); }
         }
 
         .enter-btn {
@@ -759,7 +903,12 @@
         /* 반응형 디자인 */
         @media (max-width: 768px) {
             .container {
-                padding: 10px;
+                padding: 5px;
+                margin: 0;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                overflow-x: hidden;
             }
             
             h1 {
@@ -767,7 +916,10 @@
             }
             
             .station-count-input, .station-names-input {
-                padding: 20px;
+                padding: 15px;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
             }
             
             .station-input-group {
@@ -795,10 +947,150 @@
             .number-display {
                 font-size: 1.8rem;
             }
+            
+            /* 시간대 토글 버튼 모바일 스타일 */
+            .time-period-btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+            
+            /* 리셋 버튼 모바일 스타일 */
+            .reset-btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
         }
 
         .hidden {
-            display: none;
+            display: none !important;
+        }
+        
+        /* 모바일에서도 hidden 클래스가 확실히 적용되도록 */
+        @media screen and (max-width: 768px) {
+            .hidden {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                height: 0 !important;
+                overflow: hidden !important;
+            }
+            
+            #selection-page.hidden,
+            #station-count-page.hidden,
+            #station-names-page.hidden,
+            #keypad-page.hidden {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                position: absolute !important;
+                left: -9999px !important;
+                width: 0 !important;
+                height: 0 !important;
+                overflow: hidden !important;
+            }
+        }
+
+        /* 시작 페이지 스타일 */
+        .selection-page {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 60px 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .selection-page h1 {
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .selection-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .selection-btn {
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .selection-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .selection-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .selection-btn img {
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .coupang-btn img {
+            max-height: 36px;
+        }
+
+        .kurly-btn img {
+            max-height: 42px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+            }
+            
+            #selection-page {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .selection-page {
+                padding: 40px 20px;
+                width: 100%;
+                max-width: 90%;
+            }
+
+            .selection-page h1 {
+                font-size: 2rem;
+                margin-bottom: 40px;
+            }
+
+            .selection-btn {
+                padding: 25px;
+            }
+
+            .coupang-btn img {
+                max-height: 30px;
+            }
+
+            .kurly-btn img {
+                max-height: 36px;
+            }
         }
 
         /* 저장된 노선 관련 스타일 */
@@ -889,14 +1181,15 @@
             height: 50px;
             border-radius: 50%;
             border: none;
-            background: transparent;
+            background: rgba(255, 255, 255, 0.2);
             color: white;
             cursor: pointer;
             font-size: 1.3rem;
-            backdrop-filter: none;
-            border: none;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             transition: all 0.5s ease;
             z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             opacity: 1;
             transform: translateX(0);
         }
@@ -922,6 +1215,382 @@
             height: 80px;
             z-index: 999;
             cursor: pointer;
+        }
+
+        /* 왼쪽 상단 관리자 영역 */
+        .admin-trigger-area {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100px;
+            height: 100px;
+            z-index: 999;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        /* 비밀번호 입력 모달 */
+        .password-modal {
+            display: none !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-modal.show {
+            display: flex !important;
+        }
+
+        .password-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark-mode .password-modal-content {
+            background: #2a2a2a;
+            color: white;
+        }
+
+        .password-modal-content h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        body.dark-mode .password-modal-content h2 {
+            color: white;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        body.dark-mode .password-input {
+            background: #1a1a1a;
+            color: white;
+            border-color: #555;
+        }
+
+        .password-modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .password-modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .password-modal-btn.confirm {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .password-modal-btn.confirm:hover {
+            background: #45a049;
+        }
+
+        .password-modal-btn.cancel {
+            background: #f44336;
+            color: white;
+        }
+
+        .password-modal-btn.cancel:hover {
+            background: #da190b;
+        }
+
+        /* 공지사항 관리 모달 */
+        .notice-admin-modal {
+            display: none !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10001;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .notice-admin-modal.show {
+            display: flex !important;
+        }
+
+        .notice-admin-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark-mode .notice-admin-content {
+            background: #2a2a2a;
+            color: white;
+        }
+
+        .notice-admin-content h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        body.dark-mode .notice-admin-content h2 {
+            color: white;
+        }
+
+        .notice-list {
+            margin-bottom: 20px;
+        }
+
+        .notice-item {
+            background: #f5f5f5;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        body.dark-mode .notice-item {
+            background: #1a1a1a;
+            border-left-color: #4CAF50;
+        }
+
+        .notice-item-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .notice-item-content {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        body.dark-mode .notice-item-content {
+            color: #aaa;
+        }
+
+        .notice-item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .notice-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .notice-btn.edit {
+            background: #2196F3;
+            color: white;
+        }
+
+        .notice-btn.delete {
+            background: #f44336;
+            color: white;
+        }
+
+        .notice-form {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+        }
+
+        body.dark-mode .notice-form {
+            border-top-color: #555;
+        }
+
+        .notice-form input,
+        .notice-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        body.dark-mode .notice-form input,
+        body.dark-mode .notice-form textarea {
+            background: #1a1a1a;
+            color: white;
+            border-color: #555;
+        }
+
+        .notice-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .notice-form h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        body.dark-mode .notice-form h3 {
+            color: white;
+        }
+
+        /* 공지사항 모달 (사용자용) */
+        .notice-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 4000;
+        }
+
+        .notice-modal.show {
+            display: flex;
+        }
+
+        .notice-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark-mode .notice-modal-content {
+            background: #2a2a2a;
+            color: white !important;
+        }
+
+        body.dark-mode .notice-modal-content h2 {
+            color: white !important;
+        }
+
+        body.dark-mode .notice-modal-content p {
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .notice-modal-content span {
+            color: #ffffff !important;
+        }
+        
+        body.dark-mode .notice-modal-content div {
+            color: #ffffff !important;
+        }
+        
+        body.dark-mode .notice-modal-content label {
+            color: #ffffff !important;
+        }
+        
+        body.dark-mode #notice-content-display {
+            color: #ffffff !important;
+        }
+        
+        body.dark-mode #notice-content-display * {
+            color: #ffffff !important;
+        }
+        
+        body.dark-mode .notice-title {
+            color: #ffffff !important;
+        }
+        
+        body.dark-mode .notice-content {
+            color: #ffffff !important;
+        }
+        
+        body.dark-mode .notice-label {
+            color: #ffffff !important;
+        }
+        
+        body.dark-mode .notice-checkbox-text {
+            color: #ffffff !important;
+        }
+
+        /* 차량입차현황 페이지 */
+        #vehicle-status-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body.dark-mode #vehicle-status-page {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-mode #vehicle-status-page h2 {
+            color: white;
+        }
+
+        body.dark-mode #vehicle-status-page .station-count-input {
+            color: white;
+        }
+
+        body.dark-mode #vehicle-status-page button {
+            color: white;
+        }
+
+        #vehicle-status-page.hidden {
+            display: none !important;
+        }
+
+        #vehicle-status-page button:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .vehicle-status-btn {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            font-size: 1rem;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .vehicle-status-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
         }
 
         .theme-toggle-area:hover .theme-toggle {
@@ -1020,114 +1689,6 @@
             border-radius: 10px;
         }
 
-        /* 택시 승객 입력 모달 */
-        .taxi-input-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 3000;
-        }
-
-        .taxi-input-modal.show {
-            display: flex;
-        }
-
-        .taxi-input-modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 90%;
-            width: 350px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .taxi-input-modal-content h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .taxi-input-display {
-            background: #f5f5f5;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        #taxi-number-display {
-            font-size: 4rem;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .taxi-keypad {
-            display: grid;
-            gap: 10px;
-        }
-
-        .taxi-keypad-row {
-            display: flex;
-            gap: 10px;
-        }
-
-        .taxi-keypad-btn {
-            flex: 1;
-            padding: 20px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .taxi-keypad-btn:active {
-            transform: scale(0.95);
-        }
-
-        .taxi-enter-btn {
-            flex: 1;
-            padding: 20px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .taxi-enter-btn:active {
-            transform: scale(0.95);
-        }
-
-        .taxi-input-btn {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 12px 24px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .taxi-input-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
-        }
-
         .modal-close {
             position: absolute;
             top: 10px;
@@ -1139,37 +1700,10 @@
             cursor: pointer;
         }
 
-        /* 공지사항 모달 */
-        .notice-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 4000;
-        }
-
-        .notice-modal.show {
-            display: flex;
-        }
-
-        .notice-modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 90%;
-            width: 500px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        }
-
         /* 시간대 선택 버튼 스타일 */
         .time-period-btn {
-            font-size: clamp(0.9rem, 3vw, 1.1rem);
-            padding: clamp(8px, 2vw, 12px) clamp(15px, 4vw, 25px);
+            font-size: 1.1rem;
+            padding: 12px 25px;
             border: none;
             border-radius: 10px;
             cursor: pointer;
@@ -1177,8 +1711,6 @@
             background: rgba(255, 255, 255, 0.2);
             color: white;
             border: 2px solid rgba(255, 255, 255, 0.3);
-            flex: 1;
-            margin: 0 5px;
         }
 
         .time-period-btn.active {
@@ -1233,68 +1765,6 @@
             transform: translateY(-2px);
         }
 
-        .vehicle-status-btn {
-            background: #2196F3;
-            color: white;
-            font-size: 1rem;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .vehicle-status-btn:hover {
-            background: #0b7dda;
-            transform: translateY(-2px);
-        }
-
-        /* 차량입차현황 페이지 */
-        #vehicle-status-page {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        /* 다크모드일 때 차량입차현황 페이지 배경 */
-        body.dark-mode #vehicle-status-page {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        }
-
-        body.dark-mode #vehicle-status-page h2 {
-            color: white;
-        }
-
-        body.dark-mode #vehicle-status-page .station-count-input {
-            color: white;
-        }
-
-        body.dark-mode #vehicle-status-page button {
-            color: white;
-        }
-
-        #vehicle-status-page.hidden {
-            display: none !important;
-        }
-
-        /* 차량입차현황 페이지 버튼 호버 효과 */
-        #vehicle-status-page button:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
-        }
-
-        #vehicle-status-page button:active {
-            transform: translateY(-2px) scale(0.98);
-        }
-
         /* 정류장 이름 입력 페이지 버튼 그룹 스타일 */
         .button-group {
             display: flex;
@@ -1303,23 +1773,13 @@
             margin-top: 20px;
         }
 
-        .start-btn, .save-btn, .add-station-btn {
+        .start-btn, .save-btn {
             font-size: 1rem;
             padding: 12px 24px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-        }
-
-        .add-station-btn {
-            background: #2196F3;
-            color: white;
-        }
-
-        .add-station-btn:hover {
-            background: #0b7dda;
-            transform: translateY(-2px);
         }
 
         .start-btn {
@@ -1340,13 +1800,60 @@
     </style>
 </head>
 <body>
+    <!-- 왼쪽 상단 관리자 트리거 영역 -->
+    <div class="admin-trigger-area" id="admin-trigger-area"></div>
+    
     <div class="theme-toggle-area">
         <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">🌙</button>
     </div>
+
+    <!-- 비밀번호 입력 모달 -->
+    <div class="password-modal" id="password-modal">
+        <div class="password-modal-content">
+            <h2>관리자 비밀번호</h2>
+            <input type="password" id="admin-password" class="password-input" placeholder="비밀번호를 입력하세요" autocomplete="off">
+            <div class="password-modal-buttons">
+                <button class="password-modal-btn cancel" onclick="closePasswordModal()">취소</button>
+                <button class="password-modal-btn confirm" onclick="checkAdminPassword()">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 공지사항 관리 모달 -->
+    <div class="notice-admin-modal" id="notice-admin-modal">
+        <div class="notice-admin-content">
+            <h2>공지사항 관리</h2>
+            <div class="notice-list" id="notice-list"></div>
+            <div class="notice-form">
+                <h3>새 공지사항 추가</h3>
+                <input type="text" id="notice-title" placeholder="제목" maxlength="100">
+                <textarea id="notice-content" placeholder="내용"></textarea>
+                <div class="password-modal-buttons">
+                    <button class="password-modal-btn cancel" onclick="closeNoticeAdmin()">닫기</button>
+                    <button class="password-modal-btn confirm" onclick="saveNotice()">저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="container">
         
+        <!-- 시작 페이지 (선택 페이지) -->
+        <div id="selection-page">
+            <div class="selection-page">
+                <h1>서비스를 선택하세요</h1>
+                <div class="selection-buttons">
+                    <button class="selection-btn coupang-btn" onclick="goToCoupang()">
+                        <img src="https://image7.coupangcdn.com/image/coupang/common/logo_coupang_w350.png" alt="Coupang">
+                    </button>
+                    <button class="selection-btn kurly-btn" onclick="goToKurly()">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODIiIGhlaWdodD0iNDIiIHZpZXdCb3g9IjAgMCA4MiA0MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxnIGZpbGwtcnVsZT0ibm9uemVybyIgZmlsbD0ibm9uZSI+CiAgICAgICAgPHBhdGggZD0iTTAgMGg4MnY0MkgweiIvPgogICAgICAgIDxwYXRoIGQ9Ik02Mi41Ljk2NWMxLjAyNi0uNTU3IDIuNDY2LS43MTggMy4zNTYuMTA3Ljg5LjgyNS42NzYgMi4wNDggMCAzLjk3MyAwIDAtMS41MDUgNC4wNjYtMy4wNTUgOC4yNjJsLS4zOTggMS4wOGMtMS40MTQgMy44My0yLjc2MiA3LjQ4Ny0yLjkyNyA3Ljk2My0xLjQ5OCA0LjI0NSAxLjk2NyA0LjEyMiA0LjAyNC0uMTUyIDEuMTU5LTIuMzk0IDIuNjQ0LTYuMzU3IDIuNjQ0LTYuMzU3LjUyNC0xLjU2My42ODItMi41MDQuMzU5LTIuODI4LS4xMDctLjExMy4wNDUtLjI1Mi4xOC0uMzIzIDIuMjY5LTEuMTQ5IDQuNjMtLjA3MiAzLjMzNiAzLjMxbC0uMDU0LjEzOGMtLjM4Ny45NzgtMi42OCA2LjczMy0yLjY4IDYuNzMzLS42NzYgMS42Ni0uNTk1IDMuMjM2LjQxOCAzLjIzNi42ODYtLjAwNCAxLjQ2LS4zODUgMi4zMDQtMS4wODggMS44MTgtMS41MDQgMy4yMjItNC4zMTIgMy43MjctNS40NTQuMjMtLjUwOCAxLjA4Ny0yLjQyIDEuNzY2LTQuMzYxLjIzNi0uNjY1LjM2OS0xLjM2LjM5NS0yLjA2NWEuNDQzLjQ0MyAwIDAgMSAuMTk0LS40NTkgMy41NzggMy41NzggMCAwIDEgMS42Ny0uNDIgMS44MDUgMS44MDUgMCAwIDEgMS40NjUuNzA1Yy40NDMuNTk4LjU2NiAxLjU3OS4xMDMgMi44MDgtLjEyLjMyLTMuNzc1IDkuOTU4LTMuNzc1IDkuOTU4di4wMjZjMi4wNDEtMS4yMjMgMy44Ny0xLjMxMyA0Ljk1My0uODU0bC0uMDAzLS4wMTNjMS40OTUuNjQ3IDEuOTkgMi40NC45MzggMy41NTktLjEwMy4xMS0uMzYyLjA4NC0uMzYyLS4wOS0uMDk0LTEuMjUzLTIuNTE3LTMuNDk1LTYuMTA5LTEuMDc1bC0uMTQ1LjM4NS0xLjA2OCAyLjgwOGMtMi42MiA3LjAxOC01LjQwMyAxMi4xMzYtOS40MTUgMTEtMi42ODgtLjc2LTIuMzc3LTQuNjA3LjUxNS03Ljc5YTU0LjkgNTQuOSAwIDAgMSA2LjQ5LTUuODk4Yy4wNjgtLjE4OC4xMy0uMzUuMTg4LS41MTEuMjc4LS43OC40OTEtMS40MzQuNzkyLTIuMjY1bC4xNTktLjUxOGMtLjE3OC4yLS40OTguNTczLS43MTIuODEyLS43MTIuOC0yLjQ5NCAyLjc1Ny01LjMyOSAyLjIwN2wtLjIzNC0uMDUyYy0yLjA1LS41MDgtMi42MDgtMS45ODYtMi42NTUtMy4yNzctMi4xNDIgMi42NTYtNC4zNTEgMy40MjYtNS44MDcgMy4zOS0xLjk0OC0uMDQ4LTMuMzc4LTEuNTE0LTIuNDI3LTQuMjkgMS4wNTgtMy4xMDYgNS41LTE1LjMzMiA2Ljc5NS0xOSAuNDg1LTEuNTguNjY2LTIuNTguMTg0LTIuOTc0LS4xMjMtLjEwMy4wNTItLjI2NS4yLS4zNDZ6bTguMzY0IDI4Ljc3OGMtMS4xMDMuODgtNS41MjYgNC41My02Ljc1MiA3LjQ0MS0uNTA1IDEuMTk3LS4zNzYgMi4xNDkuNDg4IDIuMjMzIDEuOTYuMTk0IDQuMDEyLTMuODE4IDYuMjI4LTkuNTEyek0xNi4wMjggNS4zNTJjLS4wODcuMzMyLTEuMzE5IDMuODYtMi43MDEgNy43NDlsLS4yMDkuNTg2LS4yMS41ODktLjIxNS42MDRjNC42OTEtMS4xMjMgMTMuMDY0LTYuNTcgMTQuMDM1LTEwLjA4NS4xMi0uMTYxLjI5LS4yMi41NjYtLjAzNS40OTUuMzMuNjg2IDEuMTU1LjQ5NSAxLjkxOC0uNzY0IDMuMDM4LTYuNDE2IDcuMzQxLTExLjM3OSA5LjU1NC42MTIgMS42MzcgMi42ODIgNi4yNjcgNC4yMDYgOS4xMTEgMS42NjMgMy4xMTkgMy40MiA0LjU3NSA2LjE0NyA0LjczNyAxLjQ2LjA4NSAzLjAxNC0uNDQ3IDMuODkzLTEuMjJsLjE0OC0uMTQtLjAxMy4wM2MuMTk0LS4yMDQuNTExLjA3Ny4zNjYuMzIzYTYuNSA2LjUgMCAwIDEtNC45OTIgMi44NjdjLTYuMzQ1LjQyNy04Ljc3NC0zLjg3LTEzLjMwNC0xNC40OTQtLjM2Ni4xMjYtLjgwOS4yODgtMS4yNTUuNDUtLjA3NS4xODctMi4wNyA1LjY0Mi0yLjEzIDUuODIzLS45NDQgMi44Ny0xLjAwNSA0LjQ0Mi0uMzU4IDQuODk1LjE0NS4wOS4wNzQuMzMzLS4xNzguNDE0LTIuNTI3Ljc5Ni00Ljg1My0uNjk2LTMuNTU5LTQuNDQyIDEuMTYxLTMuMzE2IDUuNjktMTYuMTggNi45MTQtMTkuNjI2LjQyNy0xLjI5NC4xOTctMi4xMjUtLjQ5Mi0yLjMwNkM4LjUwNiAxLjc4Ljg3NyA4Ljc0OSAxLjk3MSAxNS4xODRjLjE5IDEuMTIuOTggMS43NDcgMS4zNzggMS42NjNhLjEzMy4xMzMgMCAwIDEgLjE1Ni4xNTkgMS41MDggMS41MDggMCAwIDEtMS44NDUgMS4wMzJDLjQ5IDE3Ljc4Mi4xMDcgMTYuNTI3LjA0MyAxNS44OC0uNjAxIDkuMjIgNi4xNDggMS4yMyAxMi4zODkuNThjMi4zNzgtLjI1IDQuNjEuOTYgMy42NCA0Ljc3MnptMjQuMDQgOS45MTMtLjA2LjIwNy0yLjgzIDguMTZjLS4zMDQuODUtLjEgMS43MzcuNTAxIDEuOTAyIDEuNzU3LjQ4MiA0LjAyOC0yLjE0NSA1LjEzMS00LjczM2E2Ny43OTQgNjcuNzk0IDAgMCAwIDEuNDc2LTMuODE1Yy41ODItMS42NDMgMS4xMDYtMy4xODMuNzgzLTMuOTA4LS4wNzUtLjE2OC4wNDUtLjI1Ni4yMjMtLjM1LjUwNS0uMjU1IDIuMjI2LS44MjUgMy4xNDEuMDY4LjY5NS42NzQuNjA5IDEuNzcxLS4wMyAzLjQzN2wtLjA5Ni4yNDIuMjItLjI3M2MyLjcwMy0zLjMgNC43OTItNC4yOTIgNi41NjMtMy41OTdsLjE0Ny4wNjJjMi4zODEgMS4wNzQgMS4xNDYgNS4yMTUtMi4xMTYgNS40OC0uMi4wMTctLjM1Ni0uMTI2LS4xNTgtLjQwNy4zOTUtLjYwNS4zNTYtMS45MDktLjc5Ni0yLjAyMi0xLjE1Mi0uMTEzLTIuODMgMS4yMDctNC4wMzggMi44NDQtMS4wODQgMS40NS0yLjIgMy45MTEtMy4zMjIgNy4yNzMtLjI3Mi44MTgtLjE0MyAxLjAxMi0uMTEgMS4wNjdhLjEuMSAwIDAgMSAwIC4wOTRjLS4xNDMuMjcyLS45NjUuNTk2LTEuNzYuNTk2LTEuNjI1LS4wMDctMi4yOTEtLjk0NS0xLjk2Ny0yLjQzNy0xLjg0OCAxLjc2NC0zLjcxMSAyLjYxNC01LjM1NSAyLjQ2NmEyLjUyNCAyLjUyNCAwIDAgMS0yLjIzNi0zLjEwM2MtMS40MjYgMS44MDktMy41NDIgMy4yNjgtNS42OTcgMy4wNjctMi4xNTUtLjItMy41LTEuNjY2LTIuODAyLTQuNzg4LjU5LTIuNTk4IDEuNTkyLTUuMjkgMi4yMDctNy4wMjcuNTE0LTEuNDU2LjYxOC0yLjQwNy4yOTQtMi43NS0uMTAzLS4xMTQuMDU1LS4yNS4xOTQtLjMyNCAxLjY5LS44ODYgNC4zOTQtLjMxNCAzLjYzIDIuMDktLjgwMiAyLjUyNy0yLjI1NSA2LjQ5LTIuNTUgNy40LS43MzcgMi4yODctLjI5IDMuNTIzLjc1NSAzLjU4IDEuMDQ1LjA2IDIuNDMtLjk2IDMuNDItMi41MDMgMS43Ni0yLjUyNCAyLjU4MS01LjY4NSAzLjM3Ny03Ljg4Mi4yMDQtLjU2LjUyNy0xLjg2Ni4xODUtMi4zNTItLjA5MS0uMTIzLjA2Ny0uMjU4LjI3NS0uMzcyIDEuNTM3LS44NDkgNC4yODUtLjY0IDMuNDAyIDIuNjA4eiIgZmlsbD0iIzVGMDA4MCIvPgogICAgPC9nPgo8L3N2Zz4K" alt="마켓컬리 로고">
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- 정류장 개수 입력 페이지 -->
-        <div id="station-count-page">
+        <div id="station-count-page" class="hidden">
             <!-- 저장된 노선 목록 -->
             <div class="station-count-input" style="margin-bottom: 20px;">
                 <h2>저장된 노선</h2>
@@ -1373,10 +1880,9 @@
                 <h2>정류장 이름을 입력하세요</h2>
                 <div id="station-inputs" class="station-inputs"></div>
                 <div class="button-group">
-                    <button id="add-station-btn" class="add-station-btn" onclick="addStation()"><span class="button-text-top">정류장</span><br><span class="button-text-bottom">추가</span></button>
                     <button id="start-counting" class="start-btn" onclick="startCounting()" disabled><span class="button-text-top">카운팅</span><br><span class="button-text-bottom">시작</span></button>
                     <button id="save-route" class="save-btn" onclick="saveRoute()" disabled><span class="button-text-top">노선</span><br><span class="button-text-bottom">저장</span></button>
-                    <button id="reset-setup" class="reset-btn" onclick="resetSetup()"><span class="button-text-top">처음</span><br><span class="button-text-bottom">으로</span></button>
+                    <button onclick="resetSetup()" class="reset-btn"><span class="button-text-top">처음</span><br><span class="button-text-bottom">으로</span></button>
                 </div>
             </div>
         </div>
@@ -1393,10 +1899,6 @@
                 <div style="display: flex; gap: 15px; justify-content: center;">
                     <button id="morning-btn-keypad" class="time-period-btn active" onclick="selectTimePeriod('morning')">오전 운행</button>
                     <button id="afternoon-btn-keypad" class="time-period-btn" onclick="selectTimePeriod('afternoon')">오후 운행</button>
-                </div>
-                <!-- 택시 승객 추가 버튼 -->
-                <div style="display: flex; justify-content: center; margin-top: 10px;">
-                    <button onclick="openTaxiInputModal()" class="taxi-input-btn" id="taxi-input-btn-keypad" style="display: none;">택시승객 추가</button>
                 </div>
             </div>
 
@@ -1480,20 +1982,19 @@
         </div>
     </div>
 
-    <!-- 공지사항 모달 -->
+    <!-- 공지사항 모달 (사용자용) -->
     <div id="notice-modal" class="notice-modal">
         <div class="notice-modal-content">
             <div style="margin-bottom: 20px;">
-                <h2 style="margin: 0 0 15px 0; color: #333; font-size: 1.5rem;">📢 공지사항</h2>
+                <h2 style="margin: 0 0 15px 0; font-size: 1.5rem;" class="notice-title">📢 공지사항</h2>
             </div>
-            <div style="color: #555; font-size: 1.1rem; line-height: 1.8; margin-bottom: 25px;">
-                <p style="margin: 10px 0;"><strong>1.</strong> 총인원 합계는 45명이상 집계되지 않습니다.</p>
-                <p style="margin: 10px 0;"><strong>2.</strong> 택시인원은 총 인원 45명 도달시 택시인원추가 버튼이 나타납니다.</p>
+            <div id="notice-content-display" style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 25px;" class="notice-content">
+                <!-- 공지사항 내용이 여기에 동적으로 표시됩니다 -->
             </div>
             <div style="margin-bottom: 15px;">
-                <label style="display: flex; align-items: center; cursor: pointer; user-select: none;">
+                <label style="display: flex; align-items: center; cursor: pointer; user-select: none;" class="notice-label">
                     <input type="checkbox" id="dont-show-today" style="margin-right: 8px; cursor: pointer;">
-                    <span style="color: #666; font-size: 0.9rem;">오늘 하루 표시 안 함</span>
+                    <span style="font-size: 0.9rem;" class="notice-checkbox-text">오늘 하루 표시 안 함</span>
                 </label>
             </div>
             <button onclick="closeNoticeModal()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease;">
@@ -1510,165 +2011,6 @@
         </div>
     </div>
 
-    <!-- 택시 승객 입력 모달 -->
-    <div id="taxi-input-modal" class="taxi-input-modal">
-        <div class="taxi-input-modal-content">
-            <h2>🚕 택시 승차 인원을 입력하세요</h2>
-            <div class="taxi-input-display">
-                <div id="taxi-number-display">0</div>
-            </div>
-            <div class="taxi-keypad">
-                <div class="taxi-keypad-row">
-                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('1')">1</button>
-                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('2')">2</button>
-                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('3')">3</button>
-                </div>
-                <div class="taxi-keypad-row">
-                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('4')">4</button>
-                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('5')">5</button>
-                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('6')">6</button>
-                </div>
-                <div class="taxi-keypad-row">
-                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('7')">7</button>
-                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('8')">8</button>
-                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('9')">9</button>
-                </div>
-                <div class="taxi-keypad-row">
-                    <button class="taxi-keypad-btn" onclick="clearTaxiInput()">C</button>
-                    <button class="taxi-keypad-btn" onclick="inputTaxiDigit('0')">0</button>
-                    <button class="taxi-keypad-btn" onclick="taxiBackspace()">⌫</button>
-                </div>
-                <div class="taxi-keypad-row">
-                    <button class="taxi-enter-btn" onclick="confirmTaxiInput()">ENTER</button>
-                </div>
-            </div>
-            <p style="text-align: center; color: #666; margin-top: 15px; font-size: 0.9rem;">최대 50명까지 입력 가능</p>
-        </div>
-    </div>
-
-    <!-- 차량현황 페이지 (창원1센터) -->
-    <div id="vehicle-status-1-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow: hidden; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-        <div class="theme-toggle-area" style="background: transparent; box-shadow: rgba(0, 0, 0, 0) 0px 2px 10px;">
-            <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">🌙</button>
-        </div>
-        <div style="height: 100%; overflow-y: auto; overflow-x: hidden;">
-        <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-            <div id="contentBox1" style="background: transparent; border-radius: 10px; padding: 30px;">
-                <h1 id="title1" style="text-align: center; margin-bottom: 30px; color: #333;">🚌 창원1센터 입차현황</h1>
-                
-                <div id="statsBox1" style="display: flex; justify-content: space-around; margin-bottom: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 6px;">
-                    <div style="text-align: center; flex: 1;">
-                        <div id="totalCount1" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div id="totalLabel1" style="margin-top: 5px;">전체 노선</div>
-                    </div>
-                    <div style="text-align: center; flex: 1;">
-                        <div id="selectedCount1" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div id="selectedLabel1" style="margin-top: 5px;">선택된 노선</div>
-                    </div>
-                    <div style="text-align: center; flex: 1;">
-                        <div id="excludedCount1" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div id="excludedLabel1" style="margin-top: 5px;">제외된 노선</div>
-                    </div>
-                </div>
-                
-                <div id="routeGrid1" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;"></div>
-                
-                <div style="position: relative; background: #f5f5f5; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-                    <div style="font-weight: bold; margin-bottom: 10px;">📋 현재 상태</div>
-                    <button style="position: absolute; top: 10px; right: 10px; background: #FFD700; color: black; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;" onclick="shareToKakao1()">📱 카카오톡 공유</button>
-                    <div id="statusText1" style="margin-top: 40px;">노선을 선택해주세요.</div>
-                </div>
-                
-                <button style="width: 100%; background: #4CAF50; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 15px;" onclick="resetSelection1()">🔄 선택 초기화</button>
-                
-                <button style="width: 100%; background: #f44336; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer;" onclick="goBackToCounter1()">🔙 카운터로 돌아가기</button>
-            </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 차량현황 페이지 (창원3센터) -->
-    <div id="vehicle-status-3-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow: hidden; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-        <div class="theme-toggle-area" style="background: transparent; box-shadow: rgba(0, 0, 0, 0) 0px 2px 10px;">
-            <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">🌙</button>
-        </div>
-        <div style="height: 100%; overflow-y: auto; overflow-x: hidden;">
-        <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-            <div id="contentBox3" style="background: transparent; border-radius: 10px; padding: 30px;">
-                <h1 id="title3" style="text-align: center; margin-bottom: 30px; color: #333;">🚌 창원3센터 입차현황</h1>
-                
-                <div id="statsBox3" style="display: flex; justify-content: space-around; margin-bottom: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 6px;">
-                    <div style="text-align: center; flex: 1;">
-                        <div id="totalCount3" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div id="totalLabel3" style="margin-top: 5px;">전체 노선</div>
-                    </div>
-                    <div style="text-align: center; flex: 1;">
-                        <div id="selectedCount3" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div id="selectedLabel3" style="margin-top: 5px;">선택된 노선</div>
-                    </div>
-                    <div style="text-align: center; flex: 1;">
-                        <div id="excludedCount3" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div id="excludedLabel3" style="margin-top: 5px;">제외된 노선</div>
-                    </div>
-                </div>
-                
-                <div id="routeGrid3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;"></div>
-                
-                <div style="position: relative; background: #f5f5f5; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-                    <div style="font-weight: bold; margin-bottom: 10px;">📋 현재 상태</div>
-                    <button style="position: absolute; top: 10px; right: 10px; background: #FFD700; color: black; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;" onclick="shareToKakao3()">📱 카카오톡 공유</button>
-                    <div id="statusText3" style="margin-top: 40px;">노선을 선택해주세요.</div>
-                </div>
-                
-                <button style="width: 100%; background: #4CAF50; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 15px;" onclick="resetSelection3()">🔄 선택 초기화</button>
-                
-                <button style="width: 100%; background: #f44336; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer;" onclick="goBackToCounter3()">🔙 카운터로 돌아가기</button>
-            </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 차량현황 페이지 (창원4센터) -->
-    <div id="vehicle-status-4-page" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; overflow: hidden; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-        <div class="theme-toggle-area" style="background: transparent; box-shadow: rgba(0, 0, 0, 0) 0px 2px 10px;">
-            <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">🌙</button>
-        </div>
-        <div style="height: 100%; overflow-y: auto; overflow-x: hidden;">
-        <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-            <div id="contentBox4" style="background: transparent; border-radius: 10px; padding: 30px;">
-                <h1 id="title4" style="text-align: center; margin-bottom: 30px; color: #333;">🚌 창원4센터 입차현황</h1>
-                
-                <div id="statsBox4" style="display: flex; justify-content: space-around; margin-bottom: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 6px;">
-                    <div style="text-align: center; flex: 1;">
-                        <div id="totalCount4" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div id="totalLabel4" style="margin-top: 5px;">전체 노선</div>
-                    </div>
-                    <div style="text-align: center; flex: 1;">
-                        <div id="selectedCount4" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div id="selectedLabel4" style="margin-top: 5px;">선택된 노선</div>
-                    </div>
-                    <div style="text-align: center; flex: 1;">
-                        <div id="excludedCount4" style="font-size: 28px; font-weight: bold; color: #1976d2;">0</div>
-                        <div id="excludedLabel4" style="margin-top: 5px;">제외된 노선</div>
-                    </div>
-                </div>
-                
-                <div id="routeGrid4" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;"></div>
-                
-                <div style="position: relative; background: #f5f5f5; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-                    <div style="font-weight: bold; margin-bottom: 10px;">📋 현재 상태</div>
-                    <button style="position: absolute; top: 10px; right: 10px; background: #FFD700; color: black; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;" onclick="shareToKakao4()">📱 카카오톡 공유</button>
-                    <div id="statusText4" style="margin-top: 40px;">노선을 선택해주세요.</div>
-                </div>
-                
-                <button style="width: 100%; background: #4CAF50; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 15px;" onclick="resetSelection4()">🔄 선택 초기화</button>
-                
-                <button style="width: 100%; background: #f44336; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer;" onclick="goBackToCounter4()">🔙 카운터로 돌아가기</button>
-            </div>
-            </div>
-        </div>
-    </div>
-
     <script>
         // 전역 변수
         let stations = [];
@@ -1682,10 +2024,9 @@
         let selectedTimePeriod = 'morning'; // 'morning' 또는 'afternoon'
         let isLoadedRoute = false; // 불러온 노선인지 추적
         let completedTimePeriods = { morning: false, afternoon: false }; // 완료된 운행 시간대 추적
-        let taxiPassengers = { morning: 0, afternoon: 0 }; // 택시 승객 수
 
         // 다크모드 토글 함수
-        function toggleTheme() {
+        window.toggleTheme = function() {
             isDarkMode = !isDarkMode;
             const body = document.body;
             const themeToggle = document.getElementById('theme-toggle');
@@ -1693,167 +2034,21 @@
             if (isDarkMode) {
                 body.classList.add('dark-mode');
                 themeToggle.textContent = '☀️';
-                saveToLocalStorage('darkMode', 'true');
+                localStorage.setItem('darkMode', 'true');
             } else {
                 body.classList.remove('dark-mode');
                 themeToggle.textContent = '🌙';
-                saveToLocalStorage('darkMode', 'false');
+                localStorage.setItem('darkMode', 'false');
             }
-            
-            // 차량현황 페이지 다크모드 적용
-            updateVehicleStatusDarkMode();
             
             // 다크모드 버튼 자동 숨김 (5초 후)
             hideThemeButton();
         }
 
-        // 차량현황 페이지 다크모드 업데이트
-        function updateVehicleStatusDarkMode() {
-            const pages = ['vehicle-status-1-page', 'vehicle-status-3-page', 'vehicle-status-4-page'];
-            
-            pages.forEach(pageId => {
-                const page = document.getElementById(pageId);
-                if (!page) return;
-                
-                // 토글 버튼 아이콘 변경
-                const themeToggle = page.querySelector('.theme-toggle');
-                if (themeToggle) {
-                    themeToggle.textContent = isDarkMode ? '☀️' : '🌙';
-                }
-                
-                const bgStyle = isDarkMode 
-                    ? 'background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);'
-                    : 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);';
-                page.setAttribute('style', page.getAttribute('style').replace(/background:.*?;/, bgStyle));
-                
-                // 컨테이너
-                const container = page.querySelector('div > div');
-                if (container) {
-                    const bgColor = 'transparent';
-                    const boxShadow = 'none';
-                    container.style.background = bgColor;
-                    container.style.boxShadow = boxShadow;
-                }
-                
-                // h1
-                const h1 = page.querySelector('h1');
-                if (h1) h1.style.color = isDarkMode ? '#fff' : '#333';
-                
-                // contentBox 배경색 업데이트
-                const contentBoxes = ['contentBox1', 'contentBox3', 'contentBox4'];
-                contentBoxes.forEach(boxId => {
-                    const box = document.getElementById(boxId);
-                    if (box) {
-                        box.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : 'white';
-                    }
-                });
-                
-                // 통계 배경색 및 텍스트 색상
-                const allDivs = page.querySelectorAll('div');
-                allDivs.forEach(div => {
-                    const style = div.getAttribute('style') || '';
-                    if (style.includes('background-color: #e3f2fd')) {
-                        div.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : '#e3f2fd';
-                    }
-                    if (style.includes('background: #f5f5f5')) {
-                        div.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : '#f5f5f5';
-                    }
-                });
-                
-                // 통계 박스 배경색 직접 업데이트
-                const statsBox1 = document.getElementById('statsBox1');
-                const statsBox3 = document.getElementById('statsBox3');
-                const statsBox4 = document.getElementById('statsBox4');
-                [statsBox1, statsBox3, statsBox4].forEach(box => {
-                    if (box) {
-                        box.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : '#e3f2fd';
-                    }
-                });
-                
-                // 통계 라벨과 숫자 색상
-                for (let i = 1; i <= 4; i++) {
-                    const totalLabel = document.getElementById(`totalLabel${i}`);
-                    const selectedLabel = document.getElementById(`selectedLabel${i}`);
-                    const excludedLabel = document.getElementById(`excludedLabel${i}`);
-                    const totalCount = document.getElementById(`totalCount${i}`);
-                    const selectedCount = document.getElementById(`selectedCount${i}`);
-                    const excludedCount = document.getElementById(`excludedCount${i}`);
-                    
-                    if (totalLabel) totalLabel.style.color = isDarkMode ? '#fff' : '#333';
-                    if (selectedLabel) selectedLabel.style.color = isDarkMode ? '#fff' : '#333';
-                    if (excludedLabel) excludedLabel.style.color = isDarkMode ? '#fff' : '#333';
-                    if (totalCount) totalCount.style.color = isDarkMode ? '#fff' : '#1976d2';
-                    if (selectedCount) selectedCount.style.color = isDarkMode ? '#fff' : '#1976d2';
-                    if (excludedCount) excludedCount.style.color = isDarkMode ? '#fff' : '#1976d2';
-                }
-                
-                const statusText = page.querySelectorAll('div[style*="margin-top: 40px"], div[style*="font-weight: bold"][style*="margin-bottom: 10px"]');
-                statusText.forEach(text => {
-                    // 현재 색상이 녹색이나 빨간색이 아니면만 색상 적용
-                    const currentColor = text.style.color || '';
-                    if (!currentColor.includes('rgb(46, 125, 50)') && 
-                        !currentColor.includes('rgb(244, 67, 54)') && 
-                        !currentColor.includes('#2e7d32') && 
-                        !currentColor.includes('#f44336')) {
-                        if (isDarkMode) {
-                            text.style.color = '#fff';
-                        } else {
-                            text.style.color = '#333';
-                        }
-                    }
-                });
-                
-                // 카카오톡 공유 버튼 텍스트 색상 유지 (항상 검정색)
-                const kakaoButtons = page.querySelectorAll('button[style*="background: #FFD700"]');
-                kakaoButtons.forEach(btn => {
-                    btn.style.color = 'black';
-                });
-                
-                // 노선 버튼들
-                const routeItems = page.querySelectorAll('.route-item');
-                routeItems.forEach(item => {
-                    // selected 클래스 확인
-                    const isSelected = item.classList.contains('selected');
-                    
-                    if (isSelected) {
-                        // 선택된 항목은 다크모드에서도 초록색으로 밝게 표시
-                        item.style.setProperty('background-color', '#4CAF50', 'important');
-                        item.style.setProperty('border-color', '#4CAF50', 'important');
-                        item.style.setProperty('color', '#fff', 'important');
-                        item.style.setProperty('font-weight', 'bold', 'important');
-                    } else {
-                        item.style.setProperty('background-color', isDarkMode ? 'rgba(255,255,255,0.2)' : 'white', 'important');
-                        item.style.setProperty('border-color', isDarkMode ? 'rgba(255,255,255,0.3)' : '#ddd', 'important');
-                        item.style.setProperty('color', isDarkMode ? '#fff' : '#333', 'important');
-                    }
-                });
-                
-                // 상태 섹션 배경 및 텍스트
-                const statusSection = page.querySelector('div[style*="background: #f5f5f5"]');
-                if (statusSection) {
-                    statusSection.style.background = isDarkMode ? 'rgba(255,255,255,0.1)' : '#f5f5f5';
-                    const statusText = statusSection.querySelector('div[style*="margin-top: 40px"]');
-                    if (statusText) {
-                        statusText.style.color = isDarkMode ? '#fff' : '#333';
-                    }
-                    const statusTitle = statusSection.querySelector('div[style*="font-weight: bold"]');
-                    if (statusTitle) {
-                        statusTitle.style.color = isDarkMode ? '#fff' : '#333';
-                    }
-                }
-            });
-        }
-
-        // 추가: 전체 페이지 로드시 다크모드 상태 적용
-        window.addEventListener('load', function() {
-            if (isDarkMode) {
-                updateVehicleStatusDarkMode();
-            }
-        });
-
         // 다크모드 버튼 자동 숨김 함수
         function hideThemeButton() {
             const themeToggle = document.getElementById('theme-toggle');
+            if (!themeToggle) return;
             
             // 기존 타이머가 있으면 클리어
             if (window.themeHideTimer) {
@@ -1869,53 +2064,307 @@
         // 다크모드 버튼 다시 보이기 함수
         function showThemeButton() {
             const themeToggle = document.getElementById('theme-toggle');
+            if (!themeToggle) return;
+            
             themeToggle.classList.remove('hidden');
             
             // 다시 숨김 타이머 설정
             hideThemeButton();
         }
 
-        // 차량현황 페이지 다크모드 버튼 자동 숨김 함수
-        function hideVehicleStatusThemeButton() {
-            const themeToggle1 = document.getElementById('theme-toggle-vehicle-1');
-            const themeToggle3 = document.getElementById('theme-toggle-vehicle-3');
-            const themeToggle4 = document.getElementById('theme-toggle-vehicle-4');
-            
-            // 기존 타이머가 있으면 클리어
-            if (window.vehicleThemeHideTimer) {
-                clearTimeout(window.vehicleThemeHideTimer);
+        // 다크모드 버튼 영역에 마우스 오버 시 버튼 다시 보이기
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggleArea = document.querySelector('.theme-toggle-area');
+            if (themeToggleArea) {
+                themeToggleArea.addEventListener('mouseenter', function() {
+                    showThemeButton();
+                });
             }
             
-            // 5초 후 버튼 숨김 (모든 차량현황 페이지)
-            window.vehicleThemeHideTimer = setTimeout(() => {
-                if (themeToggle1) themeToggle1.style.display = 'none';
-                if (themeToggle3) themeToggle3.style.display = 'none';
-                if (themeToggle4) themeToggle4.style.display = 'none';
-            }, 5000);
+            // 왼쪽 상단 관리자 트리거 설정
+            setupAdminTrigger();
+        });
+
+        // 관리자 비밀번호 (기본값: admin123, 나중에 변경 가능)
+        const ADMIN_PASSWORD = 'admin123';
+        let adminClickCount = 0;
+        let adminClickTimer = null;
+
+        // 왼쪽 상단 클릭 감지 설정
+        function setupAdminTrigger() {
+            const adminTriggerArea = document.getElementById('admin-trigger-area');
+            if (adminTriggerArea) {
+                adminTriggerArea.addEventListener('click', function() {
+                    adminClickCount++;
+                    
+                    // 타이머 리셋
+                    if (adminClickTimer) {
+                        clearTimeout(adminClickTimer);
+                    }
+                    
+                    // 3초 내에 5번 클릭하면 비밀번호 모달 열기
+                    adminClickTimer = setTimeout(() => {
+                        adminClickCount = 0;
+                    }, 3000);
+                    
+                    if (adminClickCount >= 5) {
+                        adminClickCount = 0;
+                        clearTimeout(adminClickTimer);
+                        openPasswordModal();
+                    }
+                });
+            }
         }
 
-        // 차량현황 페이지 다크모드 버튼 다시 보이기
-        function showVehicleStatusThemeButton() {
-            const themeToggle1 = document.getElementById('theme-toggle-vehicle-1');
-            const themeToggle3 = document.getElementById('theme-toggle-vehicle-3');
-            const themeToggle4 = document.getElementById('theme-toggle-vehicle-4');
+        // 비밀번호 모달 열기
+        function openPasswordModal() {
+            const modal = document.getElementById('password-modal');
+            if (modal) {
+                modal.classList.add('show');
+                document.getElementById('admin-password').focus();
+            }
+        }
+
+        // 비밀번호 모달 닫기
+        function closePasswordModal() {
+            const modal = document.getElementById('password-modal');
+            if (modal) {
+                modal.classList.remove('show');
+                document.getElementById('admin-password').value = '';
+                adminClickCount = 0;
+                if (adminClickTimer) {
+                    clearTimeout(adminClickTimer);
+                }
+            }
+        }
+
+        // 비밀번호 확인
+        window.checkAdminPassword = function() {
+            const password = document.getElementById('admin-password').value;
+            if (password === ADMIN_PASSWORD) {
+                closePasswordModal();
+                openNoticeAdmin();
+            } else {
+                alert('비밀번호가 일치하지 않습니다.');
+                document.getElementById('admin-password').value = '';
+                document.getElementById('admin-password').focus();
+            }
+        };
+
+        // 공지사항 관리 모달 열기
+        function openNoticeAdmin() {
+            const modal = document.getElementById('notice-admin-modal');
+            if (modal) {
+                modal.classList.add('show');
+                loadNotices();
+            }
+        }
+
+        // 공지사항 관리 모달 닫기
+        window.closeNoticeAdmin = function() {
+            const modal = document.getElementById('notice-admin-modal');
+            if (modal) {
+                modal.classList.remove('show');
+                // 입력 필드 초기화
+                document.getElementById('notice-title').value = '';
+                document.getElementById('notice-content').value = '';
+            }
+        };
+
+        // 공지사항 저장
+        window.saveNotice = function() {
+            const title = document.getElementById('notice-title').value.trim();
+            const content = document.getElementById('notice-content').value.trim();
             
-            if (themeToggle1) themeToggle1.style.display = 'flex';
-            if (themeToggle3) themeToggle3.style.display = 'flex';
-            if (themeToggle4) themeToggle4.style.display = 'flex';
+            if (!title || !content) {
+                alert('제목과 내용을 모두 입력해주세요.');
+                return;
+            }
             
-            // 다시 숨김 타이머 설정
-            hideVehicleStatusThemeButton();
+            const notices = JSON.parse(localStorage.getItem('notices') || '[]');
+            const newNotice = {
+                id: Date.now(),
+                title: title,
+                content: content,
+                createdAt: new Date().toISOString()
+            };
+            
+            notices.push(newNotice);
+            localStorage.setItem('notices', JSON.stringify(notices));
+            
+            alert('공지사항이 저장되었습니다.');
+            document.getElementById('notice-title').value = '';
+            document.getElementById('notice-content').value = '';
+            loadNotices();
+        };
+
+        // 공지사항 목록 불러오기
+        function loadNotices() {
+            const notices = JSON.parse(localStorage.getItem('notices') || '[]');
+            const noticeList = document.getElementById('notice-list');
+            
+            if (notices.length === 0) {
+                noticeList.innerHTML = '<p style="text-align: center; color: #999;">등록된 공지사항이 없습니다.</p>';
+                return;
+            }
+            
+            noticeList.innerHTML = notices.map(notice => `
+                <div class="notice-item">
+                    <div class="notice-item-title">${escapeHtml(notice.title)}</div>
+                    <div class="notice-item-content">${escapeHtml(notice.content)}</div>
+                    <div class="notice-item-actions">
+                        <button class="notice-btn delete" onclick="deleteNotice(${notice.id})">삭제</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 공지사항 삭제
+        window.deleteNotice = function(id) {
+            if (confirm('이 공지사항을 삭제하시겠습니까?')) {
+                const notices = JSON.parse(localStorage.getItem('notices') || '[]');
+                const filteredNotices = notices.filter(notice => notice.id !== id);
+                localStorage.setItem('notices', JSON.stringify(filteredNotices));
+                loadNotices();
+            }
+        };
+
+        // HTML 이스케이프 함수
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('password-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePasswordModal();
+            }
+        });
+
+        document.getElementById('notice-admin-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeNoticeAdmin();
+            }
+        });
+
+        // Enter 키로 비밀번호 확인
+        document.getElementById('admin-password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAdminPassword();
+            }
+        });
+
+        // 차량입차현황 페이지 열기
+        window.openVehicleStatus = function() {
+            const keypadPage = document.getElementById('keypad-page');
+            const vehicleStatusPage = document.getElementById('vehicle-status-page');
+            
+            if (keypadPage) {
+                keypadPage.classList.add('hidden');
+                keypadPage.style.display = 'none';
+            }
+            if (vehicleStatusPage) {
+                vehicleStatusPage.classList.remove('hidden');
+                vehicleStatusPage.style.display = 'block';
+            }
+            hideThemeButton();
+        };
+
+        // 키패드로 돌아가기
+        window.goBackToKeypad = function() {
+            const vehicleStatusPage = document.getElementById('vehicle-status-page');
+            const keypadPage = document.getElementById('keypad-page');
+            
+            if (vehicleStatusPage) {
+                vehicleStatusPage.classList.add('hidden');
+                vehicleStatusPage.style.display = 'none';
+            }
+            if (keypadPage) {
+                keypadPage.classList.remove('hidden');
+                keypadPage.style.display = 'block';
+            }
+            hideThemeButton();
+        };
+
+        // 창원1센터 입차현황 열기
+        window.openChangwonVehicleStatus = function() {
+            alert('창원1센터 입차현황 기능은 준비 중입니다.');
+            // TODO: 창원1센터 입차현황 페이지 구현
+        };
+
+        // 창원3센터 입차현황 열기
+        window.openChangwon3Center = function() {
+            alert('창원3센터 입차현황 기능은 준비 중입니다.');
+            // TODO: 창원3센터 입차현황 페이지 구현
+        };
+
+        // 창원4센터 입차현황 열기
+        window.openChangwon4Center = function() {
+            alert('창원4센터 입차현황 기능은 준비 중입니다.');
+            // TODO: 창원4센터 입차현황 페이지 구현
+        };
+
+        // 공지사항 모달 열기
+        function openNoticeModal() {
+            // 저장된 공지사항 불러오기
+            const notices = JSON.parse(localStorage.getItem('notices') || '[]');
+            const noticeDisplay = document.getElementById('notice-content-display');
+            
+            if (notices.length === 0) {
+                // 기본 공지사항 표시
+                noticeDisplay.innerHTML = `
+                    <p style="margin: 10px 0;"><strong>1.</strong> 총인원 합계는 45명이상 집계되지 않습니다.</p>
+                    <p style="margin: 10px 0;"><strong>2.</strong> 택시인원은 총 인원 45명 도달시 택시인원추가 버튼이 나타납니다.</p>
+                `;
+            } else {
+                // 저장된 공지사항 표시
+                noticeDisplay.innerHTML = notices.map((notice, index) => `
+                    <p style="margin: 10px 0;"><strong>${index + 1}.</strong> ${escapeHtml(notice.content)}</p>
+                `).join('');
+            }
+            
+            // 다크모드일 경우 모든 텍스트를 흰색으로 설정
+            if (document.body.classList.contains('dark-mode')) {
+                const allTextElements = noticeDisplay.querySelectorAll('p, strong, span, div');
+                allTextElements.forEach(el => {
+                    el.style.color = '#ffffff';
+                });
+            }
+            
+            document.getElementById('notice-modal').classList.add('show');
+        }
+
+        // 공지사항 모달 닫기
+        window.closeNoticeModal = function() {
+            const dontShowToday = document.getElementById('dont-show-today').checked;
+            
+            if (dontShowToday) {
+                const today = new Date().toDateString();
+                localStorage.setItem('noticeDontShowDate', today);
+            }
+            
+            document.getElementById('notice-modal').classList.remove('show');
+        };
+
+        // 공지사항 모달 표시 여부 확인
+        function checkNoticeModal() {
+            const noticeDontShowDate = localStorage.getItem('noticeDontShowDate');
+            const today = new Date().toDateString();
+            
+            if (noticeDontShowDate !== today) {
+                openNoticeModal();
+            }
         }
 
         // 페이지 로드 시 저장된 테마 설정 불러오기
         function loadTheme() {
-            const savedTheme = loadFromLocalStorage('darkMode');
+            const savedTheme = localStorage.getItem('darkMode');
             if (savedTheme === 'true') {
                 isDarkMode = true;
                 document.body.classList.add('dark-mode');
-                const themeToggle = document.getElementById('theme-toggle');
-                if (themeToggle) themeToggle.textContent = '☀️';
+                document.getElementById('theme-toggle').textContent = '☀️';
             }
         }
 
@@ -1947,12 +2396,12 @@
                 completeReset();
                 
                 // 새로운 날짜 저장
-                saveToLocalStorage('lastResetDate', currentDate);
+                localStorage.setItem('lastResetDate', currentDate);
                 console.log('24시가 지나서 명수 자동 초기화가 완료되었습니다.');
             } else if (!savedDate) {
                 // 처음 실행하는 경우 현재 날짜 저장
                 console.log(`처음 실행 - 현재 날짜 저장: ${currentDate}`);
-                saveToLocalStorage('lastResetDate', currentDate);
+                localStorage.setItem('lastResetDate', currentDate);
             } else {
                 console.log('날짜 변경 없음 - 리셋하지 않음');
             }
@@ -1971,9 +2420,9 @@
                 currentInput = '';
                 enableKeypad();
                 updateKeypadPage();
-                saveToLocalStorage('savedStations', JSON.stringify(stations));
-                saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
-                saveToLocalStorage('currentInput', currentInput);
+                localStorage.setItem('savedStations', JSON.stringify(stations));
+                saveToLocalStorage('currentStationIndex', '0');
+                saveToLocalStorage('currentInput', '');
                 saveToLocalStorage('completedTimePeriods', JSON.stringify({ morning: false, afternoon: false }));
                 saveToLocalStorage('keypadDisabled', 'false');
                 saveToLocalStorage('morningRunCompleted', 'false');
@@ -2004,7 +2453,7 @@
             updateTimePeriodButtons();
             
             // localStorage에 저장
-            saveToLocalStorage('selectedTimePeriod', selectedTimePeriod);
+            localStorage.setItem('selectedTimePeriod', selectedTimePeriod);
         }
 
         // 시간대 선택 함수 (수동 선택용)
@@ -2029,6 +2478,7 @@
                     enableKeypad();
                     currentStationIndex = 0; // 첫 번째 정류장부터 시작
                     currentInput = ''; // 입력 초기화
+                    saveToLocalStorage('currentStationIndex', '0');
                     console.log(`${previousPeriod}에서 ${period}로 전환 - 키패드 재활성화, 첫 번째 정류장으로 이동`);
                 }
                 
@@ -2036,9 +2486,7 @@
             }
             
             // localStorage에 저장
-            saveToLocalStorage('selectedTimePeriod', period);
-            saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
-            saveToLocalStorage('currentInput', currentInput);
+            localStorage.setItem('selectedTimePeriod', period);
         }
 
         // 시간대 버튼 업데이트 함수
@@ -2059,6 +2507,50 @@
         }
 
         // 정류장 개수 제출 함수
+        // 시작 페이지에서 쿠팡으로 이동
+        window.goToCoupang = function() {
+            // 저장된 정류장 정보가 있으면 복원하고 키패드 페이지로 이동
+            const savedStations = JSON.parse(loadFromLocalStorage('savedStations') || '[]');
+            const savedStationCount = loadFromLocalStorage('savedStationCount');
+            
+            // 모든 페이지 숨김
+            const selectionPage = document.getElementById('selection-page');
+            const stationCountPage = document.getElementById('station-count-page');
+            const stationNamesPage = document.getElementById('station-names-page');
+            const keypadPage = document.getElementById('keypad-page');
+            
+            if (selectionPage) {
+                selectionPage.classList.add('hidden');
+                selectionPage.style.display = 'none';
+            }
+            if (stationNamesPage) {
+                stationNamesPage.classList.add('hidden');
+                stationNamesPage.style.display = 'none';
+            }
+            if (keypadPage) {
+                keypadPage.classList.add('hidden');
+                keypadPage.style.display = 'none';
+            }
+            
+            if (savedStationCount && savedStations.length > 0) {
+                // 저장된 데이터가 있으면 복원
+                restoreSavedStations();
+            } else {
+                // 저장된 데이터가 없으면 정류장 개수 입력 페이지로 이동
+                if (stationCountPage) {
+                    stationCountPage.classList.remove('hidden');
+                    stationCountPage.style.display = 'block';
+                }
+            }
+        }
+
+        // 시작 페이지에서 컬리로 이동
+        window.goToKurly = function() {
+            // 컬리 페이지는 나중에 구현 예정
+            alert('컬리 서비스는 준비 중입니다.');
+            // TODO: 컬리 페이지로 이동하는 로직 추가
+        }
+
         function submitStationCount() {
             stationCount = parseInt(document.getElementById('station-count').value) || 0;
             routeName = document.getElementById('route-name').value.trim();
@@ -2085,8 +2577,19 @@
                 stationNames = new Array(stationCount).fill('');
                 stationDepartureTimes = new Array(stationCount).fill({ hour: 8, minute: 0, ampm: 'AM' });
                 createStationInputs();
-                document.getElementById('station-count-page').classList.add('hidden');
-                document.getElementById('station-names-page').classList.remove('hidden');
+                
+                // 페이지 전환
+                const stationCountPage = document.getElementById('station-count-page');
+                const stationNamesPage = document.getElementById('station-names-page');
+                
+                if (stationCountPage) {
+                    stationCountPage.classList.add('hidden');
+                    stationCountPage.style.display = 'none';
+                }
+                if (stationNamesPage) {
+                    stationNamesPage.classList.remove('hidden');
+                    stationNamesPage.style.display = 'block';
+                }
                 
                 // 버튼 상태 업데이트
                 document.getElementById('count-submit').disabled = stationCount <= 0 || routeName === '';
@@ -2132,45 +2635,13 @@
             });
         }
 
-        // 정류장 추가
-        function addStation() {
-            // 새로운 정류장 추가
-            const newIndex = stations.length;
-            const newStation = {
-                id: newIndex,
-                name: '',
-                count: 0,
-                morningCount: 0,
-                afternoonCount: 0,
-                departureTime: {
-                    morningHour: 8,
-                    afternoonHour: 17,
-                    minute: Math.min(newIndex * 5, 59)
-                }
-            };
-            
-            stations.push(newStation);
-            stationNames.push('');
-            
-            // stationCount 업데이트
-            stationCount = stations.length;
-            
-            // 정류장 입력 필드 재생성
-            createStationInputs();
-            
-            // 버튼 상태 업데이트
-            checkAllNamesFilled();
-            
-            console.log(`정류장 추가됨. 총 ${stations.length}개 정류장.`);
-        }
-
         // 정류장 이름 업데이트
         function updateStationName(index, name) {
             stationNames[index] = name;
             stations[index].name = name;
             
-            // 정류장 이름을 localStorage에 저장
-            saveToLocalStorage('savedStations', JSON.stringify(stations));
+            // 정류장 이름과 카운팅 데이터를 모두 localStorage에 저장
+            localStorage.setItem('savedStations', JSON.stringify(stations));
             
             checkAllNamesFilled();
         }
@@ -2190,7 +2661,8 @@
             }
             
             // 출발 시간을 localStorage에 저장
-            saveToLocalStorage('savedStations', JSON.stringify(stations));
+            const savedDepartureTimes = stations.map(station => station.departureTime);
+            localStorage.setItem('savedDepartureTimes', JSON.stringify(savedDepartureTimes));
         }
 
         // 모든 정류장 이름이 입력되었는지 확인
@@ -2204,15 +2676,27 @@
         function startCounting() {
             if (stations.every(station => station.name.trim() !== '')) {
                 // 정류장 개수와 노선이름을 localStorage에 저장
-                saveToLocalStorage('savedStationCount', stationCount.toString());
-                saveToLocalStorage('savedRouteName', routeName);
-                saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
-                saveToLocalStorage('currentInput', currentInput);
+                localStorage.setItem('savedStationCount', stationCount.toString());
+                localStorage.setItem('savedRouteName', routeName);
                 
                 currentStationIndex = 0;
+                saveToLocalStorage('currentStationIndex', '0');
+                
+                // 페이지 전환
+                const stationNamesPage = document.getElementById('station-names-page');
+                const keypadPage = document.getElementById('keypad-page');
+                
+                if (stationNamesPage) {
+                    stationNamesPage.classList.add('hidden');
+                    stationNamesPage.style.display = 'none';
+                }
+                if (keypadPage) {
+                    keypadPage.classList.remove('hidden');
+                    keypadPage.style.display = 'block';
+                }
+                
+                // 키패드 페이지 업데이트
                 updateKeypadPage();
-                document.getElementById('station-names-page').classList.add('hidden');
-                document.getElementById('keypad-page').classList.remove('hidden');
                 
                 // 시계 시작
                 updateClock();
@@ -2220,15 +2704,41 @@
             }
         }
 
-        // 다시 설정
+        // 다시 설정 (시작 페이지로 돌아가기)
         function resetSetup() {
             stationCount = 0;
             stations = [];
             stationNames = [];
+            currentStationIndex = 0;
+            currentInput = '';
+            saveToLocalStorage('currentStationIndex', '0');
+            
             document.getElementById('station-count').value = '';
+            document.getElementById('route-name').value = '';
             document.getElementById('count-submit').disabled = true;
-            document.getElementById('station-names-page').classList.add('hidden');
-            document.getElementById('station-count-page').classList.remove('hidden');
+            
+            // 시작 페이지로 돌아가기
+            const selectionPage = document.getElementById('selection-page');
+            const stationCountPage = document.getElementById('station-count-page');
+            const stationNamesPage = document.getElementById('station-names-page');
+            const keypadPage = document.getElementById('keypad-page');
+            
+            if (selectionPage) {
+                selectionPage.classList.remove('hidden');
+                selectionPage.style.display = 'flex';
+            }
+            if (stationCountPage) {
+                stationCountPage.classList.add('hidden');
+                stationCountPage.style.display = 'none';
+            }
+            if (stationNamesPage) {
+                stationNamesPage.classList.add('hidden');
+                stationNamesPage.style.display = 'none';
+            }
+            if (keypadPage) {
+                keypadPage.classList.add('hidden');
+                keypadPage.style.display = 'none';
+            }
         }
 
         // 시계 업데이트 함수
@@ -2258,7 +2768,25 @@
                 stations.reduce((sum, station) => sum + (station.morningCount || 0), 0) :
                 stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
             
+            // stations 배열이 비어있거나 currentStationIndex가 유효하지 않은 경우 체크
+            if (!stations || stations.length === 0) {
+                console.error('updateKeypadPage: stations 배열이 비어있습니다.');
+                return;
+            }
+            
+            // currentStationIndex가 유효한 범위인지 확인
+            if (currentStationIndex < 0 || currentStationIndex >= stations.length) {
+                console.error(`updateKeypadPage: currentStationIndex(${currentStationIndex})가 유효하지 않습니다. stations.length: ${stations.length}`);
+                currentStationIndex = 0; // 기본값으로 설정
+            }
+            
             const currentStation = stations[currentStationIndex];
+            
+            // currentStation이 undefined인 경우 체크
+            if (!currentStation) {
+                console.error(`updateKeypadPage: currentStation이 undefined입니다. currentStationIndex: ${currentStationIndex}, stations.length: ${stations.length}`);
+                return;
+            }
             
             // 현재 정류장 이름과 운행 시간 표시
             let timeDisplay = '';
@@ -2288,8 +2816,16 @@
                 }, 50);
             }
             
-            document.getElementById('current-station-name').textContent = `${currentStation.name}${timeDisplay}`;
-            document.getElementById('current-station-count').textContent = `총 탑승자수: ${totalCount}`;
+            const stationNameElement = document.getElementById('current-station-name');
+            const stationCountElement = document.getElementById('current-station-count');
+            
+            if (stationNameElement) {
+                stationNameElement.textContent = `${currentStation.name || '정류장'}${timeDisplay}`;
+            }
+            if (stationCountElement) {
+                stationCountElement.textContent = `총 탑승자수: ${totalCount}`;
+            }
+            
             updateSummary();
         }
 
@@ -2308,26 +2844,6 @@
                 
                 summaryList.appendChild(summaryItem);
             });
-            
-            // 택시 승객 정보 추가
-            if (taxiPassengers.morning > 0 || taxiPassengers.afternoon > 0) {
-                const taxiItem = document.createElement('div');
-                taxiItem.className = 'summary-item';
-                taxiItem.style.fontWeight = 'bold';
-                taxiItem.style.color = '#f5576c';
-                
-                let taxiText = '';
-                if (taxiPassengers.morning > 0) {
-                    taxiText += `오전택시인원 ${taxiPassengers.morning}명`;
-                }
-                if (taxiPassengers.afternoon > 0) {
-                    if (taxiText) taxiText += ', ';
-                    taxiText += `오후택시인원 ${taxiPassengers.afternoon}명`;
-                }
-                
-                taxiItem.textContent = taxiText;
-                summaryList.appendChild(taxiItem);
-            }
         }
 
         // 햅틱 피드백 함수 (진동 + 시각적 피드백)
@@ -2358,93 +2874,36 @@
         function inputDigit(digit) {
             // 햅틱 피드백
             hapticFeedback(50);
-
+            
             // 키패드 사용 통계 기록
             recordKeypadUsage();
-
-            // 키패드 버튼 클릭 효과
-            const clickedButton = event.target;
-            if (clickedButton) {
-                clickedButton.classList.add('clicked');
-                setTimeout(() => {
-                    clickedButton.classList.remove('clicked');
-                }, 400);
-            }
-
-            currentInput += digit;
             
-            // 숫자 표시 애니메이션 효과
-            const numberDisplay = document.getElementById('number-display');
-            numberDisplay.classList.remove('changed');
-            setTimeout(() => {
-                numberDisplay.textContent = currentInput || '0';
-                numberDisplay.classList.add('changed');
-                setTimeout(() => {
-                    numberDisplay.classList.remove('changed');
-                }, 600);
-            }, 50);
+            currentInput += digit;
+            document.getElementById('number-display').textContent = currentInput || '0';
         }
 
         // 입력 초기화
         function clearInput() {
             // 햅틱 피드백
             hapticFeedback(30);
-
+            
             // 키패드 사용 통계 기록
             recordKeypadUsage();
-
-            // 키패드 버튼 클릭 효과
-            const clickedButton = event.target;
-            if (clickedButton) {
-                clickedButton.classList.add('clicked');
-                setTimeout(() => {
-                    clickedButton.classList.remove('clicked');
-                }, 400);
-            }
-
-            currentInput = '';
             
-            // 숫자 표시 애니메이션 효과
-            const numberDisplay = document.getElementById('number-display');
-            numberDisplay.classList.remove('changed');
-            setTimeout(() => {
-                numberDisplay.textContent = '0';
-                numberDisplay.classList.add('changed');
-                setTimeout(() => {
-                    numberDisplay.classList.remove('changed');
-                }, 600);
-            }, 50);
+            currentInput = '';
+            document.getElementById('number-display').textContent = '0';
         }
 
         // 백스페이스
         function backspace() {
             // 햅틱 피드백
             hapticFeedback(30);
-
+            
             // 키패드 사용 통계 기록
             recordKeypadUsage();
-
-            // 키패드 버튼 클릭 효과
-            const clickedButton = event.target;
-            if (clickedButton) {
-                clickedButton.classList.add('clicked');
-                setTimeout(() => {
-                    clickedButton.classList.remove('clicked');
-                }, 400);
-            }
-
-            currentInput = currentInput.slice(0, -1);
             
-            // 숫자 표시 애니메이션 효과
-            const numberDisplay = document.getElementById('number-display');
-            numberDisplay.classList.remove('changed');
-            setTimeout(() => {
-                numberDisplay.textContent = currentInput || '0';
-                numberDisplay.classList.add('changed');
-                setTimeout(() => {
-                    numberDisplay.classList.remove('changed');
-                }, 600);
-            }, 50);
+            currentInput = currentInput.slice(0, -1);
+            document.getElementById('number-display').textContent = currentInput || '0';
         }
 
         // 엔터 (숫자 입력 완료)
@@ -2479,71 +2938,12 @@
                 currentInput = '';
                 document.getElementById('number-display').textContent = '0';
                 
-                // 총탑승자수 계산 (현재 선택된 시간대의 모든 정류장 합계)
-                const totalPassengers = stations.reduce((sum, station) => {
-                    return sum + (selectedTimePeriod === 'morning' ? station.morningCount : station.afternoonCount);
-                }, 0);
-                
-                // 45명 제한 확인
-                if (totalPassengers > 45) {
-                    alert('정원 초과하였습니다');
-                    // 초과분만큼 빼기
-                    const excess = totalPassengers - 45;
-                    if (selectedTimePeriod === 'morning') {
-                        stations[currentStationIndex].morningCount -= excess;
-                    } else {
-                        stations[currentStationIndex].afternoonCount -= excess;
-                    }
-                    stations[currentStationIndex].count -= excess;
-                }
-                
-                // 총탑승자수 다시 계산 (45명으로 조정 후)
-                const adjustedTotalPassengers = stations.reduce((sum, station) => {
-                    return sum + (selectedTimePeriod === 'morning' ? station.morningCount : station.afternoonCount);
-                }, 0);
-                
-                // 택시 승객 버튼 표시 여부 확인
-                const periodKey = selectedTimePeriod === 'morning' ? 'morning' : 'afternoon';
-                const shouldShowTaxiButton = taxiPassengers[periodKey] === 0 && adjustedTotalPassengers >= 45;
-                
-                // 45명 도달했을 때 숫자를 입력한 경우는 다음 정류장으로 못가고, 빈 값으로 엔터만 눌렀을 때만 이동
-                // 단, 정확히 45명이 되는 순간에는 다음 정류장으로 이동
-                if (adjustedTotalPassengers >= 45 && currentStationIndex < stations.length - 1) {
-                    // 정확히 45명이 되는 순간인지 확인 (이번 입력으로 45명이 됨)
-                    const wasUnder45 = (totalPassengers - inputValue) < 45;
-                    const isExactly45 = adjustedTotalPassengers === 45 && wasUnder45;
-                    
-                    // 숫자를 입력한 경우 → 45명이 되지 않는 한 다음 정류장으로 이동하지 않음
-                    // 단, 정확히 45명이 되는 순간에는 다음 정류장으로 이동
-                    if (inputValue > 0 && !isExactly45) {
-                        // 현재 정류장에 머물기 (currentStationIndex 증가하지 않음)
-                        if (shouldShowTaxiButton) {
-                            document.getElementById('taxi-input-btn-keypad').style.display = 'block';
-                        }
-                    } else {
-                        // 빈 값으로 엔터를 누른 경우 (inputValue === 0) 또는 정확히 45명이 되는 순간 → 다음 정류장으로 이동
-                        currentStationIndex++;
-                        
-                        // 택시 승객 버튼 표시 유지
-                        if (shouldShowTaxiButton) {
-                            document.getElementById('taxi-input-btn-keypad').style.display = 'block';
-                        }
-                    }
-                } else if (currentStationIndex < stations.length - 1) {
-                    // 45명 미달이거나 마지막 정류장이 아닌 경우만 다음 정류장으로 이동
+                // 마지막 정류장에서 머물도록 수정
+                if (currentStationIndex < stations.length - 1) {
                     currentStationIndex++;
                 } else {
                     // 마지막 정류장에서는 입력 완료 상태로 변경 (하지만 시간대 전환 시 재활성화 가능)
                     disableKeypad();
-                    
-                    // 해당 시간대 완료 상태로 설정
-                    completedTimePeriods[selectedTimePeriod] = true;
-                    saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
-                    
-                    // 택시 승객이 아직 입력되지 않았거나 총탑승자수가 45명이 되었고, 해당 시간대가 완료된 경우에만 버튼 표시
-                    if (shouldShowTaxiButton) {
-                        document.getElementById('taxi-input-btn-keypad').style.display = 'block';
-                    }
                 }
                 
                 updateKeypadPage();
@@ -2551,92 +2951,6 @@
                 // localStorage에 저장 (오류 처리 포함)
                 saveToLocalStorage('savedStations', JSON.stringify(stations));
                 saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
-                saveToLocalStorage('currentInput', currentInput);
-                saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
-            }
-        }
-
-        // 택시 승객 입력 변수
-        let taxiInput = '';
-
-        // 택시 승객 입력 모달 열기
-        function openTaxiInputModal() {
-            taxiInput = '';
-            document.getElementById('taxi-number-display').textContent = '0';
-            document.getElementById('taxi-input-modal').classList.add('show');
-        }
-
-        // 택시 승객 숫자 입력
-        function inputTaxiDigit(digit) {
-            if (taxiInput.length >= 2) {
-                taxiInput = taxiInput.slice(0, 2);
-            }
-            taxiInput += digit;
-            const numValue = parseInt(taxiInput);
-            if (numValue > 50) {
-                taxiInput = '50';
-            }
-            document.getElementById('taxi-number-display').textContent = taxiInput || '0';
-        }
-
-        // 택시 승객 입력 초기화
-        function clearTaxiInput() {
-            taxiInput = '';
-            document.getElementById('taxi-number-display').textContent = '0';
-        }
-
-        // 택시 승객 백스페이스
-        function taxiBackspace() {
-            taxiInput = taxiInput.slice(0, -1);
-            document.getElementById('taxi-number-display').textContent = taxiInput || '0';
-        }
-
-        // 택시 승객 입력 확인
-        function confirmTaxiInput() {
-            const taxiCount = parseInt(taxiInput) || 0;
-            const periodKey = selectedTimePeriod === 'morning' ? 'morning' : 'afternoon';
-            
-            // 택시 승객 합산 (누적)
-            taxiPassengers[periodKey] = (taxiPassengers[periodKey] || 0) + taxiCount;
-            
-            // localStorage에 저장
-            saveToLocalStorage('taxiPassengers', JSON.stringify(taxiPassengers));
-            
-            // 모달 닫기
-            document.getElementById('taxi-input-modal').classList.remove('show');
-            
-            // 마지막 정류장인지 확인
-            if (currentStationIndex < stations.length - 1) {
-                // 다음 정류장으로 이동
-                currentStationIndex++;
-                
-                // 요약 업데이트
-                updateSummary();
-                updateKeypadPage();
-                
-                // localStorage에 저장
-                saveToLocalStorage('savedStations', JSON.stringify(stations));
-                saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
-                saveToLocalStorage('currentInput', currentInput);
-                
-                console.log(`택시 승객 ${periodKey === 'morning' ? '오전' : '오후'} 추가: ${taxiCount}명 (누적: ${taxiPassengers[periodKey]}명)`);
-                console.log(`다음 정류장으로 이동: ${currentStationIndex + 1}/${stations.length}`);
-            } else {
-                // 마지막 정류장이면 완료 처리 및 버튼 숨기기
-                disableKeypad();
-                
-                // 해당 시간대 완료 상태로 설정
-                completedTimePeriods[selectedTimePeriod] = true;
-                saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
-                
-                // 택시 승객 버튼 숨기기
-                document.getElementById('taxi-input-btn-keypad').style.display = 'none';
-                
-                // 요약 업데이트
-                updateSummary();
-                updateKeypadPage();
-                
-                console.log(`택시 승객 ${periodKey === 'morning' ? '오전' : '오후'} 완료: 최종 합산 ${taxiPassengers[periodKey]}명`);
             }
         }
 
@@ -2687,7 +3001,6 @@
             
             // 키패드 활성화 상태 저장
             saveToLocalStorage('keypadDisabled', 'false');
-            saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
         }
 
         // 정류장 명수만 초기화 (수동 초기화: 오전/오후 모두 초기화)
@@ -2704,16 +3017,10 @@
                 // 완료 상태 초기화
                 completedTimePeriods = { morning: false, afternoon: false };
                 
-                // 택시 승객도 초기화
-                taxiPassengers = { morning: 0, afternoon: 0 };
-                saveToLocalStorage('taxiPassengers', JSON.stringify(taxiPassengers));
-                
                 enableKeypad(); // 키패드 다시 활성화
                 updateKeypadPage();
-                saveToLocalStorage('savedStations', JSON.stringify(stations));
-                saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
-                saveToLocalStorage('currentInput', currentInput);
-                saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
+                localStorage.setItem('savedStations', JSON.stringify(stations));
+                saveToLocalStorage('currentStationIndex', '0');
                 
                 console.log('수동 초기화: 오전/오후 모든 카운팅이 초기화되었습니다.');
             }
@@ -2758,444 +3065,37 @@
                 currentStationIndex = 0;
                 currentInput = '';
                 
+                // localStorage 초기화
+                localStorage.removeItem('savedStations');
+                localStorage.removeItem('savedStationCount');
+                localStorage.removeItem('savedRouteName');
+                localStorage.removeItem('currentStationIndex');
+                
                 document.getElementById('station-count').value = '';
                 document.getElementById('count-submit').disabled = true;
                 
-                document.getElementById('keypad-page').classList.add('hidden');
-                document.getElementById('station-names-page').classList.add('hidden');
-                document.getElementById('station-count-page').classList.remove('hidden');
-            }
-        }
-
-        // 차량입차현황 페이지 열기
-        function openVehicleStatus() {
-            document.getElementById('keypad-page').classList.add('hidden');
-            document.getElementById('vehicle-status-page').classList.remove('hidden');
-            // URL에 state 추가하여 새로고침 시에도 상태 유지
-            window.history.pushState({page: 'vehicle-status'}, '', '?page=vehicle-status');
-            
-            // 다크모드 버튼 자동 숨김 (5초 후)
-            hideThemeButton();
-        }
-
-        // 창원1센터차량입차현황 앱 열기
-        function openChangwonVehicleStatus() {
-            document.getElementById('vehicle-status-page').classList.add('hidden');
-            document.getElementById('vehicle-status-1-page').classList.remove('hidden');
-            initializeVehicleStatus1();
-        }
-
-        // 창원3센터 차량입차현황 앱 열기
-        function openChangwon3Center() {
-            document.getElementById('vehicle-status-page').classList.add('hidden');
-            document.getElementById('vehicle-status-3-page').classList.remove('hidden');
-            initializeVehicleStatus3();
-        }
-
-        // 창원4센터 차량입차현황 앱 열기
-        function openChangwon4Center() {
-            document.getElementById('vehicle-status-page').classList.add('hidden');
-            document.getElementById('vehicle-status-4-page').classList.remove('hidden');
-            initializeVehicleStatus4();
-        }
-
-        // 키패드 페이지로 돌아가기
-        function goBackToKeypad() {
-            document.getElementById('vehicle-status-page').classList.add('hidden');
-            document.getElementById('keypad-page').classList.remove('hidden');
-            // URL에서 state 제거
-            window.history.pushState({page: 'keypad'}, '', window.location.pathname);
-        }
-
-        // 차량현황 1센터 페이지 초기화
-        function initializeVehicleStatus1() {
-            updateVehicleStatusDarkMode(); // 다크모드 초기화
-            hideVehicleStatusThemeButton(); // 다크모드 버튼 자동 숨김 (5초 후)
-            
-            const routes = [
-                "거제1", "거제2", "김해1", "내서", "남포", "남포1-1", "다대1", "동래", "마산1", "마산2",
-                "명지1", "명지2", "부암", "서면", "서면2", "수영", "장유", "함안"
-            ].sort();
-            
-            const routeGrid = document.getElementById("routeGrid1");
-            routeGrid.innerHTML = '';
-            
-            window.selectedRoutes1 = new Set();
-            
-            routes.forEach(route => {
-                const routeItem = document.createElement("div");
-                routeItem.className = "route-item";
-                routeItem.textContent = route;
-                routeItem.style.cssText = "display: flex; align-items: center; justify-content: center; padding: 20px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; background: white; font-size: 18px; font-weight: 500; color: #333; min-height: 70px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;";
-                routeItem.onclick = () => toggleRoute1(route, event);
-                routeGrid.appendChild(routeItem);
-            });
-            
-            updateStats1();
-        }
-
-        // 노선 선택/해제 토글
-        function toggleRoute1(route, event) {
-            const routeItem = event.target;
-            
-            // 진동 실행
-            if (navigator.vibrate) {
-                navigator.vibrate(50);
-            }
-            
-            if (window.selectedRoutes1.has(route)) {
-                window.selectedRoutes1.delete(route);
-                routeItem.classList.remove("selected");
-                if (isDarkMode) {
-                    routeItem.style.borderColor = "rgba(255,255,255,0.3)";
-                    routeItem.style.backgroundColor = "rgba(255,255,255,0.2)";
-                    routeItem.style.color = "#fff";
-                } else {
-                    routeItem.style.borderColor = "#ddd";
-                    routeItem.style.backgroundColor = "white";
-                    routeItem.style.color = "#333";
+                // 모든 페이지 숨김
+                const keypadPage = document.getElementById('keypad-page');
+                const stationNamesPage = document.getElementById('station-names-page');
+                const stationCountPage = document.getElementById('station-count-page');
+                const selectionPage = document.getElementById('selection-page');
+                
+                if (keypadPage) {
+                    keypadPage.classList.add('hidden');
+                    keypadPage.style.display = 'none';
                 }
-            } else {
-                window.selectedRoutes1.add(route);
-                routeItem.classList.add("selected");
-                // 다크모드에서도 초록색으로 명확하게 표시
-                routeItem.style.setProperty('background-color', '#4CAF50', 'important');
-                routeItem.style.setProperty('border-color', '#4CAF50', 'important');
-                routeItem.style.setProperty('color', '#fff', 'important');
-                routeItem.style.setProperty('font-weight', 'bold', 'important');
-            }
-            
-            updateStatus1();
-            updateStats1();
-        }
-
-        // 상태 업데이트
-        function updateStatus1() {
-            const statusText = document.getElementById("statusText1");
-            const selectedArray = Array.from(window.selectedRoutes1);
-            const excludedArray = [
-                "거제1", "거제2", "김해1", "내서", "남포", "남포1-1", "다대1", "동래", "마산1", "마산2",
-                "명지1", "명지2", "부암", "서면", "서면2", "수영", "장유", "함안"
-            ].filter(route => !window.selectedRoutes1.has(route));
-            
-            let statusHTML = "";
-            
-            if (selectedArray.length === 18) {
-                const color = isDarkMode ? '#4CAF50' : '#2e7d32';
-                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원1센터 차량현황 총18대 퇴근준비완료</div>`;
-            } else if (excludedArray.length > 0) {
-                const excludedNames = excludedArray.join(",");
-                const selectedCount = selectedArray.length;
-                const color = isDarkMode ? '#FFD700' : '#f44336';
-                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원1센터 차량현황 ${excludedNames} 노선제외 ${selectedCount}대 퇴근준비완료</div>`;
-            } else {
-                statusHTML = `<div style="color: ${isDarkMode ? '#fff' : '#333'};">노선을 선택해주세요.</div>`;
-            }
-            
-            statusText.innerHTML = statusHTML;
-        }
-
-        // 통계 업데이트
-        function updateStats1() {
-            const routes = [
-                "거제1", "거제2", "김해1", "내서", "남포", "남포1-1", "다대1", "동래", "마산1", "마산2",
-                "명지1", "명지2", "부암", "서면", "서면2", "수영", "장유", "함안"
-            ];
-            
-            document.getElementById("totalCount1").textContent = routes.length;
-            document.getElementById("selectedCount1").textContent = window.selectedRoutes1.size;
-            document.getElementById("excludedCount1").textContent = routes.length - window.selectedRoutes1.size;
-        }
-
-        // 선택 초기화
-        function resetSelection1() {
-            window.selectedRoutes1.clear();
-            document.querySelectorAll("#routeGrid1 .route-item").forEach(item => {
-                item.classList.remove("selected");
-                if (isDarkMode) {
-                    item.style.borderColor = "rgba(255,255,255,0.3)";
-                    item.style.backgroundColor = "rgba(255,255,255,0.2)";
-                    item.style.color = "#fff";
-                } else {
-                    item.style.borderColor = "#ddd";
-                    item.style.backgroundColor = "white";
-                    item.style.color = "#333";
+                if (stationNamesPage) {
+                    stationNamesPage.classList.add('hidden');
+                    stationNamesPage.style.display = 'none';
                 }
-            });
-            updateStatus1();
-            updateStats1();
-        }
-
-        // 카카오톡 공유
-        function shareToKakao1() {
-            const statusText = document.getElementById("statusText1").textContent;
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: '창원1센터차량현황',
-                    text: statusText
-                }).catch(err => console.log('공유 실패:', err));
-            } else {
-                // 공유 API가 없는 경우 클립보드에 복사
-                navigator.clipboard.writeText(statusText).then(() => {
-                    alert('클립보드에 복사되었습니다.');
-                }).catch(err => {
-                    alert('복사 실패: ' + err);
-                });
-            }
-        }
-
-        // 카운터로 돌아가기
-        function goBackToCounter1() {
-            document.getElementById('vehicle-status-1-page').classList.add('hidden');
-            document.getElementById('keypad-page').classList.remove('hidden');
-        }
-
-        // 차량현황 3센터 페이지 초기화
-        function initializeVehicleStatus3() {
-            updateVehicleStatusDarkMode(); // 다크모드 초기화
-            hideVehicleStatusThemeButton(); // 다크모드 버튼 자동 숨김 (5초 후)
-            
-            const routes = ["진해2", "진해1", "창원1", "창원2", "창원3", "창원3-1"].sort();
-            
-            const routeGrid = document.getElementById("routeGrid3");
-            routeGrid.innerHTML = '';
-            
-            window.selectedRoutes3 = new Set();
-            
-            routes.forEach(route => {
-                const routeItem = document.createElement("div");
-                routeItem.className = "route-item";
-                routeItem.textContent = route;
-                routeItem.style.cssText = "display: flex; align-items: center; justify-content: center; padding: 20px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; background: white; font-size: 18px; font-weight: 500; color: #333; min-height: 70px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;";
-                routeItem.onclick = () => toggleRoute3(route, event);
-                routeGrid.appendChild(routeItem);
-            });
-            
-            updateStats3();
-        }
-
-        function toggleRoute3(route, event) {
-            const routeItem = event.target;
-            if (navigator.vibrate) navigator.vibrate(50);
-            
-            if (window.selectedRoutes3.has(route)) {
-                window.selectedRoutes3.delete(route);
-                routeItem.classList.remove("selected");
-                if (isDarkMode) {
-                    routeItem.style.borderColor = "rgba(255,255,255,0.3)";
-                    routeItem.style.backgroundColor = "rgba(255,255,255,0.2)";
-                    routeItem.style.color = "#fff";
-                } else {
-                    routeItem.style.borderColor = "#ddd";
-                    routeItem.style.backgroundColor = "white";
-                    routeItem.style.color = "#333";
+                if (stationCountPage) {
+                    stationCountPage.classList.add('hidden');
+                    stationCountPage.style.display = 'none';
                 }
-            } else {
-                window.selectedRoutes3.add(route);
-                routeItem.classList.add("selected");
-                routeItem.style.setProperty('background-color', '#4CAF50', 'important');
-                routeItem.style.setProperty('border-color', '#4CAF50', 'important');
-                routeItem.style.setProperty('color', '#fff', 'important');
-                routeItem.style.setProperty('font-weight', 'bold', 'important');
-            }
-            
-            updateStatus3();
-            updateStats3();
-        }
-
-        function updateStatus3() {
-            const statusText = document.getElementById("statusText3");
-            const selectedArray = Array.from(window.selectedRoutes3);
-            const excludedArray = ["진해2", "진해1", "창원1", "창원2", "창원3", "창원3-1"].filter(route => !window.selectedRoutes3.has(route));
-            
-            let statusHTML = "";
-            if (selectedArray.length === 6) {
-                const color = isDarkMode ? '#4CAF50' : '#2e7d32';
-                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원3센터 차량현황 총6대 퇴근준비완료</div>`;
-            } else if (excludedArray.length > 0) {
-                const color = isDarkMode ? '#FFD700' : '#f44336';
-                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원3센터 차량현황 ${excludedArray.join(",")} 노선제외 ${selectedArray.length}대 퇴근준비완료</div>`;
-            } else {
-                statusHTML = `<div style="color: ${isDarkMode ? '#fff' : '#333'};">노선을 선택해주세요.</div>`;
-            }
-            statusText.innerHTML = statusHTML;
-        }
-
-        function updateStats3() {
-            const routes = ["진해2", "진해1", "창원1", "창원2", "창원3", "창원3-1"];
-            document.getElementById("totalCount3").textContent = routes.length;
-            document.getElementById("selectedCount3").textContent = window.selectedRoutes3.size;
-            document.getElementById("excludedCount3").textContent = routes.length - window.selectedRoutes3.size;
-        }
-
-        function resetSelection3() {
-            window.selectedRoutes3.clear();
-            document.querySelectorAll("#routeGrid3 .route-item").forEach(item => {
-                if (isDarkMode) {
-                    item.style.borderColor = "rgba(255,255,255,0.3)";
-                    item.style.backgroundColor = "rgba(255,255,255,0.2)";
-                    item.style.color = "#fff";
-                } else {
-                    item.style.borderColor = "#ddd";
-                    item.style.backgroundColor = "white";
-                    item.style.color = "#333";
+                if (selectionPage) {
+                    selectionPage.classList.remove('hidden');
+                    selectionPage.style.display = 'flex';
                 }
-            });
-            updateStatus3();
-            updateStats3();
-        }
-
-        function shareToKakao3() {
-            const statusText = document.getElementById("statusText3").textContent;
-            if (navigator.share) {
-                navigator.share({ title: '창원3센터차량현황', text: statusText }).catch(err => console.log('공유 실패:', err));
-            } else {
-                navigator.clipboard.writeText(statusText).then(() => alert('클립보드에 복사되었습니다.')).catch(err => alert('복사 실패: ' + err));
-            }
-        }
-
-        function goBackToCounter3() {
-            document.getElementById('vehicle-status-3-page').classList.add('hidden');
-            document.getElementById('keypad-page').classList.remove('hidden');
-        }
-
-        // 차량현황 4센터 페이지 초기화
-        function initializeVehicleStatus4() {
-            updateVehicleStatusDarkMode(); // 다크모드 초기화
-            hideVehicleStatusThemeButton(); // 다크모드 버튼 자동 숨김 (5초 후)
-            
-            const routes = ["진주1", "진주2", "통영", "하단"];
-            
-            const routeGrid = document.getElementById("routeGrid4");
-            routeGrid.innerHTML = '';
-            
-            window.selectedRoutes4 = new Set();
-            
-            routes.forEach(route => {
-                const routeItem = document.createElement("div");
-                routeItem.className = "route-item";
-                routeItem.textContent = route;
-                routeItem.style.cssText = "display: flex; align-items: center; justify-content: center; padding: 20px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; background: white; font-size: 18px; font-weight: 500; color: #333; min-height: 70px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;";
-                routeItem.onclick = () => toggleRoute4(route, event);
-                routeGrid.appendChild(routeItem);
-            });
-            
-            updateStats4();
-        }
-
-        function toggleRoute4(route, event) {
-            const routeItem = event.target;
-            if (navigator.vibrate) navigator.vibrate(50);
-            
-            if (window.selectedRoutes4.has(route)) {
-                window.selectedRoutes4.delete(route);
-                routeItem.classList.remove("selected");
-                if (isDarkMode) {
-                    routeItem.style.borderColor = "rgba(255,255,255,0.3)";
-                    routeItem.style.backgroundColor = "rgba(255,255,255,0.2)";
-                    routeItem.style.color = "#fff";
-                } else {
-                    routeItem.style.borderColor = "#ddd";
-                    routeItem.style.backgroundColor = "white";
-                    routeItem.style.color = "#333";
-                }
-            } else {
-                window.selectedRoutes4.add(route);
-                routeItem.classList.add("selected");
-                routeItem.style.setProperty('background-color', '#4CAF50', 'important');
-                routeItem.style.setProperty('border-color', '#4CAF50', 'important');
-                routeItem.style.setProperty('color', '#fff', 'important');
-                routeItem.style.setProperty('font-weight', 'bold', 'important');
-            }
-            
-            updateStatus4();
-            updateStats4();
-        }
-
-        function updateStatus4() {
-            const statusText = document.getElementById("statusText4");
-            const selectedArray = Array.from(window.selectedRoutes4);
-            const excludedArray = ["진주1", "진주2", "통영", "하단"].filter(route => !window.selectedRoutes4.has(route));
-            
-            let statusHTML = "";
-            if (selectedArray.length === 4) {
-                const color = isDarkMode ? '#4CAF50' : '#2e7d32';
-                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원4센터 차량현황 총4대 퇴근준비완료</div>`;
-            } else if (excludedArray.length > 0) {
-                const color = isDarkMode ? '#FFD700' : '#f44336';
-                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원4센터 차량현황 ${excludedArray.join(",")} 노선제외 ${selectedArray.length}대 퇴근준비완료</div>`;
-            } else {
-                statusHTML = `<div style="color: ${isDarkMode ? '#fff' : '#333'};">노선을 선택해주세요.</div>`;
-            }
-            statusText.innerHTML = statusHTML;
-        }
-
-        function updateStats4() {
-            const routes = ["진주1", "진주2", "통영", "하단"];
-            document.getElementById("totalCount4").textContent = routes.length;
-            document.getElementById("selectedCount4").textContent = window.selectedRoutes4.size;
-            document.getElementById("excludedCount4").textContent = routes.length - window.selectedRoutes4.size;
-        }
-
-        function resetSelection4() {
-            window.selectedRoutes4.clear();
-            document.querySelectorAll("#routeGrid4 .route-item").forEach(item => {
-                if (isDarkMode) {
-                    item.style.borderColor = "rgba(255,255,255,0.3)";
-                    item.style.backgroundColor = "rgba(255,255,255,0.2)";
-                    item.style.color = "#fff";
-                } else {
-                    item.style.borderColor = "#ddd";
-                    item.style.backgroundColor = "white";
-                    item.style.color = "#333";
-                }
-            });
-            updateStatus4();
-            updateStats4();
-        }
-
-        function shareToKakao4() {
-            const statusText = document.getElementById("statusText4").textContent;
-            if (navigator.share) {
-                navigator.share({ title: '창원4센터차량현황', text: statusText }).catch(err => console.log('공유 실패:', err));
-            } else {
-                navigator.clipboard.writeText(statusText).then(() => alert('클립보드에 복사되었습니다.')).catch(err => alert('복사 실패: ' + err));
-            }
-        }
-
-        function goBackToCounter4() {
-            document.getElementById('vehicle-status-4-page').classList.add('hidden');
-            document.getElementById('keypad-page').classList.remove('hidden');
-        }
-
-        // 공지사항 모달 열기
-        function openNoticeModal() {
-            document.getElementById('notice-modal').classList.add('show');
-        }
-
-        // 공지사항 모달 닫기
-        function closeNoticeModal() {
-            const dontShowToday = document.getElementById('dont-show-today').checked;
-            
-            if (dontShowToday) {
-                // 오늘 날짜로 저장
-                const today = new Date().toDateString();
-                localStorage.setItem('noticeDontShowDate', today);
-                console.log('오늘 하루 공지사항 표시 안 함');
-            }
-            
-            document.getElementById('notice-modal').classList.remove('show');
-        }
-
-        // 공지사항 모달 표시 여부 확인
-        function checkNoticeModal() {
-            const noticeDontShowDate = localStorage.getItem('noticeDontShowDate');
-            const today = new Date().toDateString();
-            
-            // 오늘 표시 안 함 상태가 아닌 경우에만 표시
-            if (noticeDontShowDate !== today) {
-                openNoticeModal();
             }
         }
 
@@ -3228,7 +3128,6 @@
                 // localStorage에 저장
                 saveToLocalStorage('savedStations', JSON.stringify(stations));
                 saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
-                saveToLocalStorage('currentInput', currentInput);
                 
                 // 키패드 페이지 업데이트
                 updateKeypadPage();
@@ -3240,13 +3139,6 @@
 
         // 키보드 이벤트
         document.addEventListener('keydown', function(event) {
-            // 관리자 페이지 접근 (Ctrl+Shift+A)
-            if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'a') {
-                event.preventDefault();
-                window.location.href = 'admin.html';
-                return;
-            }
-            
             if (document.getElementById('keypad-page').classList.contains('hidden')) return;
             
             // 키패드가 비활성화된 상태에서는 키보드 입력 무시
@@ -3264,121 +3156,27 @@
             }
         });
 
-        // 모바일 관리자 페이지 접근 (화면 왼쪽 상단 모서리 5번 연속 터치)
-        let touchCount = 0;
-        let lastTouchTime = 0;
-        const TOUCH_TIMEOUT = 2000; // 2초 내에 터치해야 함
-        const REQUIRED_TOUCHES = 5; // 5번 터치 필요
-        
-        document.addEventListener('touchstart', function(event) {
-            const touch = event.touches[0];
-            const x = touch.clientX;
-            const y = touch.clientY;
-            const currentTime = Date.now();
-            
-            // 화면 왼쪽 상단 모서리 영역 (50px x 50px) 체크
-            if (x <= 50 && y <= 50) {
-                // 시간 초과 시 카운트 리셋
-                if (currentTime - lastTouchTime > TOUCH_TIMEOUT) {
-                    touchCount = 0;
-                }
-                
-                touchCount++;
-                lastTouchTime = currentTime;
-                
-                console.log(`관리자 터치 카운트: ${touchCount}/${REQUIRED_TOUCHES}`);
-                
-                // 5번 터치 시 관리자 페이지로 이동
-                if (touchCount >= REQUIRED_TOUCHES) {
-                    event.preventDefault();
-                    touchCount = 0; // 카운트 리셋
-                    window.location.href = 'admin.html';
-                }
-            } else {
-                // 다른 영역 터치 시 카운트 리셋
-                touchCount = 0;
-            }
-        });
-
-        // 날짜 변경 확인 및 초기화 함수
-        function checkDateChangeAndReset() {
-            const now = new Date();
-            const today = now.toDateString();
-            const lastResetDate = localStorage.getItem('lastResetDate');
-            
-            // 날짜가 바뀌었는지 확인
-            if (lastResetDate && lastResetDate !== today) {
-                console.log('날짜가 변경되었습니다. 카운팅 초기화.');
-                
-                // localStorage에 저장된 정류장 데이터 가져오기
-                const savedStations = JSON.parse(localStorage.getItem('savedStations') || '[]');
-                
-                // 모든 카운트 초기화
-                if (savedStations && savedStations.length > 0) {
-                    savedStations.forEach(station => {
-                        station.count = 0;
-                        station.morningCount = 0;
-                        station.afternoonCount = 0;
-                    });
-                    
-                    // 초기화된 데이터를 다시 저장
-                    localStorage.setItem('savedStations', JSON.stringify(savedStations));
-                    localStorage.setItem('currentStationIndex', '0');
-                    localStorage.setItem('currentInput', '');
-                    localStorage.setItem('completedTimePeriods', JSON.stringify({ morning: false, afternoon: false }));
-                    localStorage.setItem('taxiPassengers', JSON.stringify({ morning: 0, afternoon: 0 }));
-                    localStorage.setItem('keypadDisabled', 'false');
-                    localStorage.setItem('morningRunCompleted', 'false');
-                    
-                    console.log('날짜 변경 자동 초기화 완료');
-                }
-                
-                // 오늘 초기화했다고 기록
-                localStorage.setItem('lastResetDate', today);
-            }
-            
-            // 첫 실행 시에도 lastResetDate 설정
-            if (!lastResetDate) {
-                saveToLocalStorage('lastResetDate', today);
-            }
-        }
-
         // 페이지 로드 시 초기화
         window.addEventListener('load', function() {
+            // 시작 페이지를 기본으로 표시하고 다른 페이지들은 숨김
+            document.getElementById('selection-page').classList.remove('hidden');
+            document.getElementById('station-count-page').classList.add('hidden');
+            document.getElementById('station-names-page').classList.add('hidden');
+            document.getElementById('keypad-page').classList.add('hidden');
+            
             loadTheme();
             loadSavedTimePeriod();
-            
-            // 공지사항 모달 표시 확인
-            checkNoticeModal();
-            
-            // 날짜 변경 확인 및 초기화 (저장된 데이터를 불러오기 전에 실행)
-            checkDateChangeAndReset();
-            
             loadSavedStations();
             setKoreanInputMode();
             
             // 사용자 접속 기록
             recordUserAccess();
             
-            // 저장된 노선 목록 표시
-            updateSavedRoutesDisplay();
-            
-            // 화면 자동 꺼짐 방지 활성화
-            enableScreenWakeLock();
-            
-            // 다크모드 버튼 자동 숨김 (5초 후)
+            // 다크모드 버튼 5초 후 자동 숨김
             hideThemeButton();
             
-            // 키패드 상태 복원
-            setTimeout(() => {
-                restoreKeypadState();
-            }, 100);
-            
-            // URL 파라미터 확인하여 페이지 상태 복원
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('page') === 'vehicle-status') {
-                openVehicleStatus();
-            }
+            // 공지사항 모달 표시 확인
+            checkNoticeModal();
             
             // 공유 버튼 이벤트 리스너 추가
             const kakaoShareBtn = document.getElementById('kakao-share-btn');
@@ -3412,48 +3210,47 @@
             autoSelectTimePeriod();
             
             // 저장된 설정이 있으면 덮어쓰기 (수동 선택 우선)
-            const savedPeriod = loadFromLocalStorage('selectedTimePeriod');
+            const savedPeriod = localStorage.getItem('selectedTimePeriod');
             if (savedPeriod) {
                 selectedTimePeriod = savedPeriod;
                 updateTimePeriodButtons();
             }
         }
 
-        // 저장된 정류장 정보 불러오기
+        // 저장된 정류장 정보 불러오기 (자동 이동 없이 데이터만 로드)
         function loadSavedStations() {
             const savedStations = JSON.parse(loadFromLocalStorage('savedStations') || '[]');
             const savedStationCount = loadFromLocalStorage('savedStationCount');
             const savedDepartureTimes = JSON.parse(loadFromLocalStorage('savedDepartureTimes') || '[]');
             const savedRouteName = loadFromLocalStorage('savedRouteName');
-            let savedCurrentStationIndex = loadFromLocalStorage('currentStationIndex');
-            const savedCurrentInput = loadFromLocalStorage('currentInput');
-            const savedCompletedTimePeriods = JSON.parse(loadFromLocalStorage('completedTimePeriods') || '{}');
-            
-            // 날짜가 바뀌었는지 확인 (초기화 플래그 체크)
-            const now = new Date();
-            const today = now.toDateString();
-            const lastResetDate = loadFromLocalStorage('lastResetDate');
             
             console.log('로드된 데이터:', {
                 savedStations: savedStations.length,
                 savedStationCount,
                 savedRouteName,
-                savedDepartureTimes: savedDepartureTimes.length,
-                savedCurrentStationIndex,
-                savedCurrentInput,
-                savedCompletedTimePeriods,
-                lastResetDate,
-                today
+                savedDepartureTimes: savedDepartureTimes.length
             });
             
-            // 날짜가 바뀌었으면 정류장 인덱스를 0으로 강제 설정
-            if (lastResetDate && lastResetDate !== today) {
-                console.log('⚠️ 날짜 변경 감지: 정류장 인덱스를 0으로 강제 설정');
-                savedCurrentStationIndex = '0';
-            }
+            // 저장된 데이터가 있어도 자동으로 이동하지 않음 (시작 페이지를 먼저 보여줌)
+            // 쿠팡 버튼 클릭 시 restoreSavedStations() 함수를 호출하여 복원
+        }
+
+        // 저장된 정류장 정보 복원 및 키패드 페이지로 이동
+        function restoreSavedStations() {
+            const savedStations = JSON.parse(loadFromLocalStorage('savedStations') || '[]');
+            const savedStationCount = loadFromLocalStorage('savedStationCount');
+            const savedDepartureTimes = JSON.parse(loadFromLocalStorage('savedDepartureTimes') || '[]');
+            const savedRouteName = loadFromLocalStorage('savedRouteName');
+            
+            console.log('restoreSavedStations 호출:', {
+                savedRouteName: savedRouteName,
+                savedStationCount: savedStationCount,
+                savedStationsLength: savedStations.length,
+                savedDepartureTimesLength: savedDepartureTimes.length
+            });
             
             if (savedStationCount && savedStations.length > 0) {
-                // 저장된 정류장 개수와 이름이 있으면 자동으로 키패드 페이지로 이동
+                // 저장된 정류장 개수와 이름이 있으면 키패드 페이지로 이동
                 stationCount = parseInt(savedStationCount);
                 routeName = savedRouteName || '';
                 
@@ -3461,78 +3258,77 @@
                 
                 stations = Array.from({ length: stationCount }, (_, index) => {
                     const savedStation = savedStations[index];
+                    const stationName = typeof savedStation === 'string' ? savedStation : (savedStation?.name || '');
                     
-                    // 날짜가 바뀌었거나 저장된 정류장 데이터가 없으면 모든 카운트를 0으로 초기화
-                    const shouldResetCounts = (lastResetDate && lastResetDate !== today) || !savedStation;
+                    // 저장된 카운팅 데이터가 있으면 복원, 없으면 0으로 초기화
+                    const savedCount = typeof savedStation === 'object' ? (savedStation?.count || 0) : 0;
+                    const savedMorningCount = typeof savedStation === 'object' ? (savedStation?.morningCount || 0) : 0;
+                    const savedAfternoonCount = typeof savedStation === 'object' ? (savedStation?.afternoonCount || 0) : 0;
                     
-                    // 저장된 데이터가 객체인 경우 (카운팅 데이터 포함)
-                    if (typeof savedStation === 'object' && savedStation !== null && !shouldResetCounts) {
-                        return {
-                            id: index,
-                            name: savedStation.name || '',
-                            count: savedStation.count || 0,
-                            morningCount: savedStation.morningCount || 0,
-                            afternoonCount: savedStation.afternoonCount || 0,
-                            departureTime: savedStation.departureTime || savedDepartureTimes[index] || { 
-                                morningHour: 8, 
-                                afternoonHour: 17, 
-                                minute: Math.min(index * 5, 59) 
-                            }
-                        };
+                    // 출발 시간 복원: savedDepartureTimes 배열에서 가져오거나, savedStation 객체에서 가져오거나, 기본값 사용
+                    let departureTime = null;
+                    if (savedDepartureTimes && savedDepartureTimes[index]) {
+                        departureTime = savedDepartureTimes[index];
+                    } else if (typeof savedStation === 'object' && savedStation?.departureTime) {
+                        departureTime = savedStation.departureTime;
                     } else {
-                        // 저장된 데이터가 문자열인 경우 또는 초기화가 필요한 경우 (이름만 저장된 경우)
-                        const stationName = (savedStation && typeof savedStation === 'string') ? savedStation : '';
-                        return {
-                            id: index,
-                            name: stationName,
-                            count: 0,
-                            morningCount: 0,
-                            afternoonCount: 0,
-                            departureTime: savedDepartureTimes[index] || { 
-                                morningHour: 8, 
-                                afternoonHour: 17, 
-                                minute: Math.min(index * 5, 59) 
-                            }
+                        departureTime = { 
+                            morningHour: 8, 
+                            afternoonHour: 17, 
+                            minute: Math.min(index * 5, 59) 
                         };
                     }
+                    
+                    console.log(`정류장 ${index} 복원:`, {
+                        name: stationName,
+                        departureTime: departureTime,
+                        count: savedCount,
+                        morningCount: savedMorningCount,
+                        afternoonCount: savedAfternoonCount
+                    });
+                    
+                    return {
+                        id: index,
+                        name: stationName,
+                        count: savedCount, // 저장된 카운트 복원
+                        morningCount: savedMorningCount, // 저장된 오전 카운트 복원
+                        afternoonCount: savedAfternoonCount, // 저장된 오후 카운트 복원
+                        departureTime: departureTime
+                    };
                 });
                 
-                // 완료된 시간대 상태 복원
-                // localStorage에 completedTimePeriods가 없으면 (처음으로 버튼으로 초기화된 경우) 완료 상태도 초기화
-                if (!localStorage.getItem('completedTimePeriods')) {
-                    completedTimePeriods = { morning: false, afternoon: false };
-                    localStorage.setItem('keypadDisabled', 'false');
-                    localStorage.setItem('morningRunCompleted', 'false');
-                } else if (lastResetDate && lastResetDate !== today) {
-                    completedTimePeriods = { morning: false, afternoon: false };
-                    localStorage.setItem('keypadDisabled', 'false');
-                    localStorage.setItem('morningRunCompleted', 'false');
-                } else {
-                    completedTimePeriods = {
-                        morning: savedCompletedTimePeriods.morning || false,
-                        afternoon: savedCompletedTimePeriods.afternoon || false
-                    };
-                }
-                
-                // 택시 승객 정보 복원
-                // localStorage에 taxiPassengers가 없으면 (처음으로 버튼으로 초기화된 경우) 택시 승객도 초기화
-                const savedTaxiPassengers = JSON.parse(loadFromLocalStorage('taxiPassengers') || '{"morning":0,"afternoon":0}');
-                if (!localStorage.getItem('taxiPassengers') || (lastResetDate && lastResetDate !== today)) {
-                    // localStorage에 택시 승객 정보가 없거나 날짜가 바뀌었으면 택시 승객 초기화
-                    taxiPassengers = { morning: 0, afternoon: 0 };
-                    localStorage.setItem('taxiPassengers', JSON.stringify(taxiPassengers));
-                } else {
-                    taxiPassengers = savedTaxiPassengers;
-                }
+                // 카운팅 상태 복원 (저장된 상태가 있으면 복원, 없으면 초기화)
+                const savedCurrentStationIndex = loadFromLocalStorage('currentStationIndex');
                 
                 // 키패드 페이지로 바로 이동
-                document.getElementById('station-count-page').classList.add('hidden');
-                document.getElementById('station-names-page').classList.add('hidden');
-                document.getElementById('keypad-page').classList.remove('hidden');
+                const selectionPage = document.getElementById('selection-page');
+                const stationCountPage = document.getElementById('station-count-page');
+                const stationNamesPage = document.getElementById('station-names-page');
+                const keypadPage = document.getElementById('keypad-page');
+                
+                if (selectionPage) {
+                    selectionPage.classList.add('hidden');
+                    selectionPage.style.display = 'none';
+                }
+                if (stationCountPage) {
+                    stationCountPage.classList.add('hidden');
+                    stationCountPage.style.display = 'none';
+                }
+                if (stationNamesPage) {
+                    stationNamesPage.classList.add('hidden');
+                    stationNamesPage.style.display = 'none';
+                }
+                if (keypadPage) {
+                    keypadPage.classList.remove('hidden');
+                    keypadPage.style.display = 'block';
+                }
                 
                 // 시계 시작
                 updateClock();
                 setInterval(updateClock, 1000);
+                
+                // 키패드 활성화 상태로 설정
+                enableKeypad();
                 
                 // 현재 시간에 따른 자동 시간대 선택
                 const previousTimePeriod = loadFromLocalStorage('selectedTimePeriod');
@@ -3566,19 +3362,13 @@
                 } else {
                     // 시간대가 같으면 저장된 상태 복원
                     console.log(`저장된 정류장 인덱스: ${savedCurrentStationIndex}`);
-                    currentStationIndex = parseInt(savedCurrentStationIndex) || 0;
-                    currentInput = savedCurrentInput || '';
+                    currentStationIndex = savedCurrentStationIndex ? parseInt(savedCurrentStationIndex) : 0;
+                    currentInput = '';
                     console.log(`시간대 동일: ${previousTimePeriod}, 저장된 정류장 인덱스 복원: ${currentStationIndex}`);
                 }
                 
-                // 택시 승객 버튼 숨기기
-                document.getElementById('taxi-input-btn-keypad').style.display = 'none';
-                
-                // 키패드 상태 복원
-                setTimeout(() => {
-                    restoreKeypadState();
-                    updateKeypadPage();
-                }, 100);
+                updateKeypadPage();
+                restoreKeypadState();
             }
         }
 
@@ -3786,26 +3576,6 @@
             // 오후 총계 (5열)
             ctx.fillText(afternoonTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, totalRowY + rowHeight/2 + 8);
             
-            // 택시 승객 정보 추가 (이미지 하단)
-            let taxiInfoY = totalRowY + rowHeight + 50;
-            if (taxiPassengers.morning > 0 || taxiPassengers.afternoon > 0) {
-                ctx.font = 'bold 36px Arial';
-                ctx.fillStyle = '#f5576c';
-                
-                let taxiText = '';
-                if (taxiPassengers.morning > 0) {
-                    taxiText = `오전택시인원 ${taxiPassengers.morning}명`;
-                }
-                if (taxiPassengers.afternoon > 0) {
-                    if (taxiText) taxiText += ', ';
-                    taxiText += `오후택시인원 ${taxiPassengers.afternoon}명`;
-                }
-                
-                // 텍스트 중앙 정렬
-                const taxiTextWidth = ctx.measureText(taxiText).width;
-                ctx.fillText(taxiText, (canvas.width - taxiTextWidth) / 2, taxiInfoY);
-            }
-            
             return canvas.toDataURL('image/png');
         }
 
@@ -3896,163 +3666,133 @@
         // 자정 자동 카운트 초기화 함수
         function checkMidnightReset() {
             const now = new Date();
-            const today = now.toDateString();
-            const lastResetDate = localStorage.getItem('lastResetDate');
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
             
-            // 날짜가 바뀌었는지 확인 (아무 시간대든 상관없이)
-            if (lastResetDate && lastResetDate !== today) {
-                if (stations && stations.length > 0) {
-                    // 모든 카운트 초기화
-                    stations.forEach(station => {
-                        station.count = 0;
-                        station.morningCount = 0;
-                        station.afternoonCount = 0;
-                    });
-                    currentStationIndex = 0;
-                    currentInput = '';
-                    
-                    // 완료 상태 초기화
-                    completedTimePeriods = { morning: false, afternoon: false };
-                    
-                    // 택시 승객도 초기화
-                    taxiPassengers = { morning: 0, afternoon: 0 };
-                    
-                    enableKeypad();
-                    updateKeypadPage();
-                    saveToLocalStorage('savedStations', JSON.stringify(stations));
-                    saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
-                    saveToLocalStorage('currentInput', currentInput);
-                    saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
-                    saveToLocalStorage('taxiPassengers', JSON.stringify(taxiPassengers));
-                    
-                    // 오늘 초기화했다고 기록
-                    saveToLocalStorage('lastResetDate', today);
-                    
-                    // 사용자에게 알림 표시
-                    alert('날짜가 변경되었습니다. 모든 카운트가 자동으로 초기화되었습니다.');
-                    console.log('날짜 변경 자동 초기화: 모든 카운팅이 초기화되었습니다.');
+            // 자정(00:00)인지 확인
+            if (currentHour === 0 && currentMinute === 0) {
+                // 마지막 초기화 날짜 확인
+                const today = now.toDateString();
+                const lastResetDate = localStorage.getItem('lastResetDate');
+                
+                if (lastResetDate !== today) {
+                    if (stations && stations.length > 0) {
+                        // 모든 카운트 초기화
+                        stations.forEach(station => {
+                            station.count = 0;
+                            station.morningCount = 0;
+                            station.afternoonCount = 0;
+                        });
+                        currentStationIndex = 0;
+                        currentInput = '';
+                        
+                        // 완료 상태 초기화
+                        completedTimePeriods = { morning: false, afternoon: false };
+                        
+                        enableKeypad();
+                        updateKeypadPage();
+                        localStorage.setItem('savedStations', JSON.stringify(stations));
+                        saveToLocalStorage('currentStationIndex', '0');
+                        
+                        // 오늘 초기화했다고 기록
+                        localStorage.setItem('lastResetDate', today);
+                        
+                        // 사용자에게 알림 표시
+                        alert('자정이 되었습니다. 모든 카운트가 자동으로 초기화되었습니다.');
+                        console.log('자정 자동 초기화: 모든 카운팅이 초기화되었습니다.');
+                    }
                 }
-            }
-            
-            // 첫 실행 시에도 lastResetDate 설정
-            if (!lastResetDate) {
-                saveToLocalStorage('lastResetDate', today);
             }
         }
 
         // 키패드 상태 복원 함수
         function restoreKeypadState() {
-            const keypadDisabled = loadFromLocalStorage('keypadDisabled');
-            const savedCompletedTimePeriods = JSON.parse(loadFromLocalStorage('completedTimePeriods') || '{}');
-            
-            // 완료된 시간대 상태 복원
-            completedTimePeriods = {
-                morning: savedCompletedTimePeriods.morning || false,
-                afternoon: savedCompletedTimePeriods.afternoon || false
-            };
-            
-            // localStorage에 completedTimePeriods가 없으면 (처음으로 버튼으로 초기화된 경우) 키패드 활성화
-            if (!localStorage.getItem('completedTimePeriods')) {
-                enableKeypad();
-                return;
-            }
-            
+            const keypadDisabled = localStorage.getItem('keypadDisabled');
             if (keypadDisabled === 'true') {
-                // 현재 선택된 시간대가 완료된 상태인지 확인
-                if (completedTimePeriods[selectedTimePeriod]) {
+                // 키패드가 비활성화된 상태였다면, 현재 시간대에 따라 재활성화 여부 결정
+                const now = new Date();
+                const currentHour = now.getHours();
+                
+                // 오전 시간대(6-12시)이고 오전 운행이 완료된 경우, 또는 오후 시간대(13-22시)이고 오후 운행이 완료된 경우
+                if ((currentHour >= 6 && currentHour < 12 && selectedTimePeriod === 'morning') ||
+                    (currentHour >= 13 && currentHour < 22 && selectedTimePeriod === 'afternoon')) {
                     // 해당 시간대 운행이 완료된 상태이므로 키패드 비활성화 유지
                     disableKeypad();
                 } else {
-                    // 해당 시간대 운행이 완료되지 않은 상태이므로 키패드 활성화
+                    // 다른 시간대로 전환 가능하므로 키패드 활성화
                     enableKeypad();
                 }
-            } else {
-                // 키패드가 활성화된 상태였다면 활성화 유지
-                enableKeypad();
+            }
+            
+            // 현재 정류장 인덱스 복원
+            // stations 배열이 초기화되어 있는지 확인
+            if (!stations || stations.length === 0) {
+                console.log('restoreKeypadState: stations 배열이 비어있어 인덱스 복원을 건너뜁니다.');
+                return;
+            }
+            
+            const savedCurrentStationIndex = loadFromLocalStorage('currentStationIndex');
+            if (savedCurrentStationIndex !== null && savedCurrentStationIndex !== undefined) {
+                const parsedIndex = parseInt(savedCurrentStationIndex);
+                // 유효한 인덱스인지 확인
+                if (parsedIndex >= 0 && parsedIndex < stations.length) {
+                    currentStationIndex = parsedIndex;
+                    updateKeypadPage();
+                } else {
+                    console.log(`restoreKeypadState: 저장된 인덱스(${parsedIndex})가 유효하지 않습니다. 기본값 0으로 설정합니다.`);
+                    currentStationIndex = 0;
+                    updateKeypadPage();
+                }
             }
         }
 
-        // 전체화면 진입 기능
-        function requestFullScreen() {
-            try {
-                const elem = document.documentElement;
-                
-                // 사용자 상호작용이 필요하므로 클릭 이벤트에 연결
-                document.addEventListener('click', function fullscreenRequest() {
-                    if (elem.requestFullscreen) {
-                        elem.requestFullscreen();
-                    } else if (elem.webkitRequestFullscreen) {
-                        elem.webkitRequestFullscreen();
-                    } else if (elem.mozRequestFullScreen) {
-                        elem.mozRequestFullScreen();
-                    } else if (elem.msRequestFullscreen) {
-                        elem.msRequestFullscreen();
-                    }
-                    document.removeEventListener('click', fullscreenRequest);
-                }, { once: true });
-            } catch (error) {
-                console.log('전체화면 진입 실패:', error);
+        // 페이지 로드 시 초기화
+        window.addEventListener('load', function() {
+            // 모든 페이지를 먼저 숨김
+            const selectionPage = document.getElementById('selection-page');
+            const stationCountPage = document.getElementById('station-count-page');
+            const stationNamesPage = document.getElementById('station-names-page');
+            const keypadPage = document.getElementById('keypad-page');
+            
+            // 모든 페이지 숨김
+            if (stationCountPage) {
+                stationCountPage.classList.add('hidden');
+                stationCountPage.style.display = 'none';
             }
-        }
-
-        // 화면 자동 꺼짐 방지 기능
-        let noSleep = null;
-        let wakeLock = null;
-
-        function enableScreenWakeLock() {
-            try {
-                // No Sleep 라이브러리 사용 (더 넓은 브라우저 지원)
-                if (typeof NoSleep !== 'undefined') {
-                    noSleep = new NoSleep();
-                    noSleep.enable();
-                    console.log('No Sleep 라이브러리로 화면 자동 꺼짐 방지 활성화');
-                }
-
-                // Screen Wake Lock API 사용 (최신 브라우저)
-                if ('wakeLock' in navigator) {
-                    navigator.wakeLock.request('screen').then(lock => {
-                        wakeLock = lock;
-                        console.log('Screen Wake Lock API로 화면 자동 꺼짐 방지 활성화');
-                        
-                        // 화면이 꺼졌을 때 다시 활성화
-                        lock.addEventListener('release', () => {
-                            console.log('화면이 꺼졌습니다. 다시 활성화 시도...');
-                            setTimeout(() => {
-                                enableScreenWakeLock();
-                            }, 1000);
-                        });
-                    }).catch(err => {
-                        console.log('Screen Wake Lock API 실패:', err);
-                    });
-                }
-
-                // 사용자 상호작용이 필요한 경우를 대비한 이벤트 리스너
-                document.addEventListener('click', enableScreenWakeLock, { once: true });
-                document.addEventListener('touchstart', enableScreenWakeLock, { once: true });
-                
-            } catch (error) {
-                console.log('화면 자동 꺼짐 방지 설정 실패:', error);
+            if (stationNamesPage) {
+                stationNamesPage.classList.add('hidden');
+                stationNamesPage.style.display = 'none';
             }
-        }
-
-        function disableScreenWakeLock() {
-            try {
-                if (noSleep) {
-                    noSleep.disable();
-                    noSleep = null;
-                    console.log('No Sleep 라이브러리 비활성화');
-                }
-                if (wakeLock) {
-                    wakeLock.release();
-                    wakeLock = null;
-                    console.log('Screen Wake Lock API 비활성화');
-                }
-            } catch (error) {
-                console.log('화면 자동 꺼짐 방지 해제 실패:', error);
+            if (keypadPage) {
+                keypadPage.classList.add('hidden');
+                keypadPage.style.display = 'none';
             }
-        }
-
-        // 중복된 window.addEventListener 제거 - 첫 번째 이벤트 리스너 사용
+            
+            // 시작 페이지만 표시
+            if (selectionPage) {
+                selectionPage.classList.remove('hidden');
+                selectionPage.style.display = 'flex';
+            }
+            
+            loadTheme();
+            loadSavedStations();
+            loadSavedTimePeriod();
+            setKoreanInputMode();
+            
+            // 저장된 노선 목록 표시
+            updateSavedRoutesDisplay();
+            
+            // 날짜 변경 확인 (페이지 로드 시)
+            checkDateChangeAndReset();
+            
+            // 다크모드 버튼 5초 후 자동 숨김
+            hideThemeButton();
+            
+            // 키패드 상태 복원 (시작 페이지에서는 필요 없지만 나중을 위해 유지)
+            setTimeout(() => {
+                restoreKeypadState();
+            }, 100);
+        });
 
         // 공유 중인지 확인하는 변수
         let isSharing = false;
@@ -4081,16 +3821,23 @@
         function recordKeypadUsage() {
             try {
                 const today = new Date().toISOString().split('T')[0];
+                const keypadStats = JSON.parse(localStorage.getItem('keypadStats') || '{}');
                 const dailyUsers = JSON.parse(localStorage.getItem('dailyUsers') || '{}');
                 
-                // 키패드 사용 시에도 사용자 수 증가 (브라우저별 구분 없이, 세션 키 통합)
-                const sessionKey = `user_session_${today}`;
+                // 오늘 키패드 사용 횟수 증가
+                keypadStats[today] = (keypadStats[today] || 0) + 1;
+                localStorage.setItem('keypadStats', JSON.stringify(keypadStats));
+                
+                // 키패드 사용 시에도 사용자 수 증가 (세션 기반 중복 방지)
+                const sessionKey = `keypad_session_${today}`;
                 if (!sessionStorage.getItem(sessionKey)) {
                     dailyUsers[today] = (dailyUsers[today] || 0) + 1;
                     localStorage.setItem('dailyUsers', JSON.stringify(dailyUsers));
                     sessionStorage.setItem(sessionKey, 'true');
                     console.log(`키패드 사용으로 사용자 수 증가: ${today} - 총 ${dailyUsers[today]}명`);
                 }
+                
+                console.log(`키패드 사용 기록: ${today} - 총 ${keypadStats[today]}회`);
             } catch (error) {
                 console.error('키패드 사용 기록 실패:', error);
             }
@@ -4102,8 +3849,8 @@
                 const today = new Date().toISOString().split('T')[0];
                 const dailyUsers = JSON.parse(localStorage.getItem('dailyUsers') || '{}');
                 
-                // 오늘 첫 접속인지 확인 (브라우저별 구분 없이, 세션 키 통합)
-                const sessionKey = `user_session_${today}`;
+                // 오늘 첫 접속인지 확인 (같은 세션에서는 중복 기록 방지)
+                const sessionKey = `session_${today}`;
                 if (!sessionStorage.getItem(sessionKey)) {
                     dailyUsers[today] = (dailyUsers[today] || 0) + 1;
                     localStorage.setItem('dailyUsers', JSON.stringify(dailyUsers));
@@ -4178,12 +3925,25 @@
                     currentStationIndex = 0;
                     currentInput = '';
                     isLoadedRoute = false;
+                    saveToLocalStorage('currentStationIndex', '0');
 
                     // UI 초기화
                     document.getElementById('route-name').value = '';
                     document.getElementById('station-count').value = '';
-                    document.getElementById('station-count-page').classList.remove('hidden');
-                    document.getElementById('station-names-page').classList.add('hidden');
+                    
+                    // 페이지 전환
+                    const stationCountPage = document.getElementById('station-count-page');
+                    const stationNamesPage = document.getElementById('station-names-page');
+                    
+                    if (stationNamesPage) {
+                        stationNamesPage.classList.add('hidden');
+                        stationNamesPage.style.display = 'none';
+                    }
+                    if (stationCountPage) {
+                        stationCountPage.classList.remove('hidden');
+                        stationCountPage.style.display = 'block';
+                    }
+                    
                     document.getElementById('count-submit').disabled = true;
                 }
             }
@@ -4197,25 +3957,56 @@
                 isLoadedRoute = true; // 불러온 노선임을 표시
                 
                 // 정류장 데이터 복원
-                stations = routeData.stations.map(station => ({
+                stations = routeData.stations.map((station, index) => ({
+                    id: index,
                     name: station.name,
                     count: 0,
                     morningCount: 0,
                     afternoonCount: 0,
-                    departureTime: station.departureTime
+                    departureTime: station.departureTime || { 
+                        morningHour: 8, 
+                        afternoonHour: 17, 
+                        minute: Math.min(index * 5, 59) 
+                    }
                 }));
+                
+                // 출발 시간 배열 생성
+                const departureTimes = stations.map(station => station.departureTime);
+                
+                // 선택한 노선의 데이터를 localStorage에 저장 (중요!)
+                saveToLocalStorage('savedRouteName', routeName);
+                saveToLocalStorage('savedStationCount', stationCount.toString());
+                saveToLocalStorage('savedStations', JSON.stringify(stations));
+                saveToLocalStorage('savedDepartureTimes', JSON.stringify(departureTimes));
+                
+                console.log(`"${routeData.name}" 노선 데이터를 localStorage에 저장했습니다.`, {
+                    routeName: routeName,
+                    stationCount: stationCount,
+                    stations: stations.length,
+                    departureTimes: departureTimes.length
+                });
                 
                 // 카운팅 상태 초기화
                 currentStationIndex = 0;
                 currentInput = '';
+                saveToLocalStorage('currentStationIndex', '0');
+                saveToLocalStorage('currentInput', '');
                 
                 // 입력 필드 업데이트
                 document.getElementById('route-name').value = routeName;
                 document.getElementById('station-count').value = stationCount;
                 
                 // 정류장 이름 입력 페이지로 이동
-                document.getElementById('station-count-page').classList.add('hidden');
-                document.getElementById('station-names-page').classList.remove('hidden');
+                const stationCountPage = document.getElementById('station-count-page');
+                const stationNamesPage = document.getElementById('station-names-page');
+                if (stationCountPage) {
+                    stationCountPage.classList.add('hidden');
+                    stationCountPage.style.display = 'none';
+                }
+                if (stationNamesPage) {
+                    stationNamesPage.classList.remove('hidden');
+                    stationNamesPage.style.display = 'block';
+                }
                 createStationInputs();
                 
                 // 버튼 상태 업데이트
@@ -4273,10 +4064,9 @@
             
             if (confirm(`"${route.name}" 노선을 삭제하시겠습니까?`)) {
                 savedRoutes.splice(index, 1);
-                if (saveToLocalStorage('savedRoutes', JSON.stringify(savedRoutes))) {
-                    updateSavedRoutesDisplay();
-                    alert(`"${route.name}" 노선이 삭제되었습니다.`);
-                }
+                saveToLocalStorage('savedRoutes', JSON.stringify(savedRoutes));
+                updateSavedRoutesDisplay();
+                alert(`"${route.name}" 노선이 삭제되었습니다.`);
             }
         }
 
@@ -4309,6 +4099,82 @@
             }
         });
         */
+        
+        // 화면 자동 꺼짐 방지 기능
+        let noSleep = null;
+        let wakeLock = null;
+
+        function enableScreenWakeLock() {
+            try {
+                // No Sleep 라이브러리 사용 (더 넓은 브라우저 지원)
+                if (typeof NoSleep !== 'undefined') {
+                    noSleep = new NoSleep();
+                    noSleep.enable();
+                    console.log('No Sleep 라이브러리로 화면 자동 꺼짐 방지 활성화');
+                }
+
+                // Screen Wake Lock API 사용 (최신 브라우저)
+                if ('wakeLock' in navigator) {
+                    navigator.wakeLock.request('screen').then(lock => {
+                        wakeLock = lock;
+                        console.log('Screen Wake Lock API로 화면 자동 꺼짐 방지 활성화');
+                        
+                        // 화면이 꺼졌을 때 다시 활성화
+                        lock.addEventListener('release', () => {
+                            console.log('화면이 꺼졌습니다. 다시 활성화 시도...');
+                            setTimeout(() => {
+                                enableScreenWakeLock();
+                            }, 1000);
+                        });
+                    }).catch(err => {
+                        console.log('Screen Wake Lock API 실패:', err);
+                    });
+                }
+
+                // 사용자 상호작용이 필요한 경우를 대비한 이벤트 리스너
+                document.addEventListener('click', enableScreenWakeLock, { once: true });
+                document.addEventListener('touchstart', enableScreenWakeLock, { once: true });
+                
+            } catch (error) {
+                console.log('화면 자동 꺼짐 방지 설정 실패:', error);
+            }
+        }
+
+        function disableScreenWakeLock() {
+            try {
+                if (noSleep) {
+                    noSleep.disable();
+                    noSleep = null;
+                    console.log('No Sleep 라이브러리 비활성화');
+                }
+                if (wakeLock) {
+                    wakeLock.release();
+                    wakeLock = null;
+                    console.log('Screen Wake Lock API 비활성화');
+                }
+            } catch (error) {
+                console.log('화면 자동 꺼짐 방지 해제 실패:', error);
+            }
+        }
+        
+        // PWA 설치 및 서비스 워커 등록
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js')
+                    .then(function(registration) {
+                        console.log('서비스 워커 등록 성공:', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('서비스 워커 등록 실패:', error);
+                    });
+                
+            // 화면 자동 꺼짐 방지 활성화
+            enableScreenWakeLock();
+
+            // 다크모드 버튼 자동 숨김 (5초 후)
+            hideThemeButton();
+            });
+        }
     </script>
 </body>
 </html>
