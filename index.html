@@ -3645,28 +3645,8 @@
             // 날짜 변경 확인
             checkDateChangeAndReset();
             
-            // 컬리일 때 시간 체크
-            if (currentService === 'kurly') {
-                if (!checkKurlyTimeAvailable(period)) {
-                    let periodName = '';
-                    let targetTime = '';
-                    if (period === 'morning') {
-                        const firstStation = stations[0];
-                        const targetHour = firstStation?.departureTime?.morningHour || 14;
-                        const targetMinute = firstStation?.departureTime?.morningMinute || 0;
-                        periodName = `${targetHour}시운행`;
-                        targetTime = `${String(targetHour).padStart(2, '0')}:${String(targetMinute).padStart(2, '0')}`;
-                    } else if (period === 'afternoon') {
-                        const firstStation = stations[0];
-                        const targetHour = firstStation?.departureTime?.afternoonHour || 17;
-                        const targetMinute = firstStation?.departureTime?.afternoonMinute || 0;
-                        periodName = `${targetHour}시운행`;
-                        targetTime = `${String(targetHour).padStart(2, '0')}:${String(targetMinute).padStart(2, '0')}`;
-                    }
-                    alert(`${periodName} 시간(${targetTime})이 되지 않아 아직 운행할 수 없습니다.`);
-                    return;
-                }
-            }
+            // 컬리일 때 시간 체크 제거 (자유롭게 선택 가능)
+            // 시간 체크 로직 제거됨
             
             // 완료된 운행 시간대로 전환하려는 경우 경고
             if (completedTimePeriods[period]) {
@@ -3735,29 +3715,17 @@
                     arrivalTimeRow.style.display = morningCompleted && !arrivalTime ? 'block' : 'none';
                 }
                 
-                // 컬리일 때 시간 체크하여 버튼 활성화/비활성화
+                // 컬리일 때 모든 버튼 활성화 (시간 체크 제거 - 자유롭게 선택 가능)
                 if (morningBtnKeypad) {
-                    const morningAvailable = checkKurlyTimeAvailable('morning');
-                    morningBtnKeypad.disabled = !morningAvailable;
-                    if (!morningAvailable) {
-                        morningBtnKeypad.style.opacity = '0.5';
-                        morningBtnKeypad.style.cursor = 'not-allowed';
-                    } else {
-                        morningBtnKeypad.style.opacity = '1';
-                        morningBtnKeypad.style.cursor = 'pointer';
-                    }
+                    morningBtnKeypad.disabled = false;
+                    morningBtnKeypad.style.opacity = '1';
+                    morningBtnKeypad.style.cursor = 'pointer';
                 }
                 
                 if (afternoonBtnKeypad) {
-                    const afternoonAvailable = checkKurlyTimeAvailable('afternoon');
-                    afternoonBtnKeypad.disabled = !afternoonAvailable;
-                    if (!afternoonAvailable) {
-                        afternoonBtnKeypad.style.opacity = '0.5';
-                        afternoonBtnKeypad.style.cursor = 'not-allowed';
-                    } else {
-                        afternoonBtnKeypad.style.opacity = '1';
-                        afternoonBtnKeypad.style.cursor = 'pointer';
-                    }
+                    afternoonBtnKeypad.disabled = false;
+                    afternoonBtnKeypad.style.opacity = '1';
+                    afternoonBtnKeypad.style.cursor = 'pointer';
                 }
                 
                 // 퇴근운행은 항상 가능
