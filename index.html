@@ -1110,20 +1110,20 @@
             position: relative;
         }
         
-        /* ENTER 버튼이 있는 keypad-row 설정 (웹 버전) - 키패드 0 버튼 기준으로 양쪽 배치 */
+        /* 웹 버전: 기본적으로 ENTER 버튼을 가운데 정렬 (쿠팡) */
         .keypad-row:has(.enter-btn) {
             display: flex !important;
             gap: 10px !important;
-            justify-content: space-between !important;
+            justify-content: center !important;
             align-items: center !important;
             position: relative !important;
             padding: 0 !important;
         }
         
-        /* ENTER 버튼을 키패드 0 버튼 왼쪽에 배치 (웹 버전) */
-        .keypad-row:has(.enter-btn) .enter-btn {
-            flex: 0 0 auto !important;
-            margin: 0 !important;
+        /* 컬리일 때 도착시간 버튼이 표시되면 ENTER 버튼 row를 왼쪽 정렬 */
+        .keypad-row:has(.enter-btn):has(+ #arrival-time-row[style*="display: block"]),
+        .keypad-row:has(.enter-btn):has(+ #arrival-time-row:not([style*="display: none"]):not([style*="display:none"])) {
+            justify-content: flex-start !important;
         }
         
         /* 컬리일 때 도착시간 버튼을 키패드 0 버튼 오른쪽에 배치 (웹 버전) */
@@ -1142,14 +1142,11 @@
             z-index: 10 !important;
         }
         
-        /* 키패드 마지막 줄(C, 0, ⌫)의 너비를 기준으로 ENTER와 도착시간 버튼 배치 (웹 버전) */
-        .keypad-row:has(.enter-btn) {
-            max-width: 100% !important;
-        }
-        
-        /* ENTER 버튼을 키패드 마지막 줄의 왼쪽 끝에 맞춤 (웹 버전) */
-        .keypad-row:has(.enter-btn) .enter-btn {
+        /* 컬리일 때 ENTER 버튼을 왼쪽에 배치 (웹 버전) */
+        .keypad-row:has(.enter-btn):has(+ #arrival-time-row[style*="display: block"]) .enter-btn,
+        .keypad-row:has(.enter-btn):has(+ #arrival-time-row:not([style*="display: none"]):not([style*="display:none"])) .enter-btn {
             margin-left: 0 !important;
+            margin-right: auto !important;
         }
         
         /* 도착시간 버튼이 키패드의 숫자 위치에 나타나지 않도록 (웹 버전) */
