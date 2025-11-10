@@ -184,26 +184,33 @@
                 box-sizing: border-box;
             }
             
-            /* ENTER 버튼이 있는 keypad-row 설정 */
+            /* ENTER 버튼이 있는 keypad-row 설정 - 키패드 마지막 줄과 정렬 */
             .keypad-row:has(.enter-btn) {
                 margin-bottom: 20px !important;
                 padding-bottom: 0 !important;
                 display: flex !important;
                 gap: 10px !important;
-                justify-content: center !important;
+                justify-content: flex-end !important;
                 align-items: center !important;
                 position: relative !important;
+                padding-right: 0 !important;
+            }
+            
+            /* ENTER 버튼의 오른쪽 끝을 키패드 마지막 줄(C, 0, ⌫)의 오른쪽 끝에 맞춤 */
+            .keypad-row:has(.enter-btn) .enter-btn {
+                margin-right: 0 !important;
             }
             
             /* 컬리일 때 도착시간 버튼을 ENTER 버튼 바로 옆에 배치 */
             .keypad-row:has(.enter-btn) + #arrival-time-row[style*="display: block"],
             .keypad-row:has(.enter-btn) + #arrival-time-row:not([style*="display: none"]):not([style*="display:none"]) {
                 position: absolute !important;
-                left: calc(50% + 100px) !important;
-                right: auto !important;
+                left: auto !important;
+                right: 0 !important;
                 top: 50% !important;
                 transform: translateY(-50%) !important;
-                margin: 0 !important;
+                margin-left: 10px !important;
+                margin-right: 0 !important;
                 padding: 0 !important;
                 width: auto !important;
                 max-width: 200px !important;
@@ -1093,24 +1100,31 @@
             position: relative;
         }
         
-        /* ENTER 버튼이 있는 keypad-row 설정 (웹 버전) */
+        /* ENTER 버튼이 있는 keypad-row 설정 (웹 버전) - 키패드 마지막 줄과 정렬 */
         .keypad-row:has(.enter-btn) {
             display: flex !important;
             gap: 10px !important;
-            justify-content: center !important;
+            justify-content: flex-end !important;
             align-items: center !important;
             position: relative !important;
+            padding-right: 0 !important;
+        }
+        
+        /* ENTER 버튼의 오른쪽 끝을 키패드 마지막 줄(C, 0, ⌫)의 오른쪽 끝에 맞춤 (웹 버전) */
+        .keypad-row:has(.enter-btn) .enter-btn {
+            margin-right: 0 !important;
         }
         
         /* 컬리일 때 도착시간 버튼을 ENTER 버튼 바로 옆에 배치 (웹 버전) */
         .keypad-row:has(.enter-btn) + #arrival-time-row[style*="display: block"],
         .keypad-row:has(.enter-btn) + #arrival-time-row:not([style*="display: none"]):not([style*="display:none"]) {
             position: absolute !important;
-            left: calc(50% + 100px) !important;
-            right: auto !important;
+            left: auto !important;
+            right: 0 !important;
             top: 50% !important;
             transform: translateY(-50%) !important;
-            margin: 0 !important;
+            margin-left: 10px !important;
+            margin-right: 0 !important;
             padding: 0 !important;
             width: auto !important;
             max-width: 200px !important;
