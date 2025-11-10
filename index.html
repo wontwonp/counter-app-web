@@ -1093,9 +1093,67 @@
             position: relative;
         }
         
-        /* ENTER 버튼 row와 도착시간 row 사이 gap 제거 */
-        .keypad-row:has(.enter-btn) + #arrival-time-row {
-            margin-top: -3px !important;
+        /* ENTER 버튼이 있는 keypad-row 설정 (웹 버전) */
+        .keypad-row:has(.enter-btn) {
+            display: flex !important;
+            gap: 10px !important;
+            justify-content: center !important;
+            align-items: center !important;
+            position: relative !important;
+        }
+        
+        /* 컬리일 때 도착시간 버튼을 ENTER 버튼 오른쪽에 배치 (웹 버전) */
+        .keypad-row:has(.enter-btn) + #arrival-time-row[style*="display: block"],
+        .keypad-row:has(.enter-btn) + #arrival-time-row:not([style*="display: none"]):not([style*="display:none"]) {
+            position: absolute !important;
+            left: auto !important;
+            right: 10px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: auto !important;
+            max-width: 200px !important;
+            display: flex !important;
+            z-index: 10 !important;
+        }
+        
+        /* 도착시간 버튼이 키패드의 숫자 위치에 나타나지 않도록 (웹 버전) */
+        .keypad-row:has(.keypad-btn) #arrival-time-btn,
+        .keypad-row:has(.keypad-btn) button[onclick*="recordArrivalTime"],
+        .keypad > .keypad-row:nth-child(3) button[onclick*="recordArrivalTime"],
+        .keypad > .keypad-row:nth-child(3) #arrival-time-btn,
+        .keypad .keypad-row:nth-child(3) button:nth-child(3)[onclick*="recordArrivalTime"],
+        .keypad .keypad-row:nth-child(3) button:nth-child(3)#arrival-time-btn,
+        .keypad .keypad-row:nth-child(3) button:nth-child(3):not(.keypad-btn) {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            position: absolute !important;
+            left: -9999px !important;
+        }
+        
+        /* ENTER 버튼 row 다음에 오는 arrival-time-row는 표시 (웹 버전) */
+        .keypad-row:has(.enter-btn) + #arrival-time-row[style*="display: block"],
+        .keypad-row:has(.enter-btn) + #arrival-time-row:not([style*="display: none"]):not([style*="display:none"]) {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        /* 도착시간 버튼 스타일 조정 (웹 버전) */
+        .keypad-row:has(.enter-btn) + #arrival-time-row[style*="display: block"] button,
+        .keypad-row:has(.enter-btn) + #arrival-time-row:not([style*="display: none"]):not([style*="display:none"]) button {
+            width: auto !important;
+            min-width: 120px !important;
+            max-width: 200px !important;
+            margin: 0 !important;
+            display: block !important;
+            visibility: visible !important;
         }
 
         .keypad-row {
