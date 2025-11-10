@@ -458,13 +458,19 @@
             }
             
             /* 키패드 페이지 내부 요소 간격 조정 */
-            #keypad-page > *:not(.clock-display) {
+            #keypad-page > *:not(.clock-display):not(.input-display) {
                 margin-bottom: 15px !important;
             }
             
             /* clock-display는 margin-bottom 5px로 강제 설정 (다른 규칙보다 우선) */
             #keypad-page > .clock-display,
             #keypad-page .clock-display {
+                margin-bottom: 5px !important;
+            }
+            
+            /* input-display는 margin-bottom 5px로 강제 설정 */
+            #keypad-page > .input-display,
+            #keypad-page .input-display {
                 margin-bottom: 5px !important;
             }
             
