@@ -3957,13 +3957,17 @@
             console.log(`=== 날짜 변경 확인 끝 ===`);
         }
 
-        // 완전 초기화 함수
+        // 완전 초기화 함수 (쿠팡/컬리 공용)
         function completeReset() {
             if (stations && stations.length > 0) {
                 stations.forEach(station => {
                     station.count = 0;
                     station.morningCount = 0;
                     station.afternoonCount = 0;
+                    // 컬리일 때는 eveningCount도 초기화
+                    if (station.eveningCount !== undefined) {
+                        station.eveningCount = 0;
+                    }
                 });
                 currentStationIndex = 0;
                 currentInput = '';
@@ -3972,42 +3976,89 @@
                 localStorage.setItem('savedStations', JSON.stringify(stations));
                 saveToLocalStorage('currentStationIndex', '0');
                 saveToLocalStorage('currentInput', '');
-                saveToLocalStorage('completedTimePeriods', JSON.stringify({ morning: false, afternoon: false }));
+                saveToLocalStorage('completedTimePeriods', JSON.stringify({ morning: false, afternoon: false, evening: false }));
                 saveToLocalStorage('keypadDisabled', 'false');
                 saveToLocalStorage('morningRunCompleted', 'false');
+                // 컬리 도착시간도 초기화
+                if (currentService === 'kurly') {
+                    morningArrivalTime = null;
+                    afternoonArrivalTime = null;
+                    eveningArrivalTime = null;
+                    localStorage.removeItem('morningArrivalTime');
+                    localStorage.removeItem('afternoonArrivalTime');
+                    localStorage.removeItem('eveningArrivalTime');
+                }
                 console.log('24시 경과로 인한 완전 초기화가 완료되었습니다.');
             }
         }
 
         // 현재 시간에 따라 자동으로 시간대 선택
         function autoSelectTimePeriod() {
-            // 먼저 날짜 변경 확인
+            // 먼저 날짜 변경 확인 (쿠팡/컬리 공용)
             checkDateChangeAndReset();
-            
-            // 컬리일 때는 자동 선택하지 않음 (사용자가 자유롭게 선택)
-            if (currentService === 'kurly') {
-                console.log('컬리 서비스: 자동 시간대 선택 비활성화');
-                // 기본값만 설정 (morning)
-                if (!selectedTimePeriod) {
-                    selectedTimePeriod = 'morning';
-                }
-                updateTimePeriodButtons();
-                return;
-            }
             
             const now = new Date();
             const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            const currentTimeInMinutes = currentHour * 60 + currentMinute;
             
-            // 오전: 00시~12시, 오후: 12시01분~23시59분
-            if (currentHour >= 0 && currentHour <= 12) {
-                selectedTimePeriod = 'morning';
-                console.log(`시간대 조건 확인: ${currentHour}시는 오전 범위 (0-12시)`);
+            // 컬리일 때: 시간대별 자동 선택 로직
+            if (currentService === 'kurly') {
+                // 00시~05시 사이면 퇴근운행 자동 선택
+                if (currentHour >= 0 && currentHour < 5) {
+                    selectedTimePeriod = 'evening';
+                    console.log(`컬리: ${currentHour}시${currentMinute}분 - 퇴근운행 자동 선택 (00시~05시)`);
+                } else {
+                    // 정류장 정보가 있으면 출발시간 기준으로 자동 선택
+                    if (stations && stations.length > 0 && stations[0] && stations[0].departureTime) {
+                        const firstStation = stations[0];
+                        const morningHour = firstStation.departureTime.morningHour || 8;
+                        const morningMinute = firstStation.departureTime.morningMinute || 0;
+                        const afternoonHour = firstStation.departureTime.afternoonHour || 17;
+                        const afternoonMinute = firstStation.departureTime.afternoonMinute || 0;
+                        
+                        const morningTimeInMinutes = morningHour * 60 + morningMinute;
+                        const afternoonTimeInMinutes = afternoonHour * 60 + afternoonMinute;
+                        
+                        // 8시운행: 07시30분~08시00분 사이면 8시운행 자동 선택
+                        // 17시운행: 16시30분~17시00분 사이면 17시운행 자동 선택
+                        const morningStartTime = morningTimeInMinutes - 30; // 30분 전
+                        const afternoonStartTime = afternoonTimeInMinutes - 30; // 30분 전
+                        
+                        if (currentTimeInMinutes >= morningStartTime && currentTimeInMinutes < morningTimeInMinutes) {
+                            selectedTimePeriod = 'morning';
+                            console.log(`컬리: ${currentHour}시${currentMinute}분 - ${morningHour}시${morningMinute}분운행 자동 선택 (30분 전)`);
+                        } else if (currentTimeInMinutes >= afternoonStartTime && currentTimeInMinutes < afternoonTimeInMinutes) {
+                            selectedTimePeriod = 'afternoon';
+                            console.log(`컬리: ${currentHour}시${currentMinute}분 - ${afternoonHour}시${afternoonMinute}분운행 자동 선택 (30분 전)`);
+                        } else {
+                            // 기본값은 morning
+                            if (!selectedTimePeriod) {
+                                selectedTimePeriod = 'morning';
+                            }
+                            console.log(`컬리: ${currentHour}시${currentMinute}분 - 기본값(morning) 유지`);
+                        }
+                    } else {
+                        // 정류장 정보가 없으면 기본값
+                        if (!selectedTimePeriod) {
+                            selectedTimePeriod = 'morning';
+                        }
+                        console.log(`컬리: 정류장 정보 없음 - 기본값(morning) 유지`);
+                    }
+                }
             } else {
-                selectedTimePeriod = 'afternoon';
-                console.log(`시간대 조건 확인: ${currentHour}시는 오후 범위 (13-23시)`);
+                // 쿠팡일 때: 기존 로직 유지
+                // 오전: 00시~12시, 오후: 12시01분~23시59분
+                if (currentHour >= 0 && currentHour <= 12) {
+                    selectedTimePeriod = 'morning';
+                    console.log(`쿠팡: ${currentHour}시는 오전 범위 (0-12시)`);
+                } else {
+                    selectedTimePeriod = 'afternoon';
+                    console.log(`쿠팡: ${currentHour}시는 오후 범위 (13-23시)`);
+                }
             }
             
-            console.log(`현재 시간: ${currentHour}시, 자동 선택된 시간대: ${selectedTimePeriod}`);
+            console.log(`현재 시간: ${currentHour}시${currentMinute}분, 자동 선택된 시간대: ${selectedTimePeriod}`);
             
             // 버튼 업데이트
             updateTimePeriodButtons();
