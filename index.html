@@ -423,6 +423,12 @@
                 clear: both !important;
             }
             
+            /* keypad-page 다음에 오는 station-summary는 margin-top 강제 설정 */
+            #keypad-page ~ .station-summary,
+            .keypad ~ .station-summary {
+                margin-top: 40px !important;
+            }
+            
             /* 컬리일 때 도착시간 버튼이 있을 때 정류장 카운트 섹션 간격 추가 */
             #arrival-time-row[style*="display: block"] ~ .station-summary,
             #arrival-time-row:not([style*="display: none"]):not([style*="display:none"]) ~ .station-summary {
