@@ -215,11 +215,13 @@
             .keypad-row #arrival-time-btn,
             .keypad-row:has(.keypad-btn) #arrival-time-btn,
             .keypad-row:has(.keypad-btn) #arrival-time-row,
-            .keypad .keypad-row button:has-text("도착시간"),
             .keypad .keypad-row button[onclick*="recordArrivalTime"]:not(.enter-btn),
             .keypad-row button[onclick*="recordArrivalTime"]:not(.enter-btn),
             .keypad-row:has(.keypad-btn) button[onclick*="recordArrivalTime"],
-            .keypad-row:has(.keypad-btn) button[id="arrival-time-btn"] {
+            .keypad-row:has(.keypad-btn) button[id="arrival-time-btn"],
+            /* 키패드의 세 번째 줄(7,8,9 위치)에 있는 도착시간 버튼 숨기기 */
+            .keypad > .keypad-row:nth-child(3) button[onclick*="recordArrivalTime"],
+            .keypad > .keypad-row:nth-child(3) #arrival-time-btn {
                 display: none !important;
                 visibility: hidden !important;
                 opacity: 0 !important;
