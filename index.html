@@ -211,13 +211,25 @@
                 z-index: 10 !important;
             }
             
-            /* 도착시간 버튼이 키패드의 숫자 위치(9번 등)에 나타나지 않도록 - keypad-btn이 있는 row에서만 숨김 */
+            /* 도착시간 버튼이 키패드의 숫자 위치(9번 등)에 나타나지 않도록 - 모든 경우 커버 */
             .keypad-row:has(.keypad-btn) #arrival-time-btn,
             .keypad-row:has(.keypad-btn) button[onclick*="recordArrivalTime"],
+            /* 키패드의 세 번째 줄(7,8,9 위치)의 세 번째 버튼이 도착시간 버튼인 경우 숨기기 */
             .keypad > .keypad-row:nth-child(3) button[onclick*="recordArrivalTime"],
-            .keypad > .keypad-row:nth-child(3) #arrival-time-btn {
+            .keypad > .keypad-row:nth-child(3) #arrival-time-btn,
+            .keypad .keypad-row:nth-child(3) button:nth-child(3)[onclick*="recordArrivalTime"],
+            .keypad .keypad-row:nth-child(3) button:nth-child(3)#arrival-time-btn,
+            /* 세 번째 줄의 세 번째 버튼 위치에 있는 모든 도착시간 관련 버튼 숨기기 */
+            .keypad .keypad-row:nth-child(3) button:nth-child(3):not(.keypad-btn) {
                 display: none !important;
                 visibility: hidden !important;
+                opacity: 0 !important;
+                width: 0 !important;
+                height: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                position: absolute !important;
+                left: -9999px !important;
             }
             
             /* ENTER 버튼 row 다음에 오는 arrival-time-row는 표시 */
