@@ -208,6 +208,13 @@
                 width: auto !important;
                 max-width: 200px !important;
                 display: flex !important;
+                z-index: 10 !important;
+            }
+            
+            /* 도착시간 버튼이 키패드의 숫자 위치에 나타나지 않도록 */
+            .keypad-row:not(:has(.enter-btn)) #arrival-time-btn,
+            .keypad-row:not(:has(.enter-btn)) #arrival-time-row {
+                display: none !important;
             }
             
             /* 도착시간 버튼 스타일 조정 */
