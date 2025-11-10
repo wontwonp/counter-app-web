@@ -214,9 +214,19 @@
             /* 도착시간 버튼이 키패드의 숫자 위치에 나타나지 않도록 - 모든 keypad-row에서 숨김 */
             .keypad-row #arrival-time-btn,
             .keypad-row:has(.keypad-btn) #arrival-time-btn,
-            .keypad-row:has(.keypad-btn) #arrival-time-row {
+            .keypad-row:has(.keypad-btn) #arrival-time-row,
+            .keypad .keypad-row button:has-text("도착시간"),
+            .keypad .keypad-row button[onclick*="recordArrivalTime"]:not(.enter-btn),
+            .keypad-row button[onclick*="recordArrivalTime"]:not(.enter-btn),
+            .keypad-row:has(.keypad-btn) button[onclick*="recordArrivalTime"],
+            .keypad-row:has(.keypad-btn) button[id="arrival-time-btn"] {
                 display: none !important;
                 visibility: hidden !important;
+                opacity: 0 !important;
+                width: 0 !important;
+                height: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
             }
             
             /* ENTER 버튼 row 다음에 오는 arrival-time-row만 표시 */
