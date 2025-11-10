@@ -135,6 +135,12 @@
                 box-sizing: border-box;
             }
             
+            /* keypad-page 내부의 clock-display는 margin-bottom 5px로 강제 설정 */
+            #keypad-page > .clock-display,
+            #keypad-page .clock-display {
+                margin-bottom: 5px !important;
+            }
+            
             .input-display {
                 width: 100%;
                 max-width: 100%;
@@ -452,11 +458,13 @@
             }
             
             /* 키패드 페이지 내부 요소 간격 조정 */
-            #keypad-page > * {
+            #keypad-page > *:not(.clock-display) {
                 margin-bottom: 15px !important;
             }
             
-            #keypad-page > .clock-display {
+            /* clock-display는 margin-bottom 5px로 강제 설정 (다른 규칙보다 우선) */
+            #keypad-page > .clock-display,
+            #keypad-page .clock-display {
                 margin-bottom: 5px !important;
             }
             
@@ -913,6 +921,11 @@
             box-sizing: border-box;
         }
         
+        /* keypad-page 내부의 clock-display는 margin-bottom 5px 강제 */
+        #keypad-page > .clock-display {
+            margin-bottom: 5px !important;
+        }
+        
         /* 모든 화면 크기에서 clock-display margin 강제 */
         @media screen and (max-width: 768px) {
             .clock-display {
@@ -921,6 +934,10 @@
                 margin-right: 5px !important;
                 margin-left: 5px !important;
                 margin-top: 5px !important;
+            }
+            
+            #keypad-page > .clock-display {
+                margin-bottom: 5px !important;
             }
         }
         
@@ -932,6 +949,10 @@
                 margin-left: 5px !important;
                 margin-top: 5px !important;
             }
+            
+            #keypad-page > .clock-display {
+                margin-bottom: 5px !important;
+            }
         }
         
         @media screen and (max-width: 360px) {
@@ -941,6 +962,10 @@
                 margin-right: 5px !important;
                 margin-left: 5px !important;
                 margin-top: 5px !important;
+            }
+            
+            #keypad-page > .clock-display {
+                margin-bottom: 5px !important;
             }
         }
 
