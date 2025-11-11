@@ -515,18 +515,35 @@
                 padding: 5px !important;
                 margin: 5px 0 !important;
                 box-sizing: border-box !important;
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 5px !important;
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 10px !important;
                 align-items: center !important;
                 position: relative !important;
                 z-index: 1 !important;
             }
             
             .reset-buttons button, .share-buttons button {
-                width: calc(100% - 20px) !important;
-                max-width: 300px !important;
+                width: 100% !important;
+                max-width: 100% !important;
                 margin: 0 !important;
+            }
+            
+            /* 컬리 모바일 버튼 색상 변경 */
+            .delete-previous-btn {
+                background: #2196F3 !important; /* 파랑 */
+            }
+            
+            .reset-counts-btn {
+                background: #4CAF50 !important; /* 초록 */
+            }
+            
+            .share-btn {
+                background: #FFC107 !important; /* 노랑 */
+            }
+            
+            .reset-btn {
+                background: #f44336 !important; /* 빨강 */
             }
             
             /* 시간대 버튼 모바일 스타일 */
