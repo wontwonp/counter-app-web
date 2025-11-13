@@ -4124,6 +4124,10 @@
             localStorage.removeItem('afternoonArrivalTime');
             localStorage.removeItem('eveningArrivalTime');
             
+            // 택시 인원 초기화
+            taxiPassengers = { morning: 0, afternoon: 0, evening: 0 };
+            localStorage.removeItem('taxiPassengers');
+            
             // 키패드 활성화 및 페이지 업데이트 (stations 배열이 있을 때만)
             if (stations && stations.length > 0) {
                 enableKeypad();
