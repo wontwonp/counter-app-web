@@ -2649,6 +2649,7 @@
                 <h2>정류장 이름을 입력하세요</h2>
                 <div id="station-inputs" class="station-inputs"></div>
                 <div class="button-group">
+                    <button id="add-station" class="add-station-btn" onclick="addStation()"><span class="button-text-top">정류장</span><br><span class="button-text-bottom">추가</span></button>
                     <button id="start-counting" class="start-btn" onclick="startCounting()" disabled><span class="button-text-top">카운팅</span><br><span class="button-text-bottom">시작</span></button>
                     <button id="save-route" class="save-btn" onclick="saveRoute()" disabled><span class="button-text-top">노선</span><br><span class="button-text-bottom">저장</span></button>
                     <button onclick="resetSetup()" class="reset-btn"><span class="button-text-top">처음</span><br><span class="button-text-bottom">으로</span></button>
@@ -4691,6 +4692,32 @@
             // 출발 시간을 localStorage에 저장
             const savedDepartureTimes = stations.map(station => station.departureTime);
             localStorage.setItem('savedDepartureTimes', JSON.stringify(savedDepartureTimes));
+        }
+
+        // 정류장 추가 함수
+        function addStation() {
+            const newStation = {
+                id: stations.length,
+                name: '',
+                count: 0,
+                morningCount: 0,
+                afternoonCount: 0,
+                departureTime: { 
+                    morningHour: 8, 
+                    afternoonHour: 5, 
+                    minute: 0
+                }
+            };
+            
+            stations.push(newStation);
+            stationNames.push('');
+            stationCount = stations.length;
+            
+            // 정류장 입력 필드 다시 생성
+            createStationInputs();
+            
+            // 버튼 상태 업데이트
+            checkAllNamesFilled();
         }
 
         // 모든 정류장 이름이 입력되었는지 확인
