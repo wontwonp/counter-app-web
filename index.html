@@ -7189,18 +7189,50 @@
             
             if (!container) return;
             
+            container.innerHTML = '';
+            
             if (savedRoutes.length === 0) {
                 container.innerHTML = '<p style="color: #999; text-align: center; margin: 10px 0;">저장된 노선이 없습니다.</p>';
                 return;
             }
             
-            container.innerHTML = savedRoutes.map((route, index) => `
-                <div class="saved-route-item">
-                    <button class="saved-route-btn" onclick="loadKurlyRoute('${route.name}')">
-                        ${route.name} (${route.stationCount}개 정류장)
-                    </button>
-                </div>
-            `).join('');
+            savedRoutes.forEach((route, index) => {
+                const routeButton = document.createElement('button');
+                routeButton.className = 'saved-route-btn';
+                routeButton.innerHTML = `
+                    <div class="route-name">${route.name}</div>
+                    <div class="route-info">${route.stationCount}개 정류장</div>
+                `;
+                routeButton.onclick = () => loadKurlyRoute(route.name);
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-route-btn';
+                deleteButton.innerHTML = '×';
+                deleteButton.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteKurlyRoute(index);
+                };
+                
+                const routeItem = document.createElement('div');
+                routeItem.className = 'saved-route-item';
+                routeItem.appendChild(routeButton);
+                routeItem.appendChild(deleteButton);
+                
+                container.appendChild(routeItem);
+            });
+        }
+
+        // 컬리 노선 삭제 함수
+        function deleteKurlyRoute(index) {
+            const savedRoutes = JSON.parse(localStorage.getItem('kurlySavedRoutes') || '[]');
+            const route = savedRoutes[index];
+            
+            if (confirm(`"${route.name}" 노선을 삭제하시겠습니까?`)) {
+                savedRoutes.splice(index, 1);
+                localStorage.setItem('kurlySavedRoutes', JSON.stringify(savedRoutes));
+                updateKurlySavedRoutesDisplay();
+                alert(`"${route.name}" 노선이 삭제되었습니다.`);
+            }
         }
 
         // 컬리 노선 불러오기
