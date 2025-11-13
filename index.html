@@ -3980,19 +3980,8 @@
                 localStorage.setItem('lastResetDate', currentDate);
                 console.log('24시가 지나서 명수 자동 초기화가 완료되었습니다.');
             } else if (!savedDate) {
-                // 처음 실행하는 경우
-                // 저장된 정류장 데이터가 있으면 초기화 실행 (00시 지나고 처음 실행하는 경우)
-                const savedStations = JSON.parse(loadFromLocalStorage('savedStations') || '[]');
-                const kurlySavedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
-                
-                if ((savedStations && savedStations.length > 0) || (kurlySavedStations && kurlySavedStations.length > 0)) {
-                    console.log(`처음 실행이지만 저장된 데이터가 있음 - 초기화 실행: ${currentDate}`);
-                    // 완전 초기화 실행
-                    completeReset();
-                } else {
-                    console.log(`처음 실행 - 현재 날짜 저장: ${currentDate}`);
-                }
-                // 현재 날짜 저장
+                // 처음 실행하는 경우 - 날짜만 저장 (초기화는 하지 않음)
+                console.log(`처음 실행 - 현재 날짜 저장: ${currentDate}`);
                 localStorage.setItem('lastResetDate', currentDate);
             } else {
                 console.log('날짜 변경 없음 - 리셋하지 않음');
@@ -4460,15 +4449,10 @@
                 keypadPage.style.display = 'none';
             }
             
-            if (savedStationCount && savedStations.length > 0) {
-                // 저장된 데이터가 있으면 복원
-                restoreSavedStations();
-            } else {
-                // 저장된 데이터가 없으면 정류장 개수 입력 페이지로 이동
-                if (stationCountPage) {
-                    stationCountPage.classList.remove('hidden');
-                    stationCountPage.style.display = 'block';
-                }
+            // 저장된 데이터가 있어도 정류장 개수 입력 페이지로 이동 (저장된 노선 목록 표시)
+            if (stationCountPage) {
+                stationCountPage.classList.remove('hidden');
+                stationCountPage.style.display = 'block';
             }
         }
 
