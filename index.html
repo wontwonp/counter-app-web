@@ -3022,6 +3022,45 @@
 
         // 다크모드 버튼 영역에 마우스 오버 시 버튼 다시 보이기
         document.addEventListener('DOMContentLoaded', function() {
+            // 초기화 후 선택 화면 표시 플래그 확인
+            const showSelectionPage = localStorage.getItem('showSelectionPageAfterReset');
+            if (showSelectionPage === 'true') {
+                // 모든 페이지 숨김
+                const selectionPage = document.getElementById('selection-page');
+                const stationCountPage = document.getElementById('station-count-page');
+                const stationNamesPage = document.getElementById('station-names-page');
+                const kurlyStationCountPage = document.getElementById('kurly-station-count-page');
+                const kurlyStationNamesPage = document.getElementById('kurly-station-names-page');
+                const keypadPage = document.getElementById('keypad-page');
+                
+                if (stationCountPage) {
+                    stationCountPage.classList.add('hidden');
+                    stationCountPage.style.display = 'none';
+                }
+                if (stationNamesPage) {
+                    stationNamesPage.classList.add('hidden');
+                    stationNamesPage.style.display = 'none';
+                }
+                if (kurlyStationCountPage) {
+                    kurlyStationCountPage.classList.add('hidden');
+                    kurlyStationCountPage.style.display = 'none';
+                }
+                if (kurlyStationNamesPage) {
+                    kurlyStationNamesPage.classList.add('hidden');
+                    kurlyStationNamesPage.style.display = 'none';
+                }
+                if (keypadPage) {
+                    keypadPage.classList.add('hidden');
+                    keypadPage.style.display = 'none';
+                }
+                if (selectionPage) {
+                    selectionPage.classList.remove('hidden');
+                    selectionPage.style.display = 'flex';
+                }
+                // 플래그 제거
+                localStorage.removeItem('showSelectionPageAfterReset');
+            }
+            
             const themeToggleArea = document.querySelector('.theme-toggle-area');
             if (themeToggleArea) {
                 themeToggleArea.addEventListener('mouseenter', function() {
@@ -3978,10 +4017,29 @@
                 
                 // 새로운 날짜 저장
                 localStorage.setItem('lastResetDate', currentDate);
+                // 초기화 후 선택 화면으로 이동하도록 플래그 설정
+                localStorage.setItem('showSelectionPageAfterReset', 'true');
                 console.log('24시가 지나서 명수 자동 초기화가 완료되었습니다.');
             } else if (!savedDate) {
-                // 처음 실행하는 경우 - 날짜만 저장 (초기화는 하지 않음)
-                console.log(`처음 실행 - 현재 날짜 저장: ${currentDate}`);
+                // 처음 실행하는 경우
+                // 저장된 카운트 데이터가 있고 오늘이 새 날짜라면 초기화 실행
+                const savedStations = JSON.parse(loadFromLocalStorage('savedStations') || '[]');
+                const kurlySavedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
+                
+                // 저장된 데이터 중 카운트가 있는지 확인
+                const hasCountData = savedStations.some(s => (s.count > 0 || s.morningCount > 0 || s.afternoonCount > 0)) ||
+                                   kurlySavedStations.some(s => (s.count > 0 || s.morningCount > 0 || s.afternoonCount > 0 || (s.eveningCount && s.eveningCount > 0)));
+                
+                if (hasCountData) {
+                    console.log(`처음 실행이지만 저장된 카운트 데이터가 있고 오늘이 새 날짜 - 초기화 실행: ${currentDate}`);
+                    // 완전 초기화 실행
+                    completeReset();
+                    // 초기화 후 선택 화면으로 이동하도록 플래그 설정
+                    localStorage.setItem('showSelectionPageAfterReset', 'true');
+                } else {
+                    console.log(`처음 실행 - 현재 날짜 저장: ${currentDate}`);
+                }
+                // 현재 날짜 저장
                 localStorage.setItem('lastResetDate', currentDate);
             } else {
                 console.log('날짜 변경 없음 - 리셋하지 않음');
@@ -4454,6 +4512,9 @@
                 stationCountPage.classList.remove('hidden');
                 stationCountPage.style.display = 'block';
             }
+            
+            // 초기화 후 선택 화면 플래그 제거
+            localStorage.removeItem('showSelectionPageAfterReset');
         }
 
         // 시작 페이지에서 컬리로 이동
