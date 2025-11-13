@@ -4002,37 +4002,88 @@
 
         // 완전 초기화 함수 (쿠팡/컬리 공용)
         function completeReset() {
-            if (stations && stations.length > 0) {
-                stations.forEach(station => {
+            console.log('=== completeReset 시작 ===');
+            console.log('stations 배열 상태:', stations ? `${stations.length}개` : '없음');
+            
+            // 쿠팡 정류장 데이터 초기화
+            const savedStations = JSON.parse(loadFromLocalStorage('savedStations') || '[]');
+            if (savedStations && savedStations.length > 0) {
+                console.log('쿠팡 정류장 데이터 초기화:', savedStations.length, '개');
+                savedStations.forEach(station => {
                     station.count = 0;
                     station.morningCount = 0;
                     station.afternoonCount = 0;
-                    // 컬리일 때는 eveningCount도 초기화
+                });
+                localStorage.setItem('savedStations', JSON.stringify(savedStations));
+                
+                // 메모리의 stations 배열도 업데이트
+                if (stations && stations.length > 0) {
+                    stations.forEach((station, index) => {
+                        if (savedStations[index]) {
+                            station.count = 0;
+                            station.morningCount = 0;
+                            station.afternoonCount = 0;
+                        }
+                    });
+                }
+            }
+            
+            // 컬리 정류장 데이터 초기화
+            const kurlySavedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
+            if (kurlySavedStations && kurlySavedStations.length > 0) {
+                console.log('컬리 정류장 데이터 초기화:', kurlySavedStations.length, '개');
+                kurlySavedStations.forEach(station => {
+                    station.count = 0;
+                    station.morningCount = 0;
+                    station.afternoonCount = 0;
                     if (station.eveningCount !== undefined) {
                         station.eveningCount = 0;
                     }
                 });
-                currentStationIndex = 0;
-                currentInput = '';
+                localStorage.setItem('kurlySavedStations', JSON.stringify(kurlySavedStations));
+                
+                // 메모리의 stations 배열도 업데이트
+                if (stations && stations.length > 0) {
+                    stations.forEach((station, index) => {
+                        if (kurlySavedStations[index]) {
+                            station.count = 0;
+                            station.morningCount = 0;
+                            station.afternoonCount = 0;
+                            if (station.eveningCount !== undefined) {
+                                station.eveningCount = 0;
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // 공통 초기화
+            currentStationIndex = 0;
+            currentInput = '';
+            saveToLocalStorage('currentStationIndex', '0');
+            saveToLocalStorage('kurlyCurrentStationIndex', '0');
+            saveToLocalStorage('currentInput', '');
+            saveToLocalStorage('kurlyCurrentInput', '');
+            saveToLocalStorage('completedTimePeriods', JSON.stringify({ morning: false, afternoon: false, evening: false }));
+            saveToLocalStorage('keypadDisabled', 'false');
+            saveToLocalStorage('morningRunCompleted', 'false');
+            
+            // 컬리 도착시간도 초기화
+            morningArrivalTime = null;
+            afternoonArrivalTime = null;
+            eveningArrivalTime = null;
+            localStorage.removeItem('morningArrivalTime');
+            localStorage.removeItem('afternoonArrivalTime');
+            localStorage.removeItem('eveningArrivalTime');
+            
+            // 키패드 활성화 및 페이지 업데이트 (stations 배열이 있을 때만)
+            if (stations && stations.length > 0) {
                 enableKeypad();
                 updateKeypadPage();
-                localStorage.setItem('savedStations', JSON.stringify(stations));
-                saveToLocalStorage('currentStationIndex', '0');
-                saveToLocalStorage('currentInput', '');
-                saveToLocalStorage('completedTimePeriods', JSON.stringify({ morning: false, afternoon: false, evening: false }));
-                saveToLocalStorage('keypadDisabled', 'false');
-                saveToLocalStorage('morningRunCompleted', 'false');
-                // 컬리 도착시간도 초기화
-                if (currentService === 'kurly') {
-                    morningArrivalTime = null;
-                    afternoonArrivalTime = null;
-                    eveningArrivalTime = null;
-                    localStorage.removeItem('morningArrivalTime');
-                    localStorage.removeItem('afternoonArrivalTime');
-                    localStorage.removeItem('eveningArrivalTime');
-                }
-                console.log('24시 경과로 인한 완전 초기화가 완료되었습니다.');
             }
+            
+            console.log('24시 경과로 인한 완전 초기화가 완료되었습니다.');
+            console.log('=== completeReset 끝 ===');
         }
 
         // 현재 시간에 따라 자동으로 시간대 선택
