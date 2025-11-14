@@ -4493,14 +4493,15 @@
                 alert(`퇴근운행 도착시간이 기록되었습니다: ${String(arrivalTimeData.hour).padStart(2, '0')}:${String(arrivalTimeData.minute).padStart(2, '0')}`);
             }
             
-            // 컬리일 때: ENTER 버튼을 원래대로 복원 (도착시간이 기록되었으므로)
+            // 컬리일 때: 도착시간 버튼 비활성화 (도착시간이 기록되었으므로)
             if (currentService === 'kurly') {
                 const enterBtn = document.getElementById('enter-btn');
                 if (enterBtn && enterBtn.textContent === '도착시간') {
-                    // ENTER 버튼을 원래대로 복원
-                    enterBtn.textContent = 'ENTER';
-                    enterBtn.onclick = enterNumber;
-                    enterBtn.style.background = ''; // 기본 색상으로 복원
+                    // 도착시간 버튼 비활성화
+                    enterBtn.disabled = true;
+                    enterBtn.style.opacity = '0.5';
+                    enterBtn.style.cursor = 'not-allowed';
+                    enterBtn.style.background = 'linear-gradient(135deg, #9e9e9e 0%, #757575 100%)'; // 회색
                 }
             }
             
@@ -5074,11 +5075,20 @@
                         enterBtn.disabled = false;
                         enterBtn.style.opacity = '1';
                         enterBtn.style.cursor = 'pointer';
+                    } else if (currentPeriodCompleted && currentArrivalTime && enterBtn.textContent === '도착시간') {
+                        // 도착시간이 이미 기록된 경우 버튼 비활성화
+                        enterBtn.disabled = true;
+                        enterBtn.style.opacity = '0.5';
+                        enterBtn.style.cursor = 'not-allowed';
+                        enterBtn.style.background = 'linear-gradient(135deg, #9e9e9e 0%, #757575 100%)'; // 회색
                     } else if ((!currentPeriodCompleted || currentArrivalTime) && enterBtn.textContent === '도착시간') {
                         // 카운팅이 완료되지 않았거나 도착시간이 이미 기록된 경우 ENTER 버튼으로 복원
                         enterBtn.textContent = 'ENTER';
                         enterBtn.onclick = enterNumber;
                         enterBtn.style.background = '';
+                        enterBtn.disabled = false;
+                        enterBtn.style.opacity = '1';
+                        enterBtn.style.cursor = 'pointer';
                     }
                 }
             }
