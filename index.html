@@ -7342,11 +7342,17 @@
                 localStorage.setItem('kurlySavedStations', JSON.stringify(stations));
                 
                 // 저장된 정류장 인덱스 복원 (정류장 개수를 초과하지 않도록)
-                const savedCurrentStationIndex = loadFromLocalStorage('kurlyCurrentStationIndex');
-                if (savedCurrentStationIndex !== null && savedCurrentStationIndex !== '') {
-                    const savedIndex = parseInt(savedCurrentStationIndex) || 0;
-                    currentStationIndex = Math.min(savedIndex, stations.length - 1);
+                // 같은 노선이고 저장된 데이터가 있을 때만 복원, 아니면 0으로 초기화
+                if (savedRouteName === routeName && savedStations.length > 0 && savedStationCount == stationCount) {
+                    const savedCurrentStationIndex = loadFromLocalStorage('kurlyCurrentStationIndex');
+                    if (savedCurrentStationIndex !== null && savedCurrentStationIndex !== '') {
+                        const savedIndex = parseInt(savedCurrentStationIndex) || 0;
+                        currentStationIndex = Math.min(savedIndex, stations.length - 1);
+                    } else {
+                        currentStationIndex = 0;
+                    }
                 } else {
+                    // 다른 노선이거나 새로운 노선이면 0으로 초기화
                     currentStationIndex = 0;
                 }
                 currentInput = '';
