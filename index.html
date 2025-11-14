@@ -4609,25 +4609,12 @@
                 // 초기화 후 선택 화면 플래그 제거
                 localStorage.removeItem('showSelectionPageAfterReset');
             } else {
-                // 초기화가 진행되지 않았을 때는 저장된 데이터 확인
-                const hasCountData = kurlySavedStations.some(s => {
-                    if (typeof s === 'object') {
-                        return (s.count > 0 || s.morningCount > 0 || s.afternoonCount > 0 || (s.eveningCount && s.eveningCount > 0));
-                    }
-                    return false;
-                });
-                
-                if (kurlySavedStationCount && kurlySavedStations.length > 0 && hasCountData) {
-                    // 저장된 데이터가 있고 카운트가 있으면 키패드로 바로 이동
-                    restoreKurlySavedStations();
-                } else {
-                    // 저장된 데이터가 없거나 카운트가 없으면 노선 목록 화면으로 이동
-                    if (kurlyStationCountPage) {
-                        kurlyStationCountPage.classList.remove('hidden');
-                        kurlyStationCountPage.style.display = 'block';
-                        // 컬리 저장된 노선 목록 업데이트
-                        updateKurlySavedRoutesDisplay();
-                    }
+                // 저장된 카운트가 있어도 노선 선택 화면으로 이동 (저장된 카운트는 유지)
+                if (kurlyStationCountPage) {
+                    kurlyStationCountPage.classList.remove('hidden');
+                    kurlyStationCountPage.style.display = 'block';
+                    // 컬리 저장된 노선 목록 업데이트
+                    updateKurlySavedRoutesDisplay();
                 }
             }
             
