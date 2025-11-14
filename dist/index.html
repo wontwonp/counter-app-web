@@ -2002,11 +2002,14 @@
                     // morningRunCompleted 플래그는 유지 (오후운행 시작 후에만 초기화)
                     console.log(`오전운행 완료 후 오후시간대 진입, 오후운행 시작을 위해 정류장 인덱스 초기화`);
                 } else {
-                    // 시간대가 같으면 저장된 상태 복원
+                    // 시간대가 같으면 저장된 상태 복원 (단, 현재 노선의 정류장 개수를 초과하지 않도록)
                     console.log(`저장된 정류장 인덱스: ${savedCurrentStationIndex}`);
-                    currentStationIndex = savedCurrentStationIndex ? parseInt(savedCurrentStationIndex) : 0;
+                    const savedIndex = savedCurrentStationIndex ? parseInt(savedCurrentStationIndex) : 0;
+                    currentStationIndex = Math.min(savedIndex, stations.length - 1); // 정류장 개수를 초과하지 않도록 제한
                     currentInput = '';
-                    console.log(`시간대 동일: ${previousTimePeriod}, 저장된 정류장 인덱스 복원: ${currentStationIndex}`);
+                    saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
+                    saveToLocalStorage('currentInput', '');
+                    console.log(`시간대 동일: ${previousTimePeriod}, 저장된 정류장 인덱스 복원: ${currentStationIndex} (제한 적용: ${savedIndex} -> ${currentStationIndex})`);
                 }
                 
                 updateKeypadPage();
