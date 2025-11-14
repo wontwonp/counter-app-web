@@ -6030,11 +6030,22 @@
 
         // 이미지 생성 함수 (샘플 이미지와 동일한 구조)
         function generateResultImage() {
-            // 컬리일 때는 kurlySavedRouteName 사용
-            const currentRouteName = currentService === 'kurly' 
-                ? (loadFromLocalStorage('kurlySavedRouteName') || routeName || '')
-                : (loadFromLocalStorage('savedRouteName') || routeName || '');
+            // 컬리일 때는 kurlySavedRouteName 사용 (여러 소스에서 확인)
+            let currentRouteName = '';
+            if (currentService === 'kurly') {
+                currentRouteName = loadFromLocalStorage('kurlySavedRouteName') || 
+                                   (window.routeName || '') || 
+                                   routeName || 
+                                   '';
+            } else {
+                currentRouteName = loadFromLocalStorage('savedRouteName') || 
+                                   routeName || 
+                                   '';
+            }
             console.log('이미지 생성 시작, routeName:', currentRouteName, 'currentService:', currentService);
+            console.log('kurlySavedRouteName:', loadFromLocalStorage('kurlySavedRouteName'));
+            console.log('window.routeName:', window.routeName);
+            console.log('routeName 변수:', routeName);
             console.log('현재 선택된 시간대:', selectedTimePeriod);
             
             const canvas = document.createElement('canvas');
@@ -7581,6 +7592,9 @@
                 arrivalTimeRow.style.overflow = '';
             }
             
+            // 도착시간 복원
+            loadArrivalTimes();
+            
             const savedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
             const savedStationCount = loadFromLocalStorage('kurlySavedStationCount');
             const savedDepartureTimes = JSON.parse(loadFromLocalStorage('kurlySavedDepartureTimes') || '[]');
@@ -7589,6 +7603,7 @@
             if (savedStationCount && savedStations.length > 0) {
                 stationCount = parseInt(savedStationCount);
                 routeName = savedRouteName || '';
+                window.routeName = routeName; // 전역 변수에도 설정 (이미지 생성 시 사용)
                 
                 stations = Array.from({ length: stationCount }, (_, index) => {
                     const savedStation = savedStations[index];
