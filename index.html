@@ -6088,13 +6088,26 @@
                     console.log(`오전운행 완료 후 오후시간대 진입, 오후운행 시작을 위해 정류장 인덱스 초기화`);
                 } else {
                     // 시간대가 같으면 저장된 상태 복원 (단, 현재 노선의 정류장 개수를 초과하지 않도록)
-                    console.log(`저장된 정류장 인덱스: ${savedCurrentStationIndex}`);
-                    const savedIndex = savedCurrentStationIndex ? parseInt(savedCurrentStationIndex) : 0;
-                    currentStationIndex = Math.min(savedIndex, stations.length - 1); // 정류장 개수를 초과하지 않도록 제한
-                    currentInput = '';
-                    saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
-                    saveToLocalStorage('currentInput', '');
-                    console.log(`시간대 동일: ${previousTimePeriod}, 저장된 정류장 인덱스 복원: ${currentStationIndex} (제한 적용: ${savedIndex} -> ${currentStationIndex})`);
+                    // 같은 노선인지 확인 (다른 노선이면 복원하지 않음)
+                    const savedRouteName = loadFromLocalStorage('savedRouteName');
+                    const currentRouteName = loadFromLocalStorage('savedRouteName'); // 현재 노선 이름
+                    
+                    if (savedRouteName === currentRouteName && savedCurrentStationIndex) {
+                        console.log(`저장된 정류장 인덱스: ${savedCurrentStationIndex}`);
+                        const savedIndex = parseInt(savedCurrentStationIndex) || 0;
+                        currentStationIndex = Math.min(savedIndex, stations.length - 1); // 정류장 개수를 초과하지 않도록 제한
+                        currentInput = '';
+                        saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
+                        saveToLocalStorage('currentInput', '');
+                        console.log(`시간대 동일: ${previousTimePeriod}, 저장된 정류장 인덱스 복원: ${currentStationIndex} (제한 적용: ${savedIndex} -> ${currentStationIndex})`);
+                    } else {
+                        // 다른 노선이거나 저장된 인덱스가 없으면 0으로 초기화
+                        console.log(`다른 노선이거나 저장된 인덱스 없음, 정류장 인덱스 0으로 초기화`);
+                        currentStationIndex = 0;
+                        currentInput = '';
+                        saveToLocalStorage('currentStationIndex', '0');
+                        saveToLocalStorage('currentInput', '');
+                    }
                 }
                 
                 updateKeypadPage();
@@ -6675,7 +6688,21 @@
                 return;
             }
             
-            const savedCurrentStationIndex = loadFromLocalStorage('currentStationIndex');
+            // 저장된 노선 이름과 현재 노선 이름이 같은지 확인 (다른 노선이면 복원하지 않음)
+            const savedRouteName = loadFromLocalStorage(currentService === 'kurly' ? 'kurlySavedRouteName' : 'savedRouteName');
+            const currentRouteName = currentService === 'kurly' ? loadFromLocalStorage('kurlySavedRouteName') : loadFromLocalStorage('savedRouteName');
+            
+            // 노선 이름이 다르면 복원하지 않음 (새로운 노선이거나 다른 노선)
+            if (savedRouteName && currentRouteName && savedRouteName !== currentRouteName) {
+                console.log(`restoreKeypadState: 노선이 변경됨 (${savedRouteName} -> ${currentRouteName}), 인덱스 복원하지 않음`);
+                currentStationIndex = 0;
+                saveToLocalStorage(currentService === 'kurly' ? 'kurlyCurrentStationIndex' : 'currentStationIndex', '0');
+                updateKeypadPage();
+                return;
+            }
+            
+            const indexKey = currentService === 'kurly' ? 'kurlyCurrentStationIndex' : 'currentStationIndex';
+            const savedCurrentStationIndex = loadFromLocalStorage(indexKey);
             if (savedCurrentStationIndex !== null && savedCurrentStationIndex !== undefined) {
                 const parsedIndex = parseInt(savedCurrentStationIndex);
                 // 유효한 인덱스인지 확인
@@ -6685,7 +6712,8 @@
                 } else {
                     console.log(`restoreKeypadState: 저장된 인덱스(${parsedIndex})가 유효하지 않습니다. 기본값 0으로 설정합니다.`);
                     currentStationIndex = 0;
-                updateKeypadPage();
+                    saveToLocalStorage(indexKey, '0');
+                    updateKeypadPage();
                 }
             }
         }
