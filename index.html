@@ -4001,14 +4001,58 @@
             const now = new Date();
             const currentDate = now.toDateString(); // "Mon Jan 01 2024" 형식
             const savedDate = localStorage.getItem('lastResetDate');
+            const currentHour = now.getHours();
 
             console.log(`=== 날짜 변경 확인 시작 ===`);
             console.log(`현재 시간: ${now}`);
             console.log(`현재 날짜: ${currentDate}`);
+            console.log(`현재 시간: ${currentHour}시`);
             console.log(`저장된 날짜: ${savedDate}`);
             console.log(`stations 배열 상태: ${stations ? stations.length : 'undefined'}개 정류장`);
             console.log(`날짜 비교 결과: ${savedDate} !== ${currentDate} = ${savedDate !== currentDate}`);
 
+            // 컬리일 때는 첫번째 운행(8시) 전에 앱을 켜면 초기화
+            if (currentService === 'kurly') {
+                const kurlySavedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
+                const hasKurlyCountData = kurlySavedStations.some(s => 
+                    (s.count > 0 || s.morningCount > 0 || s.afternoonCount > 0 || (s.eveningCount && s.eveningCount > 0))
+                );
+                
+                // 첫번째 운행(8시) 전이고 저장된 카운트가 있으면 초기화
+                if (currentHour < 8 && hasKurlyCountData) {
+                    console.log(`*** 컬리: 첫번째 운행(8시) 전이고 저장된 카운트가 있음 - 초기화 실행 ***`);
+                    console.log(`현재 시간: ${currentHour}시, 첫번째 운행 전이므로 초기화합니다.`);
+                    
+                    // 완전 초기화 실행
+                    completeReset();
+                    
+                    // 새로운 날짜 저장
+                    localStorage.setItem('lastResetDate', currentDate);
+                    // 초기화 후 선택 화면으로 이동하도록 플래그 설정
+                    localStorage.setItem('showSelectionPageAfterReset', 'true');
+                    console.log('컬리 첫번째 운행 전 초기화가 완료되었습니다.');
+                    return;
+                } else if (!savedDate && hasKurlyCountData) {
+                    // 처음 실행하는 경우
+                    console.log(`처음 실행이지만 저장된 컬리 카운트 데이터가 있음 - 초기화 실행: ${currentDate}`);
+                    // 완전 초기화 실행
+                    completeReset();
+                    // 초기화 후 선택 화면으로 이동하도록 플래그 설정
+                    localStorage.setItem('showSelectionPageAfterReset', 'true');
+                    // 현재 날짜 저장
+                    localStorage.setItem('lastResetDate', currentDate);
+                    return;
+                } else if (!savedDate) {
+                    console.log(`처음 실행 - 현재 날짜 저장: ${currentDate}`);
+                    localStorage.setItem('lastResetDate', currentDate);
+                    return;
+                } else {
+                    console.log('컬리: 첫번째 운행 전이 아니거나 저장된 카운트가 없음 - 리셋하지 않음');
+                    return;
+                }
+            }
+
+            // 쿠팡일 때는 기존 로직 유지 (날짜 변경 시 초기화)
             if (savedDate && savedDate !== currentDate) {
                 console.log(`*** 날짜 변경 감지: ${savedDate} → ${currentDate} ***`);
                 console.log('24시가 지나 완전 초기화를 실행합니다.');
@@ -4025,11 +4069,9 @@
                 // 처음 실행하는 경우
                 // 저장된 카운트 데이터가 있고 오늘이 새 날짜라면 초기화 실행
                 const savedStations = JSON.parse(loadFromLocalStorage('savedStations') || '[]');
-                const kurlySavedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
                 
                 // 저장된 데이터 중 카운트가 있는지 확인
-                const hasCountData = savedStations.some(s => (s.count > 0 || s.morningCount > 0 || s.afternoonCount > 0)) ||
-                                   kurlySavedStations.some(s => (s.count > 0 || s.morningCount > 0 || s.afternoonCount > 0 || (s.eveningCount && s.eveningCount > 0)));
+                const hasCountData = savedStations.some(s => (s.count > 0 || s.morningCount > 0 || s.afternoonCount > 0));
                 
                 if (hasCountData) {
                     console.log(`처음 실행이지만 저장된 카운트 데이터가 있고 오늘이 새 날짜 - 초기화 실행: ${currentDate}`);
@@ -5585,6 +5627,7 @@
             loadTheme();
             loadSavedTimePeriod();
             loadSavedStations();
+            loadArrivalTimes(); // 도착시간 복원
             setKoreanInputMode();
             
             // 사용자 접속 기록
@@ -5803,6 +5846,43 @@
             
             // 저장된 데이터가 있어도 자동으로 이동하지 않음 (시작 페이지를 먼저 보여줌)
             // 쿠팡 버튼 클릭 시 restoreSavedStations() 함수를 호출하여 복원
+        }
+
+        // 도착시간 복원 함수
+        function loadArrivalTimes() {
+            const savedMorningArrivalTime = localStorage.getItem('morningArrivalTime');
+            const savedAfternoonArrivalTime = localStorage.getItem('afternoonArrivalTime');
+            const savedEveningArrivalTime = localStorage.getItem('eveningArrivalTime');
+            
+            if (savedMorningArrivalTime) {
+                try {
+                    morningArrivalTime = JSON.parse(savedMorningArrivalTime);
+                } catch (e) {
+                    morningArrivalTime = null;
+                }
+            }
+            
+            if (savedAfternoonArrivalTime) {
+                try {
+                    afternoonArrivalTime = JSON.parse(savedAfternoonArrivalTime);
+                } catch (e) {
+                    afternoonArrivalTime = null;
+                }
+            }
+            
+            if (savedEveningArrivalTime) {
+                try {
+                    eveningArrivalTime = JSON.parse(savedEveningArrivalTime);
+                } catch (e) {
+                    eveningArrivalTime = null;
+                }
+            }
+            
+            console.log('도착시간 복원:', {
+                morning: morningArrivalTime,
+                afternoon: afternoonArrivalTime,
+                evening: eveningArrivalTime
+            });
         }
 
         // 저장된 정류장 정보 복원 및 키패드 페이지로 이동
@@ -7556,7 +7636,8 @@
                 
                 const savedCurrentStationIndex = loadFromLocalStorage('kurlyCurrentStationIndex');
                 if (savedCurrentStationIndex !== null && savedCurrentStationIndex !== '') {
-                    currentStationIndex = parseInt(savedCurrentStationIndex) || 0;
+                    const savedIndex = parseInt(savedCurrentStationIndex) || 0;
+                    currentStationIndex = Math.min(savedIndex, stations.length - 1); // 정류장 개수를 초과하지 않도록 제한
                 } else {
                     currentStationIndex = 0;
                 }
