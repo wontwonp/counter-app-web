@@ -7125,6 +7125,12 @@
         // 컬리 카운팅 시작
         function startKurlyCounting() {
             if (stations.every(station => station.name.trim() !== '')) {
+                // 노선 이름 가져오기
+                const kurlyRouteNameInput = document.getElementById('kurly-route-name');
+                if (kurlyRouteNameInput) {
+                    routeName = kurlyRouteNameInput.value.trim();
+                }
+                
                 // 도착시간 버튼 인라인 스타일 초기화 (쿠팡에서 설정한 스타일 제거)
                 const arrivalTimeRow = document.getElementById('arrival-time-row');
                 if (arrivalTimeRow) {
