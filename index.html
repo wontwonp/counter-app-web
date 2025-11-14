@@ -4642,25 +4642,11 @@
                 localStorage.removeItem('showSelectionPageAfterReset');
             } else {
                 // 저장된 카운트가 있어도 노선 선택 화면으로 이동 (저장된 카운트는 유지)
-                // 하지만 저장된 정류장 데이터가 있으면 복원 (도착시간 포함)
-                const hasCountData = kurlySavedStations.some(s => {
-                    if (typeof s === 'object') {
-                        return (s.count > 0 || s.morningCount > 0 || s.afternoonCount > 0 || (s.eveningCount && s.eveningCount > 0));
-                    }
-                    return false;
-                });
-                
-                if (kurlySavedStationCount && kurlySavedStations.length > 0 && hasCountData) {
-                    // 저장된 데이터가 있고 카운트가 있으면 복원 (도착시간 포함)
-                    restoreKurlySavedStations();
-                } else {
-                    // 저장된 데이터가 없거나 카운트가 없으면 노선 선택 화면으로 이동
-                    if (kurlyStationCountPage) {
-                        kurlyStationCountPage.classList.remove('hidden');
-                        kurlyStationCountPage.style.display = 'block';
-                        // 컬리 저장된 노선 목록 업데이트
-                        updateKurlySavedRoutesDisplay();
-                    }
+                if (kurlyStationCountPage) {
+                    kurlyStationCountPage.classList.remove('hidden');
+                    kurlyStationCountPage.style.display = 'block';
+                    // 컬리 저장된 노선 목록 업데이트
+                    updateKurlySavedRoutesDisplay();
                 }
             }
             
