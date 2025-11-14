@@ -4524,23 +4524,10 @@
                 // 초기화 후 선택 화면 플래그 제거
                 localStorage.removeItem('showSelectionPageAfterReset');
             } else {
-                // 초기화가 진행되지 않았을 때는 저장된 데이터 확인
-                const hasCountData = savedStations.some(s => {
-                    if (typeof s === 'object') {
-                        return (s.count > 0 || s.morningCount > 0 || s.afternoonCount > 0);
-                    }
-                    return false;
-                });
-                
-                if (savedStationCount && savedStations.length > 0 && hasCountData) {
-                    // 저장된 데이터가 있고 카운트가 있으면 키패드로 바로 이동
-                    restoreSavedStations();
-                } else {
-                    // 저장된 데이터가 없거나 카운트가 없으면 노선 목록 화면으로 이동
-                    if (stationCountPage) {
-                        stationCountPage.classList.remove('hidden');
-                        stationCountPage.style.display = 'block';
-                    }
+                // 저장된 카운트가 있어도 노선 선택 화면으로 이동 (저장된 카운트는 유지)
+                if (stationCountPage) {
+                    stationCountPage.classList.remove('hidden');
+                    stationCountPage.style.display = 'block';
                 }
             }
         }
@@ -6756,19 +6743,39 @@
                 stationCount = routeData.stationCount;
                 isLoadedRoute = true; // 불러온 노선임을 표시
                 
-                // 정류장 데이터 복원
-                stations = routeData.stations.map((station, index) => ({
-                    id: index,
-                    name: station.name,
-                    count: 0,
-                    morningCount: 0,
-                    afternoonCount: 0,
-                    departureTime: station.departureTime || { 
-                        morningHour: 8, 
-                        afternoonHour: 17, 
-                        minute: Math.min(index * 5, 59) 
+                // 저장된 정류장 데이터 확인 (같은 노선이면 카운트 유지)
+                const savedStations = JSON.parse(loadFromLocalStorage('savedStations') || '[]');
+                const savedRouteName = loadFromLocalStorage('savedRouteName');
+                
+                // 정류장 데이터 복원 (저장된 카운트가 있으면 유지)
+                stations = routeData.stations.map((station, index) => {
+                    // 같은 노선이고 저장된 데이터가 있으면 카운트 유지
+                    let savedCount = 0;
+                    let savedMorningCount = 0;
+                    let savedAfternoonCount = 0;
+                    
+                    if (savedRouteName === routeName && savedStations.length > 0 && savedStations[index]) {
+                        const savedStation = savedStations[index];
+                        if (typeof savedStation === 'object') {
+                            savedCount = savedStation.count || 0;
+                            savedMorningCount = savedStation.morningCount || 0;
+                            savedAfternoonCount = savedStation.afternoonCount || 0;
+                        }
                     }
-                }));
+                    
+                    return {
+                        id: index,
+                        name: station.name,
+                        count: savedCount, // 저장된 카운트 유지
+                        morningCount: savedMorningCount, // 저장된 오전 카운트 유지
+                        afternoonCount: savedAfternoonCount, // 저장된 오후 카운트 유지
+                        departureTime: station.departureTime || { 
+                            morningHour: 8, 
+                            afternoonHour: 17, 
+                            minute: Math.min(index * 5, 59) 
+                        }
+                    };
+                });
                 
                 // 출발 시간 배열 생성
                 const departureTimes = stations.map(station => station.departureTime);
@@ -7338,6 +7345,10 @@
             localStorage.setItem('kurlySavedRouteName', routeName);
             isLoadedRoute = true;
             
+            // 저장된 정류장 데이터 확인 (같은 노선이면 카운트 유지)
+            const kurlySavedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
+            const kurlySavedRouteName = loadFromLocalStorage('kurlySavedRouteName');
+            
             stations = Array.from({ length: stationCount }, (_, index) => {
                 const savedStation = route.stations[index] || {};
                 let departureTime = savedStation.departureTime || route.departureTimes[index] || { morningHour: 8, morningMinute: 0, afternoonHour: 17, afternoonMinute: 0 };
@@ -7359,12 +7370,29 @@
                     departureTime.afternoonMinute = 0;
                 }
                 
+                // 같은 노선이고 저장된 데이터가 있으면 카운트 유지
+                let savedCount = 0;
+                let savedMorningCount = 0;
+                let savedAfternoonCount = 0;
+                let savedEveningCount = 0;
+                
+                if (kurlySavedRouteName === routeName && kurlySavedStations.length > 0 && kurlySavedStations[index]) {
+                    const savedStationData = kurlySavedStations[index];
+                    if (typeof savedStationData === 'object') {
+                        savedCount = savedStationData.count || 0;
+                        savedMorningCount = savedStationData.morningCount || 0;
+                        savedAfternoonCount = savedStationData.afternoonCount || 0;
+                        savedEveningCount = savedStationData.eveningCount || 0;
+                    }
+                }
+                
                 return {
                     id: index,
                     name: savedStation.name || '',
-                    count: 0,
-                    morningCount: 0,
-                    afternoonCount: 0,
+                    count: savedCount, // 저장된 카운트 유지
+                    morningCount: savedMorningCount, // 저장된 오전 카운트 유지
+                    afternoonCount: savedAfternoonCount, // 저장된 오후 카운트 유지
+                    eveningCount: savedEveningCount, // 저장된 퇴근 카운트 유지
                     departureTime: departureTime
                 };
             });
