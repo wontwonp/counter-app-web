@@ -6799,6 +6799,13 @@
                 saveToLocalStorage('currentStationIndex', '0');
                 saveToLocalStorage('currentInput', '');
                 
+                // 완료 상태 초기화 (노선을 불러올 때는 완료 상태를 초기화하여 새로 운행할 수 있도록)
+                completedTimePeriods = { morning: false, afternoon: false, evening: false };
+                saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
+                saveToLocalStorage('morningRunCompleted', 'false');
+                saveToLocalStorage('keypadDisabled', 'false');
+                console.log('노선 불러오기: 완료 상태 초기화');
+                
                 // 입력 필드 업데이트
                 document.getElementById('route-name').value = routeName;
                 document.getElementById('station-count').value = stationCount;
@@ -7414,6 +7421,7 @@
             saveToLocalStorage('kurlyCurrentInput', '');
             saveToLocalStorage('keypadDisabled', 'false');
             saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
+            saveToLocalStorage('morningRunCompleted', 'false'); // 오전운행 완료 플래그도 초기화
             localStorage.removeItem('morningArrivalTime');
             localStorage.removeItem('afternoonArrivalTime');
             localStorage.removeItem('eveningArrivalTime');
