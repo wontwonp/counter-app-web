@@ -4521,15 +4521,33 @@
                 minute: now.getMinutes()
             };
             
+            // 첫번째/두번째 운행 시간 확인 (동적 메시지 생성을 위해)
+            let firstOperationHour = 14; // 기본값
+            let secondOperationHour = 17; // 기본값
+            if (stations && stations.length > 0 && stations[0] && stations[0].departureTime) {
+                firstOperationHour = stations[0].departureTime.morningHour || 14;
+                secondOperationHour = stations[0].departureTime.afternoonHour || 17;
+            } else {
+                // 저장된 정류장 정보에서 확인
+                const kurlySavedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
+                if (kurlySavedStations && kurlySavedStations.length > 0) {
+                    const firstStation = kurlySavedStations[0];
+                    if (firstStation && typeof firstStation === 'object' && firstStation.departureTime) {
+                        firstOperationHour = firstStation.departureTime.morningHour || 14;
+                        secondOperationHour = firstStation.departureTime.afternoonHour || 17;
+                    }
+                }
+            }
+            
             // 현재 선택된 시간대에 맞게 저장
             if (selectedTimePeriod === 'morning') {
                 morningArrivalTime = arrivalTimeData;
                 localStorage.setItem('morningArrivalTime', JSON.stringify(morningArrivalTime));
-                alert(`14시운행 도착시간이 기록되었습니다: ${String(arrivalTimeData.hour).padStart(2, '0')}:${String(arrivalTimeData.minute).padStart(2, '0')}`);
+                alert(`${firstOperationHour}시운행 도착시간이 기록되었습니다: ${String(arrivalTimeData.hour).padStart(2, '0')}:${String(arrivalTimeData.minute).padStart(2, '0')}`);
             } else if (selectedTimePeriod === 'afternoon') {
                 afternoonArrivalTime = arrivalTimeData;
                 localStorage.setItem('afternoonArrivalTime', JSON.stringify(afternoonArrivalTime));
-                alert(`17시운행 도착시간이 기록되었습니다: ${String(arrivalTimeData.hour).padStart(2, '0')}:${String(arrivalTimeData.minute).padStart(2, '0')}`);
+                alert(`${secondOperationHour}시운행 도착시간이 기록되었습니다: ${String(arrivalTimeData.hour).padStart(2, '0')}:${String(arrivalTimeData.minute).padStart(2, '0')}`);
             } else if (selectedTimePeriod === 'evening') {
                 eveningArrivalTime = arrivalTimeData;
                 localStorage.setItem('eveningArrivalTime', JSON.stringify(eveningArrivalTime));
