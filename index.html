@@ -4374,6 +4374,29 @@
                 if (previousPeriod !== period) {
                     // 컬리일 때는 같은 노선이면 카운트 유지
                     if (currentService === 'kurly') {
+                        // 저장된 stations 데이터 복원 (같은 노선이면 카운트 유지)
+                        const savedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
+                        const savedRouteName = loadFromLocalStorage('kurlySavedRouteName');
+                        const currentRouteName = routeName;
+                        
+                        if (savedRouteName === currentRouteName && savedStations.length > 0 && savedStations.length === stations.length) {
+                            // 같은 노선이고 저장된 데이터가 있으면 카운트 복원
+                            stations = stations.map((station, index) => {
+                                if (savedStations[index] && typeof savedStations[index] === 'object') {
+                                    return {
+                                        ...station,
+                                        count: savedStations[index].count || station.count,
+                                        morningCount: savedStations[index].morningCount || station.morningCount,
+                                        afternoonCount: savedStations[index].afternoonCount || station.afternoonCount,
+                                        eveningCount: savedStations[index].eveningCount || station.eveningCount
+                                    };
+                                }
+                                return station;
+                            });
+                            // 복원된 stations를 localStorage에 다시 저장
+                            saveToLocalStorage('kurlySavedStations', JSON.stringify(stations));
+                        }
+                        
                         // 같은 노선이면 카운트는 유지하고, 퇴근을 제외하고는 첫번째 정류장부터 시작
                         if (!isEveningMode) {
                             currentStationIndex = 0;
