@@ -6702,6 +6702,15 @@
             const savedRouteName = loadFromLocalStorage(routeNameKey);
             const currentRouteName = routeName; // 현재 전역 변수 routeName 사용
             
+            // routeName이 비어있으면 복원하지 않음 (카운팅 시작 전이거나 노선이 설정되지 않음)
+            if (!currentRouteName || currentRouteName === '') {
+                console.log(`restoreKeypadState: routeName이 비어있어 인덱스 복원하지 않음`);
+                currentStationIndex = 0;
+                const indexKey = currentService === 'kurly' ? 'kurlyCurrentStationIndex' : 'currentStationIndex';
+                saveToLocalStorage(indexKey, '0');
+                return;
+            }
+            
             // 노선 이름이 다르면 복원하지 않음 (새로운 노선이거나 다른 노선)
             if (savedRouteName && currentRouteName && savedRouteName !== currentRouteName) {
                 console.log(`restoreKeypadState: 노선이 변경됨 (${savedRouteName} -> ${currentRouteName}), 인덱스 복원하지 않음`);
@@ -6711,9 +6720,10 @@
                 return;
             }
             
+            // 같은 노선일 때만 인덱스 복원
             const indexKey = currentService === 'kurly' ? 'kurlyCurrentStationIndex' : 'currentStationIndex';
             const savedCurrentStationIndex = loadFromLocalStorage(indexKey);
-            if (savedCurrentStationIndex !== null && savedCurrentStationIndex !== undefined) {
+            if (savedCurrentStationIndex !== null && savedCurrentStationIndex !== undefined && savedRouteName === currentRouteName) {
                 const parsedIndex = parseInt(savedCurrentStationIndex);
                 // 유효한 인덱스인지 확인
                 if (parsedIndex >= 0 && parsedIndex < stations.length) {
@@ -6725,6 +6735,11 @@
                     saveToLocalStorage(indexKey, '0');
                     updateKeypadPage();
                 }
+            } else {
+                // 저장된 인덱스가 없거나 다른 노선이면 0으로 초기화
+                console.log(`restoreKeypadState: 저장된 인덱스가 없거나 다른 노선, 0으로 초기화`);
+                currentStationIndex = 0;
+                saveToLocalStorage(indexKey, '0');
             }
         }
 
