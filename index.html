@@ -4642,11 +4642,25 @@
                 localStorage.removeItem('showSelectionPageAfterReset');
             } else {
                 // 저장된 카운트가 있어도 노선 선택 화면으로 이동 (저장된 카운트는 유지)
-                if (kurlyStationCountPage) {
-                    kurlyStationCountPage.classList.remove('hidden');
-                    kurlyStationCountPage.style.display = 'block';
-                    // 컬리 저장된 노선 목록 업데이트
-                    updateKurlySavedRoutesDisplay();
+                // 하지만 저장된 정류장 데이터가 있으면 복원 (도착시간 포함)
+                const hasCountData = kurlySavedStations.some(s => {
+                    if (typeof s === 'object') {
+                        return (s.count > 0 || s.morningCount > 0 || s.afternoonCount > 0 || (s.eveningCount && s.eveningCount > 0));
+                    }
+                    return false;
+                });
+                
+                if (kurlySavedStationCount && kurlySavedStations.length > 0 && hasCountData) {
+                    // 저장된 데이터가 있고 카운트가 있으면 복원 (도착시간 포함)
+                    restoreKurlySavedStations();
+                } else {
+                    // 저장된 데이터가 없거나 카운트가 없으면 노선 선택 화면으로 이동
+                    if (kurlyStationCountPage) {
+                        kurlyStationCountPage.classList.remove('hidden');
+                        kurlyStationCountPage.style.display = 'block';
+                        // 컬리 저장된 노선 목록 업데이트
+                        updateKurlySavedRoutesDisplay();
+                    }
                 }
             }
             
@@ -7225,8 +7239,29 @@
                     routeName = kurlyRouteNameInput.value.trim();
                 }
                 
-                // 도착시간 복원
+                // 도착시간 복원 (가장 먼저 실행)
                 loadArrivalTimes();
+                
+                // 저장된 정류장 데이터 확인 및 복원 (카운트 유지)
+                const savedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
+                const savedStationCount = loadFromLocalStorage('kurlySavedStationCount');
+                const savedRouteName = loadFromLocalStorage('kurlySavedRouteName');
+                
+                // 같은 노선이고 저장된 데이터가 있으면 카운트 복원
+                if (savedRouteName === routeName && savedStations.length > 0 && savedStationCount == stationCount) {
+                    stations = stations.map((station, index) => {
+                        if (savedStations[index] && typeof savedStations[index] === 'object') {
+                            return {
+                                ...station,
+                                count: savedStations[index].count || station.count,
+                                morningCount: savedStations[index].morningCount || station.morningCount,
+                                afternoonCount: savedStations[index].afternoonCount || station.afternoonCount,
+                                eveningCount: savedStations[index].eveningCount || station.eveningCount
+                            };
+                        }
+                        return station;
+                    });
+                }
                 
                 // 도착시간 버튼 인라인 스타일 초기화 (쿠팡에서 설정한 스타일 제거)
                 const arrivalTimeRow = document.getElementById('arrival-time-row');
@@ -7244,11 +7279,18 @@
                 // 컬리 정류장 개수와 노선이름을 localStorage에 저장
                 localStorage.setItem('kurlySavedStationCount', stationCount.toString());
                 localStorage.setItem('kurlySavedRouteName', routeName);
+                localStorage.setItem('kurlySavedStations', JSON.stringify(stations));
                 
-                // 첫 번째 정류장부터 시작하도록 명시적으로 초기화
-                currentStationIndex = 0;
+                // 저장된 정류장 인덱스 복원 (정류장 개수를 초과하지 않도록)
+                const savedCurrentStationIndex = loadFromLocalStorage('kurlyCurrentStationIndex');
+                if (savedCurrentStationIndex !== null && savedCurrentStationIndex !== '') {
+                    const savedIndex = parseInt(savedCurrentStationIndex) || 0;
+                    currentStationIndex = Math.min(savedIndex, stations.length - 1);
+                } else {
+                    currentStationIndex = 0;
+                }
                 currentInput = '';
-                saveToLocalStorage('kurlyCurrentStationIndex', '0');
+                saveToLocalStorage('kurlyCurrentStationIndex', currentStationIndex.toString());
                 saveToLocalStorage('kurlyCurrentInput', '');
                 
                 // 완료 상태 및 키패드 비활성화 상태 초기화 (카운팅 시작 시)
@@ -7528,12 +7570,7 @@
             saveToLocalStorage('keypadDisabled', 'false');
             saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
             saveToLocalStorage('morningRunCompleted', 'false'); // 오전운행 완료 플래그도 초기화
-            localStorage.removeItem('morningArrivalTime');
-            localStorage.removeItem('afternoonArrivalTime');
-            localStorage.removeItem('eveningArrivalTime');
-            morningArrivalTime = null;
-            afternoonArrivalTime = null;
-            eveningArrivalTime = null;
+            // 도착시간은 초기화하지 않음 (유지)
             
             // 정류장 이름 입력 페이지로 이동
             createKurlyStationInputs();
