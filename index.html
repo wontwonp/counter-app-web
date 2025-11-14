@@ -4578,6 +4578,9 @@
         window.goToKurly = function() {
             currentService = 'kurly'; // 현재 서비스 설정
             
+            // 도착시간 복원 (가장 먼저 실행)
+            loadArrivalTimes();
+            
             // 도착시간 버튼 인라인 스타일 초기화 (쿠팡에서 설정한 스타일 제거)
             const arrivalTimeRow = document.getElementById('arrival-time-row');
             if (arrivalTimeRow) {
@@ -7222,6 +7225,9 @@
                     routeName = kurlyRouteNameInput.value.trim();
                 }
                 
+                // 도착시간 복원
+                loadArrivalTimes();
+                
                 // 도착시간 버튼 인라인 스타일 초기화 (쿠팡에서 설정한 스타일 제거)
                 const arrivalTimeRow = document.getElementById('arrival-time-row');
                 if (arrivalTimeRow) {
@@ -7420,6 +7426,9 @@
 
         // 컬리 노선 불러오기
         function loadKurlyRoute(routeName) {
+            // 도착시간 복원
+            loadArrivalTimes();
+            
             // 도착시간 버튼 인라인 스타일 초기화 (쿠팡에서 설정한 스타일 제거)
             const arrivalTimeRow = document.getElementById('arrival-time-row');
             if (arrivalTimeRow) {
