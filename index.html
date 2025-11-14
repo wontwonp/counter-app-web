@@ -6089,10 +6089,12 @@
                 } else {
                     // 시간대가 같으면 저장된 상태 복원 (단, 현재 노선의 정류장 개수를 초과하지 않도록)
                     // 같은 노선인지 확인 (다른 노선이면 복원하지 않음)
-                    const savedRouteName = loadFromLocalStorage('savedRouteName');
-                    const currentRouteName = loadFromLocalStorage('savedRouteName'); // 현재 노선 이름
+                    // restoreSavedStations는 이미 stations 배열이 복원된 후 호출되므로, 
+                    // 저장된 노선 이름과 현재 복원된 노선 이름이 같은지 확인
+                    const savedRouteNameForIndex = loadFromLocalStorage('savedRouteName');
+                    const currentRouteNameForIndex = routeName; // 현재 복원된 노선 이름
                     
-                    if (savedRouteName === currentRouteName && savedCurrentStationIndex) {
+                    if (savedRouteNameForIndex === currentRouteNameForIndex && savedCurrentStationIndex) {
                         console.log(`저장된 정류장 인덱스: ${savedCurrentStationIndex}`);
                         const savedIndex = parseInt(savedCurrentStationIndex) || 0;
                         currentStationIndex = Math.min(savedIndex, stations.length - 1); // 정류장 개수를 초과하지 않도록 제한
@@ -6102,7 +6104,7 @@
                         console.log(`시간대 동일: ${previousTimePeriod}, 저장된 정류장 인덱스 복원: ${currentStationIndex} (제한 적용: ${savedIndex} -> ${currentStationIndex})`);
                     } else {
                         // 다른 노선이거나 저장된 인덱스가 없으면 0으로 초기화
-                        console.log(`다른 노선이거나 저장된 인덱스 없음, 정류장 인덱스 0으로 초기화`);
+                        console.log(`다른 노선이거나 저장된 인덱스 없음, 정류장 인덱스 0으로 초기화 (savedRouteName: ${savedRouteNameForIndex}, currentRouteName: ${currentRouteNameForIndex})`);
                         currentStationIndex = 0;
                         currentInput = '';
                         saveToLocalStorage('currentStationIndex', '0');
