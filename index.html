@@ -4551,7 +4551,8 @@
             } else if (selectedTimePeriod === 'evening') {
                 eveningArrivalTime = arrivalTimeData;
                 localStorage.setItem('eveningArrivalTime', JSON.stringify(eveningArrivalTime));
-                alert(`퇴근운행 도착시간이 기록되었습니다: ${String(arrivalTimeData.hour).padStart(2, '0')}:${String(arrivalTimeData.minute).padStart(2, '0')}`);
+                // 퇴근운행은 두번째 운행 시간을 사용
+                alert(`${secondOperationHour}시운행 도착시간이 기록되었습니다: ${String(arrivalTimeData.hour).padStart(2, '0')}:${String(arrivalTimeData.minute).padStart(2, '0')}`);
             }
             
             // 컬리일 때: 도착시간 버튼 비활성화 (도착시간이 기록되었으므로)
@@ -5184,7 +5185,14 @@
                 // 오전/오후 카운트를 분리하여 표시
                 const morningCount = station.morningCount || 0;
                 const afternoonCount = station.afternoonCount || 0;
-                summaryItem.textContent = `${index + 1}. ${station.name}: 오전 ${morningCount}명, 오후 ${afternoonCount}명`;
+                
+                // 컬리일 때는 퇴근운행도 표시
+                if (currentService === 'kurly') {
+                    const eveningCount = station.eveningCount || 0;
+                    summaryItem.textContent = `${index + 1}. ${station.name}: 오전 ${morningCount}명, 오후 ${afternoonCount}명, 퇴근 ${eveningCount}명`;
+                } else {
+                    summaryItem.textContent = `${index + 1}. ${station.name}: 오전 ${morningCount}명, 오후 ${afternoonCount}명`;
+                }
                 
                 summaryList.appendChild(summaryItem);
             });
