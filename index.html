@@ -6691,8 +6691,9 @@
             }
             
             // 저장된 노선 이름과 현재 노선 이름이 같은지 확인 (다른 노선이면 복원하지 않음)
-            const savedRouteName = loadFromLocalStorage(currentService === 'kurly' ? 'kurlySavedRouteName' : 'savedRouteName');
-            const currentRouteName = currentService === 'kurly' ? loadFromLocalStorage('kurlySavedRouteName') : loadFromLocalStorage('savedRouteName');
+            const routeNameKey = currentService === 'kurly' ? 'kurlySavedRouteName' : 'savedRouteName';
+            const savedRouteName = loadFromLocalStorage(routeNameKey);
+            const currentRouteName = routeName; // 현재 전역 변수 routeName 사용
             
             // 노선 이름이 다르면 복원하지 않음 (새로운 노선이거나 다른 노선)
             if (savedRouteName && currentRouteName && savedRouteName !== currentRouteName) {
