@@ -14,7 +14,15 @@ self.addEventListener('install', function(event) {
     caches.open(CACHE_NAME)
       .then(function(cache) {
         console.log('캐시 열기');
-        return cache.addAll(urlsToCache);
+        // addAll 대신 각 파일을 개별적으로 추가하여 실패한 파일은 무시
+        return Promise.all(
+          urlsToCache.map(function(url) {
+            return cache.add(url).catch(function(err) {
+              console.warn('캐시 실패 (무시됨):', url, err);
+              return null; // 실패해도 계속 진행
+            });
+          })
+        );
       })
   );
 });
