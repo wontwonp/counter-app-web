@@ -4011,17 +4011,26 @@
             console.log(`stations 배열 상태: ${stations ? stations.length : 'undefined'}개 정류장`);
             console.log(`날짜 비교 결과: ${savedDate} !== ${currentDate} = ${savedDate !== currentDate}`);
 
-            // 컬리일 때는 첫번째 운행(8시) 전에 앱을 켜면 초기화
+            // 컬리일 때는 첫번째 운행 전에 앱을 켜면 초기화
             if (currentService === 'kurly') {
                 const kurlySavedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
                 const hasKurlyCountData = kurlySavedStations.some(s => 
                     (s.count > 0 || s.morningCount > 0 || s.afternoonCount > 0 || (s.eveningCount && s.eveningCount > 0))
                 );
                 
-                // 첫번째 운행(8시) 전이고 저장된 카운트가 있으면 초기화
-                if (currentHour < 8 && hasKurlyCountData) {
-                    console.log(`*** 컬리: 첫번째 운행(8시) 전이고 저장된 카운트가 있음 - 초기화 실행 ***`);
-                    console.log(`현재 시간: ${currentHour}시, 첫번째 운행 전이므로 초기화합니다.`);
+                // 첫번째 운행 시간 확인 (저장된 정류장 정보에서 가져오거나 기본값 8시 사용)
+                let firstOperationHour = 8; // 기본값
+                if (kurlySavedStations && kurlySavedStations.length > 0) {
+                    const firstStation = kurlySavedStations[0];
+                    if (firstStation && typeof firstStation === 'object' && firstStation.departureTime) {
+                        firstOperationHour = firstStation.departureTime.morningHour || 8;
+                    }
+                }
+                
+                // 첫번째 운행 시간 전이고 저장된 카운트가 있으면 초기화
+                if (currentHour < firstOperationHour && hasKurlyCountData) {
+                    console.log(`*** 컬리: 첫번째 운행(${firstOperationHour}시) 전이고 저장된 카운트가 있음 - 초기화 실행 ***`);
+                    console.log(`현재 시간: ${currentHour}시, 첫번째 운행(${firstOperationHour}시) 전이므로 초기화합니다.`);
                     
                     // 완전 초기화 실행
                     completeReset();
@@ -4047,7 +4056,7 @@
                     localStorage.setItem('lastResetDate', currentDate);
                     return;
                 } else {
-                    console.log('컬리: 첫번째 운행 전이 아니거나 저장된 카운트가 없음 - 리셋하지 않음');
+                    console.log(`컬리: 첫번째 운행(${firstOperationHour}시) 전이 아니거나 저장된 카운트가 없음 - 리셋하지 않음`);
                     return;
                 }
             }
