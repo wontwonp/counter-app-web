@@ -1521,15 +1521,63 @@
                 localStorage.setItem('savedStationCount', stationCount.toString());
                 localStorage.setItem('savedRouteName', routeName);
                 
-                currentStationIndex = 0;
-                saveToLocalStorage('currentStationIndex', '0');
-                updateKeypadPage();
+                // 정류장 이름과 카운팅 데이터를 모두 localStorage에 저장 (저장된 카운트 유지)
+                localStorage.setItem('savedStations', JSON.stringify(stations));
+                
+                // 카운팅 상태 복원 (저장된 상태가 있으면 복원, 없으면 초기화)
+                const savedCurrentStationIndex = loadFromLocalStorage('currentStationIndex');
+                
+                // 현재 시간에 따른 자동 시간대 선택
+                const previousTimePeriod = loadFromLocalStorage('selectedTimePeriod');
+                console.log(`이전 시간대: ${previousTimePeriod}`);
+                autoSelectTimePeriod();
+                console.log(`현재 선택된 시간대: ${selectedTimePeriod}`);
+                
+                // 시간대가 바뀌었는지 확인하고 정류장 인덱스 초기화
+                console.log(`시간대 비교: 이전=${previousTimePeriod}, 현재=${selectedTimePeriod}`);
+                
+                // 오전운행 완료 상태 확인
+                const morningRunCompleted = loadFromLocalStorage('morningRunCompleted');
+                console.log(`오전운행 완료 상태: ${morningRunCompleted}`);
+                
+                if (previousTimePeriod && previousTimePeriod !== selectedTimePeriod) {
+                    // 시간대가 바뀌었으면 첫 번째 정류장부터 시작 (localStorage 값 무시)
+                    currentStationIndex = 0;
+                    currentInput = '';
+                    saveToLocalStorage('currentStationIndex', '0');
+                    saveToLocalStorage('currentInput', '');
+                    console.log(`시간대 변경 감지: ${previousTimePeriod} → ${selectedTimePeriod}, 정류장 인덱스 초기화 (localStorage 무시)`);
+                } else if (morningRunCompleted === 'true' && selectedTimePeriod === 'afternoon') {
+                    // 오전운행이 완료되었고 현재 오후시간대이면 첫 번째 정류장부터 시작
+                    // 하지만 오전운행 완료 상태는 유지 (오후운행을 새로 시작할 수 있도록)
+                    currentStationIndex = 0;
+                    currentInput = '';
+                    saveToLocalStorage('currentStationIndex', '0');
+                    saveToLocalStorage('currentInput', '');
+                    // morningRunCompleted 플래그는 유지 (오후운행 시작 후에만 초기화)
+                    console.log(`오전운행 완료 후 오후시간대 진입, 오후운행 시작을 위해 정류장 인덱스 초기화`);
+                } else {
+                    // 시간대가 같으면 저장된 상태 복원
+                    console.log(`저장된 정류장 인덱스: ${savedCurrentStationIndex}`);
+                    currentStationIndex = savedCurrentStationIndex ? parseInt(savedCurrentStationIndex) : 0;
+                    currentInput = '';
+                    saveToLocalStorage('currentStationIndex', currentStationIndex.toString());
+                    saveToLocalStorage('currentInput', '');
+                    console.log(`시간대 동일: ${previousTimePeriod}, 저장된 정류장 인덱스 복원: ${currentStationIndex}`);
+                }
+                
+                // 키패드 페이지로 이동
                 document.getElementById('station-names-page').classList.add('hidden');
                 document.getElementById('keypad-page').classList.remove('hidden');
                 
                 // 시계 시작
                 updateClock();
                 setInterval(updateClock, 1000);
+                
+                // 키패드 활성화 상태로 설정
+                enableKeypad();
+                
+                updateKeypadPage();
             }
         }
 
@@ -1982,56 +2030,20 @@
                 // 카운팅 상태 복원 (저장된 상태가 있으면 복원, 없으면 초기화)
                 const savedCurrentStationIndex = loadFromLocalStorage('currentStationIndex');
                 
-                // 키패드 페이지로 바로 이동
+                // 노선 선택 화면으로 이동 (저장된 카운트는 유지)
                 document.getElementById('station-count-page').classList.add('hidden');
-                document.getElementById('station-names-page').classList.add('hidden');
-                document.getElementById('keypad-page').classList.remove('hidden');
+                document.getElementById('station-names-page').classList.remove('hidden');
+                document.getElementById('keypad-page').classList.add('hidden');
                 
-                // 시계 시작
-                updateClock();
-                setInterval(updateClock, 1000);
+                // 정류장 입력 필드 업데이트
+                createStationInputs();
                 
-                // 키패드 활성화 상태로 설정
-                enableKeypad();
+                // 노선 이름 입력 필드에 저장된 노선 이름 표시
+                document.getElementById('route-name').value = routeName || '';
                 
-                // 현재 시간에 따른 자동 시간대 선택
-                const previousTimePeriod = loadFromLocalStorage('selectedTimePeriod');
-                console.log(`이전 시간대: ${previousTimePeriod}`);
-                autoSelectTimePeriod();
-                console.log(`현재 선택된 시간대: ${selectedTimePeriod}`);
-                
-                // 시간대가 바뀌었는지 확인하고 정류장 인덱스 초기화
-                console.log(`시간대 비교: 이전=${previousTimePeriod}, 현재=${selectedTimePeriod}`);
-                
-                // 오전운행 완료 상태 확인
-                const morningRunCompleted = loadFromLocalStorage('morningRunCompleted');
-                console.log(`오전운행 완료 상태: ${morningRunCompleted}`);
-                
-                if (previousTimePeriod && previousTimePeriod !== selectedTimePeriod) {
-                    // 시간대가 바뀌었으면 첫 번째 정류장부터 시작 (localStorage 값 무시)
-                    currentStationIndex = 0;
-                    currentInput = '';
-                    saveToLocalStorage('currentStationIndex', '0');
-                    saveToLocalStorage('currentInput', '');
-                    console.log(`시간대 변경 감지: ${previousTimePeriod} → ${selectedTimePeriod}, 정류장 인덱스 초기화 (localStorage 무시)`);
-                } else if (morningRunCompleted === 'true' && selectedTimePeriod === 'afternoon') {
-                    // 오전운행이 완료되었고 현재 오후시간대이면 첫 번째 정류장부터 시작
-                    // 하지만 오전운행 완료 상태는 유지 (오후운행을 새로 시작할 수 있도록)
-                    currentStationIndex = 0;
-                    currentInput = '';
-                    saveToLocalStorage('currentStationIndex', '0');
-                    saveToLocalStorage('currentInput', '');
-                    // morningRunCompleted 플래그는 유지 (오후운행 시작 후에만 초기화)
-                    console.log(`오전운행 완료 후 오후시간대 진입, 오후운행 시작을 위해 정류장 인덱스 초기화`);
-                } else {
-                    // 시간대가 같으면 저장된 상태 복원
-                    console.log(`저장된 정류장 인덱스: ${savedCurrentStationIndex}`);
-                    currentStationIndex = savedCurrentStationIndex ? parseInt(savedCurrentStationIndex) : 0;
-                    currentInput = '';
-                    console.log(`시간대 동일: ${previousTimePeriod}, 저장된 정류장 인덱스 복원: ${currentStationIndex}`);
-                }
-                
-                updateKeypadPage();
+                // 버튼 상태 업데이트
+                document.getElementById('start-counting').disabled = false;
+                document.getElementById('save-route').disabled = false;
             }
         }
 
