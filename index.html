@@ -4899,7 +4899,10 @@
                     arrivalTimeRow.style.overflow = 'hidden';
                 }
                 
-                // 키패드 페이지 업데이트
+                // 키패드 활성화 상태로 설정 (restoreKeypadState 호출 전에)
+                enableKeypad();
+                
+                // 키패드 페이지 업데이트 (currentStationIndex는 이미 0으로 설정됨)
                 updateKeypadPage();
                 
                 // 시계 시작
@@ -5029,10 +5032,14 @@
             }
             
             // currentStationIndex가 유효한 범위인지 확인
+            // 유효하지 않으면 무조건 0으로 초기화 (복원하지 않음)
             if (currentStationIndex < 0 || currentStationIndex >= stations.length) {
                 console.error(`updateKeypadPage: currentStationIndex(${currentStationIndex})가 유효하지 않습니다. stations.length: ${stations.length}`);
                 // 퇴근운행 모드일 때는 마지막 정류장부터, 아니면 첫 번째 정류장부터
                 currentStationIndex = isEveningMode ? stations.length - 1 : 0;
+                // localStorage에도 저장
+                const indexKey = currentService === 'kurly' ? 'kurlyCurrentStationIndex' : 'currentStationIndex';
+                saveToLocalStorage(indexKey, currentStationIndex.toString());
             }
             
             const currentStation = stations[currentStationIndex];
@@ -7372,29 +7379,18 @@
                 localStorage.setItem('kurlySavedRouteName', routeName);
                 localStorage.setItem('kurlySavedStations', JSON.stringify(stations));
                 
-                // 저장된 정류장 인덱스 복원 (정류장 개수를 초과하지 않도록)
-                // 같은 노선이고 저장된 데이터가 있을 때만 복원, 아니면 0으로 초기화
-                if (savedRouteName === routeName && savedStations.length > 0 && savedStationCount == stationCount) {
-                    const savedCurrentStationIndex = loadFromLocalStorage('kurlyCurrentStationIndex');
-                    if (savedCurrentStationIndex !== null && savedCurrentStationIndex !== '') {
-                        const savedIndex = parseInt(savedCurrentStationIndex) || 0;
-                        currentStationIndex = Math.min(savedIndex, stations.length - 1);
-                    } else {
-                        currentStationIndex = 0;
-                    }
-                } else {
-                    // 다른 노선이거나 새로운 노선이면 0으로 초기화
-                    currentStationIndex = 0;
-                }
+                // 카운팅 시작 시에는 항상 첫번째 정류장부터 시작 (인덱스 0)
+                // 저장된 인덱스는 복원하지 않음 (새로운 카운팅 세션이므로)
+                currentStationIndex = 0;
                 currentInput = '';
-                saveToLocalStorage('kurlyCurrentStationIndex', currentStationIndex.toString());
+                saveToLocalStorage('kurlyCurrentStationIndex', '0');
                 saveToLocalStorage('kurlyCurrentInput', '');
                 
                 // 완료 상태 및 키패드 비활성화 상태 초기화 (카운팅 시작 시)
                 completedTimePeriods = { morning: false, afternoon: false, evening: false };
                 saveToLocalStorage('keypadDisabled', 'false');
                 saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
-                // 키패드 활성화
+                // 키패드 활성화 (restoreKeypadState 호출 전에)
                 enableKeypad();
                 
                 console.log(`컬리 카운팅 시작: 정류장 ${currentStationIndex + 1}/${stations.length}부터 시작`);
