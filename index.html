@@ -4217,8 +4217,8 @@
                         const morningTimeInMinutes = morningHour * 60 + morningMinute;
                         const afternoonTimeInMinutes = afternoonHour * 60 + afternoonMinute;
                         
-                        // 8시운행: 07시30분~08시00분 사이면 8시운행 자동 선택
-                        // 17시운행: 16시30분~17시00분 사이면 17시운행 자동 선택
+                        // 첫번째 운행: 운행시간 30분 전~운행시간 사이면 첫번째 운행 자동 선택
+                        // 두번째 운행: 운행시간 30분 전~운행시간 사이면 두번째 운행 자동 선택
                         const morningStartTime = morningTimeInMinutes - 30; // 30분 전
                         const afternoonStartTime = afternoonTimeInMinutes - 30; // 30분 전
                         
@@ -4236,11 +4236,48 @@
                             console.log(`컬리: ${currentHour}시${currentMinute}분 - 기본값(morning) 유지`);
                         }
                     } else {
-                        // 정류장 정보가 없으면 기본값
-                        if (!selectedTimePeriod) {
-                            selectedTimePeriod = 'morning';
+                        // 정류장 정보가 없으면 저장된 정류장 정보에서 확인
+                        const kurlySavedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
+                        if (kurlySavedStations && kurlySavedStations.length > 0) {
+                            const firstStation = kurlySavedStations[0];
+                            if (firstStation && typeof firstStation === 'object' && firstStation.departureTime) {
+                                const morningHour = firstStation.departureTime.morningHour || 8;
+                                const morningMinute = firstStation.departureTime.morningMinute || 0;
+                                const afternoonHour = firstStation.departureTime.afternoonHour || 17;
+                                const afternoonMinute = firstStation.departureTime.afternoonMinute || 0;
+                                
+                                const morningTimeInMinutes = morningHour * 60 + morningMinute;
+                                const afternoonTimeInMinutes = afternoonHour * 60 + afternoonMinute;
+                                
+                                const morningStartTime = morningTimeInMinutes - 30;
+                                const afternoonStartTime = afternoonTimeInMinutes - 30;
+                                
+                                if (currentTimeInMinutes >= morningStartTime && currentTimeInMinutes < morningTimeInMinutes) {
+                                    selectedTimePeriod = 'morning';
+                                    console.log(`컬리: ${currentHour}시${currentMinute}분 - ${morningHour}시${morningMinute}분운행 자동 선택 (저장된 정보, 30분 전)`);
+                                } else if (currentTimeInMinutes >= afternoonStartTime && currentTimeInMinutes < afternoonTimeInMinutes) {
+                                    selectedTimePeriod = 'afternoon';
+                                    console.log(`컬리: ${currentHour}시${currentMinute}분 - ${afternoonHour}시${afternoonMinute}분운행 자동 선택 (저장된 정보, 30분 전)`);
+                                } else {
+                                    if (!selectedTimePeriod) {
+                                        selectedTimePeriod = 'morning';
+                                    }
+                                    console.log(`컬리: ${currentHour}시${currentMinute}분 - 기본값(morning) 유지 (저장된 정보)`);
+                                }
+                            } else {
+                                // 저장된 정보도 없으면 기본값
+                                if (!selectedTimePeriod) {
+                                    selectedTimePeriod = 'morning';
+                                }
+                                console.log(`컬리: 정류장 정보 없음 - 기본값(morning) 유지`);
+                            }
+                        } else {
+                            // 저장된 정보도 없으면 기본값
+                            if (!selectedTimePeriod) {
+                                selectedTimePeriod = 'morning';
+                            }
+                            console.log(`컬리: 정류장 정보 없음 - 기본값(morning) 유지`);
                         }
-                        console.log(`컬리: 정류장 정보 없음 - 기본값(morning) 유지`);
                     }
                 }
             } else {
