@@ -4347,6 +4347,10 @@
 
         // 시간대 선택 함수 (수동 선택용)
         function selectTimePeriod(period) {
+            console.log('=== selectTimePeriod() 호출 ===');
+            console.log('이전 시간대:', selectedTimePeriod);
+            console.log('새 시간대:', period);
+            console.log('현재 currentStationIndex:', currentStationIndex);
             // 컬리일 때는 같은 노선이면 카운트를 먼저 복원 (checkDateChangeAndReset 전에)
             if (currentService === 'kurly' && !document.getElementById('keypad-page').classList.contains('hidden')) {
                 const savedStations = JSON.parse(loadFromLocalStorage('kurlySavedStations') || '[]');
@@ -4427,11 +4431,13 @@
                         
                         // 같은 노선이면 카운트는 유지하고, 퇴근을 제외하고는 첫번째 정류장부터 시작
                         if (!isEveningMode) {
+                            console.log('selectTimePeriod: currentStationIndex를 0으로 설정');
                             currentStationIndex = 0;
                             currentInput = '';
                             const indexKey = 'kurlyCurrentStationIndex';
                             saveToLocalStorage(indexKey, '0');
                             saveToLocalStorage('kurlyCurrentInput', '');
+                            console.log('selectTimePeriod: localStorage에 0 저장 완료');
                         } else {
                             // 퇴근운행은 마지막 정류장부터
                             currentStationIndex = stations.length - 1;
@@ -4936,12 +4942,14 @@
 
         // 카운팅 시작
         function startCounting() {
+            console.log('=== startCounting() 호출 ===');
             if (stations.every(station => station.name.trim() !== '')) {
                 // 정류장 개수와 노선이름을 localStorage에 저장
                 localStorage.setItem('savedStationCount', stationCount.toString());
                 localStorage.setItem('savedRouteName', routeName);
                 
                 // 첫 번째 정류장부터 시작하도록 명시적으로 초기화
+                console.log('startCounting: currentStationIndex를 0으로 설정');
                 currentStationIndex = 0;
                 currentInput = '';
                 saveToLocalStorage('currentStationIndex', '0');
@@ -5342,6 +5350,13 @@
 
         // 엔터 (숫자 입력 완료)
         function enterNumber() {
+            console.log('=== enterNumber() 호출 ===');
+            console.log('현재 currentStationIndex:', currentStationIndex);
+            console.log('stations.length:', stations.length);
+            console.log('조건 체크: currentStationIndex < stations.length - 1 =', currentStationIndex < stations.length - 1);
+            console.log('현재 시간대:', selectedTimePeriod);
+            console.log('현재 서비스:', currentService);
+            
             // 햅틱 피드백 (더 강한 진동)
             hapticFeedback([50, 30, 50]);
             
@@ -6748,6 +6763,8 @@
 
         // 키패드 상태 복원 함수
         function restoreKeypadState() {
+            console.log('=== restoreKeypadState() 호출 ===');
+            console.log('호출 스택:', new Error().stack);
             const keypadDisabled = localStorage.getItem('keypadDisabled');
             if (keypadDisabled === 'true') {
                 // 키패드가 비활성화된 상태였다면, 현재 시간대에 따라 재활성화 여부 결정
@@ -6798,10 +6815,15 @@
             // 같은 노선일 때만 인덱스 복원
             const indexKey = currentService === 'kurly' ? 'kurlyCurrentStationIndex' : 'currentStationIndex';
             const savedCurrentStationIndex = loadFromLocalStorage(indexKey);
+            console.log('restoreKeypadState: savedCurrentStationIndex =', savedCurrentStationIndex);
+            console.log('restoreKeypadState: savedRouteName =', savedRouteName);
+            console.log('restoreKeypadState: currentRouteName =', currentRouteName);
             if (savedCurrentStationIndex !== null && savedCurrentStationIndex !== undefined && savedRouteName === currentRouteName) {
                 const parsedIndex = parseInt(savedCurrentStationIndex);
+                console.log('restoreKeypadState: parsedIndex =', parsedIndex);
                 // 유효한 인덱스인지 확인
                 if (parsedIndex >= 0 && parsedIndex < stations.length) {
+                    console.log('restoreKeypadState: 인덱스 복원!', parsedIndex, '-> currentStationIndex');
                     currentStationIndex = parsedIndex;
                     updateKeypadPage();
                 } else {
@@ -7491,10 +7513,13 @@
                 
                 // 카운팅 시작 시에는 항상 첫번째 정류장부터 시작 (인덱스 0)
                 // 저장된 인덱스는 복원하지 않음 (새로운 카운팅 세션이므로)
+                console.log('=== startKurlyCounting() 호출 ===');
+                console.log('startKurlyCounting: currentStationIndex를 0으로 설정');
                 currentStationIndex = 0;
                 currentInput = '';
                 saveToLocalStorage('kurlyCurrentStationIndex', '0');
                 saveToLocalStorage('kurlyCurrentInput', '');
+                console.log('startKurlyCounting: localStorage에 0 저장 완료');
                 
                 // 키패드 활성화 (restoreKeypadState 호출 전에)
                 enableKeypad();
