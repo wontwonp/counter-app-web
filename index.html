@@ -2215,6 +2215,100 @@
             color: #fff !important;
         }
 
+        /* 노선 관리 모달 */
+        .route-manage-modal {
+            display: none;
+        }
+        
+        .route-manage-modal.show {
+            display: block;
+        }
+        
+        body.dark-mode .route-manage-modal > div {
+            background: #2d2d2d !important;
+            color: #fff;
+        }
+        
+        body.dark-mode .route-manage-modal h2 {
+            color: #fff !important;
+        }
+        
+        body.dark-mode .route-manage-modal input {
+            background: #1a1a1a !important;
+            color: #fff !important;
+            border-color: #555 !important;
+        }
+        
+        body.dark-mode .route-manage-modal input::placeholder {
+            color: #888 !important;
+        }
+        
+        body.dark-mode .route-manage-modal button {
+            color: #fff !important;
+        }
+        
+        body.dark-mode .route-item-manage {
+            background: #1a1a1a !important;
+            border-color: #555 !important;
+            color: #fff !important;
+        }
+        
+        body.dark-mode .route-item-manage span {
+            color: #fff !important;
+        }
+        
+        body.dark-mode #route-list-container {
+            color: #fff !important;
+        }
+        
+        .route-item-manage {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        
+        body.dark-mode .route-item-manage {
+            background: #1a1a1a;
+            border-color: #555;
+        }
+        
+        .route-item-manage input {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        
+        .route-item-manage button {
+            padding: 8px 12px;
+            margin-left: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .route-item-manage .move-btn {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .route-item-manage .edit-btn {
+            background: #FF9800;
+            color: white;
+        }
+        
+        .route-item-manage .delete-btn {
+            background: #f44336;
+            color: white;
+        }
+
         /* 차량입차현황 페이지 */
         #vehicle-status-page {
             display: flex;
@@ -2793,6 +2887,8 @@
                     <div id="statusText1" style="margin-top: 40px;">노선을 선택해주세요.</div>
                 </div>
                 
+                <button style="width: 100%; background: #2196F3; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 15px;" onclick="openRouteManageModal1()">⚙️ 노선 관리</button>
+                
                 <button style="width: 100%; background: #4CAF50; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 15px;" onclick="resetSelection1()">🔄 선택 초기화</button>
                 
                 <button style="width: 100%; background: #f44336; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer;" onclick="goBackToCounter1()">🔙 카운터로 돌아가기</button>
@@ -2833,6 +2929,8 @@
                     <button style="position: absolute; top: 10px; right: 10px; background: #FFD700; color: black; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;" onclick="shareToKakao3()">📱 카카오톡 공유</button>
                     <div id="statusText3" style="margin-top: 40px;">노선을 선택해주세요.</div>
                 </div>
+                
+                <button style="width: 100%; background: #2196F3; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 15px;" onclick="openRouteManageModal3()">⚙️ 노선 관리</button>
                 
                 <button style="width: 100%; background: #4CAF50; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 15px;" onclick="resetSelection3()">🔄 선택 초기화</button>
                 
@@ -2875,6 +2973,8 @@
                     <div id="statusText4" style="margin-top: 40px;">노선을 선택해주세요.</div>
                 </div>
                 
+                <button style="width: 100%; background: #2196F3; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 15px;" onclick="openRouteManageModal4()">⚙️ 노선 관리</button>
+                
                 <button style="width: 100%; background: #4CAF50; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 15px;" onclick="resetSelection4()">🔄 선택 초기화</button>
                 
                 <button style="width: 100%; background: #f44336; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer;" onclick="goBackToCounter4()">🔙 카운터로 돌아가기</button>
@@ -2901,6 +3001,25 @@
             <button onclick="closeNoticeModal()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease;">
                 확인
             </button>
+        </div>
+    </div>
+
+    <!-- 노선 관리 모달 -->
+    <div id="route-manage-modal" class="route-manage-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 20000; overflow-y: auto;" onclick="handleModalBackdropClick(event)">
+        <div style="max-width: 600px; margin: 50px auto; background: white; border-radius: 10px; padding: 30px; position: relative;" onclick="event.stopPropagation()">
+            <button onclick="closeRouteManageModal()" style="position: absolute; top: 10px; right: 10px; background: #f44336; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 20px; font-weight: bold;">&times;</button>
+            <h2 id="route-manage-title" style="margin-bottom: 20px; color: #333;">노선 관리</h2>
+            <div style="margin-bottom: 20px;">
+                <input type="text" id="new-route-name" placeholder="새 노선 이름 입력" style="width: calc(100% - 100px); padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px; margin-right: 10px;" onkeypress="if(event.key==='Enter') addNewRoute()">
+                <button onclick="addNewRoute()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">추가</button>
+            </div>
+            <div id="route-list-container" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
+                <!-- 노선 목록이 여기에 동적으로 표시됩니다 -->
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="resetRoutesToDefault()" style="flex: 1; padding: 12px; background: #FF9800; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">기본값으로 복원</button>
+                <button onclick="closeRouteManageModal()" style="flex: 1; padding: 12px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">닫기</button>
+            </div>
         </div>
     </div>
 
@@ -3494,6 +3613,38 @@
             });
         }
 
+        // localStorage에서 노선 목록 불러오기
+        function loadRoutesFromStorage(centerId) {
+            const defaultRoutes = {
+                '1': ["거제1", "거제2", "김해1", "내서", "남포", "남포1-1", "다대1", "동래", "마산1", "마산2", "명지1", "명지2", "부암", "서면", "서면2", "수영", "장유", "함안"],
+                '3': ["진해2", "진해1", "창원1", "창원2", "창원3", "창원3-1"],
+                '4': ["진주1", "진주2", "통영", "하단"]
+            };
+            
+            const storageKey = `changwon${centerId}Routes`;
+            const savedRoutes = localStorage.getItem(storageKey);
+            
+            if (savedRoutes) {
+                try {
+                    return JSON.parse(savedRoutes);
+                } catch (e) {
+                    console.error('노선 데이터 파싱 실패:', e);
+                    return defaultRoutes[centerId] || [];
+                }
+            }
+            
+            return defaultRoutes[centerId] || [];
+        }
+        
+        // localStorage에 노선 목록 저장
+        function saveRoutesToStorage(centerId, routes) {
+            const storageKey = `changwon${centerId}Routes`;
+            localStorage.setItem(storageKey, JSON.stringify(routes));
+        }
+        
+        // 현재 관리 중인 센터 ID 저장
+        let currentManagingCenter = null;
+        
         // 차량현황 1센터 페이지 초기화
         function initializeVehicleStatus1() {
             updateVehicleStatusDarkMode(); // 다크모드 초기화
@@ -3514,15 +3665,14 @@
                 }, 5000);
             }
             
-            const routes = [
-                "거제1", "거제2", "김해1", "내서", "남포", "남포1-1", "다대1", "동래", "마산1", "마산2",
-                "명지1", "명지2", "부암", "서면", "서면2", "수영", "장유", "함안"
-            ].sort();
+            // localStorage에서 노선 불러오기
+            const routes = loadRoutesFromStorage('1');
             
             const routeGrid = document.getElementById("routeGrid1");
             routeGrid.innerHTML = '';
             
             window.selectedRoutes1 = new Set();
+            window.currentRoutes1 = routes; // 현재 노선 목록 저장
             
             routes.forEach(route => {
                 const routeItem = document.createElement("div");
@@ -3575,16 +3725,14 @@
         function updateStatus1() {
             const statusText = document.getElementById("statusText1");
             const selectedArray = Array.from(window.selectedRoutes1);
-            const excludedArray = [
-                "거제1", "거제2", "김해1", "내서", "남포", "남포1-1", "다대1", "동래", "마산1", "마산2",
-                "명지1", "명지2", "부암", "서면", "서면2", "수영", "장유", "함안"
-            ].filter(route => !window.selectedRoutes1.has(route));
+            const routes = window.currentRoutes1 || loadRoutesFromStorage('1');
+            const excludedArray = routes.filter(route => !window.selectedRoutes1.has(route));
             
             let statusHTML = "";
             
-            if (selectedArray.length === 18) {
+            if (selectedArray.length === routes.length) {
                 const color = isDarkMode ? '#4CAF50' : '#2e7d32';
-                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원1센터 차량현황 총18대 퇴근준비완료</div>`;
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원1센터 차량현황 총${routes.length}대 퇴근준비완료</div>`;
             } else if (excludedArray.length > 0) {
                 const excludedNames = excludedArray.join(",");
                 const selectedCount = selectedArray.length;
@@ -3599,10 +3747,7 @@
 
         // 통계 업데이트
         function updateStats1() {
-            const routes = [
-                "거제1", "거제2", "김해1", "내서", "남포", "남포1-1", "다대1", "동래", "마산1", "마산2",
-                "명지1", "명지2", "부암", "서면", "서면2", "수영", "장유", "함안"
-            ];
+            const routes = window.currentRoutes1 || loadRoutesFromStorage('1');
             
             document.getElementById("totalCount1").textContent = routes.length;
             document.getElementById("selectedCount1").textContent = window.selectedRoutes1.size;
@@ -3672,12 +3817,14 @@
                 }, 5000);
             }
             
-            const routes = ["진해2", "진해1", "창원1", "창원2", "창원3", "창원3-1"].sort();
+            // localStorage에서 노선 불러오기
+            const routes = loadRoutesFromStorage('3');
             
             const routeGrid = document.getElementById("routeGrid3");
             routeGrid.innerHTML = '';
             
             window.selectedRoutes3 = new Set();
+            window.currentRoutes3 = routes; // 현재 노선 목록 저장
             
             routes.forEach(route => {
                 const routeItem = document.createElement("div");
@@ -3723,12 +3870,13 @@
         function updateStatus3() {
             const statusText = document.getElementById("statusText3");
             const selectedArray = Array.from(window.selectedRoutes3);
-            const excludedArray = ["진해2", "진해1", "창원1", "창원2", "창원3", "창원3-1"].filter(route => !window.selectedRoutes3.has(route));
+            const routes = window.currentRoutes3 || loadRoutesFromStorage('3');
+            const excludedArray = routes.filter(route => !window.selectedRoutes3.has(route));
             
             let statusHTML = "";
-            if (selectedArray.length === 6) {
+            if (selectedArray.length === routes.length) {
                 const color = isDarkMode ? '#4CAF50' : '#2e7d32';
-                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원3센터 차량현황 총6대 퇴근준비완료</div>`;
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원3센터 차량현황 총${routes.length}대 퇴근준비완료</div>`;
             } else if (excludedArray.length > 0) {
                 const color = isDarkMode ? '#FFD700' : '#f44336';
                 statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원3센터 차량현황 ${excludedArray.join(",")} 노선제외 ${selectedArray.length}대 퇴근준비완료</div>`;
@@ -3739,7 +3887,7 @@
         }
 
         function updateStats3() {
-            const routes = ["진해2", "진해1", "창원1", "창원2", "창원3", "창원3-1"];
+            const routes = window.currentRoutes3 || loadRoutesFromStorage('3');
             document.getElementById("totalCount3").textContent = routes.length;
             document.getElementById("selectedCount3").textContent = window.selectedRoutes3.size;
             document.getElementById("excludedCount3").textContent = routes.length - window.selectedRoutes3.size;
@@ -3795,12 +3943,14 @@
                 }, 5000);
             }
             
-            const routes = ["진주1", "진주2", "통영", "하단"];
+            // localStorage에서 노선 불러오기
+            const routes = loadRoutesFromStorage('4');
             
             const routeGrid = document.getElementById("routeGrid4");
             routeGrid.innerHTML = '';
             
             window.selectedRoutes4 = new Set();
+            window.currentRoutes4 = routes; // 현재 노선 목록 저장
             
             routes.forEach(route => {
                 const routeItem = document.createElement("div");
@@ -3846,12 +3996,13 @@
         function updateStatus4() {
             const statusText = document.getElementById("statusText4");
             const selectedArray = Array.from(window.selectedRoutes4);
-            const excludedArray = ["진주1", "진주2", "통영", "하단"].filter(route => !window.selectedRoutes4.has(route));
+            const routes = window.currentRoutes4 || loadRoutesFromStorage('4');
+            const excludedArray = routes.filter(route => !window.selectedRoutes4.has(route));
             
             let statusHTML = "";
-            if (selectedArray.length === 4) {
+            if (selectedArray.length === routes.length) {
                 const color = isDarkMode ? '#4CAF50' : '#2e7d32';
-                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원4센터 차량현황 총4대 퇴근준비완료</div>`;
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원4센터 차량현황 총${routes.length}대 퇴근준비완료</div>`;
             } else if (excludedArray.length > 0) {
                 const color = isDarkMode ? '#FFD700' : '#f44336';
                 statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">창원4센터 차량현황 ${excludedArray.join(",")} 노선제외 ${selectedArray.length}대 퇴근준비완료</div>`;
@@ -3862,7 +4013,7 @@
         }
 
         function updateStats4() {
-            const routes = ["진주1", "진주2", "통영", "하단"];
+            const routes = window.currentRoutes4 || loadRoutesFromStorage('4');
             document.getElementById("totalCount4").textContent = routes.length;
             document.getElementById("selectedCount4").textContent = window.selectedRoutes4.size;
             document.getElementById("excludedCount4").textContent = routes.length - window.selectedRoutes4.size;
@@ -3899,6 +4050,333 @@
             document.getElementById('vehicle-status-4-page').style.display = 'none';
             document.getElementById('keypad-page').classList.remove('hidden');
             document.getElementById('keypad-page').style.display = 'block';
+        }
+
+        // 노선 관리 모달 열기
+        function openRouteManageModal1() {
+            currentManagingCenter = '1';
+            openRouteManageModal('1', '창원1센터');
+        }
+
+        function openRouteManageModal3() {
+            currentManagingCenter = '3';
+            openRouteManageModal('3', '창원3센터');
+        }
+
+        function openRouteManageModal4() {
+            currentManagingCenter = '4';
+            openRouteManageModal('4', '창원4센터');
+        }
+
+        function openRouteManageModal(centerId, centerName) {
+            const modal = document.getElementById('route-manage-modal');
+            const title = document.getElementById('route-manage-title');
+            title.textContent = `${centerName} 노선 관리`;
+            
+            const routes = loadRoutesFromStorage(centerId);
+            renderRouteList(routes);
+            
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            
+            // ESC 키로 닫기
+            document.addEventListener('keydown', handleModalEscape);
+        }
+
+        function closeRouteManageModal() {
+            const modal = document.getElementById('route-manage-modal');
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.getElementById('new-route-name').value = '';
+            currentManagingCenter = null;
+            
+            // ESC 키 이벤트 리스너 제거
+            document.removeEventListener('keydown', handleModalEscape);
+        }
+
+        function handleModalEscape(event) {
+            if (event.key === 'Escape') {
+                closeRouteManageModal();
+            }
+        }
+
+        function handleModalBackdropClick(event) {
+            if (event.target.id === 'route-manage-modal') {
+                closeRouteManageModal();
+            }
+        }
+
+        // 노선 목록 렌더링
+        function renderRouteList(routes) {
+            const container = document.getElementById('route-list-container');
+            container.innerHTML = '';
+            
+            if (routes.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">노선이 없습니다.</p>';
+                return;
+            }
+            
+            routes.forEach((route, index) => {
+                const routeItem = document.createElement('div');
+                routeItem.className = 'route-item-manage';
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = route;
+                input.dataset.index = index;
+                input.style.display = 'none';
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = route;
+                nameSpan.style.flex = '1';
+                nameSpan.style.fontSize = '16px';
+                nameSpan.style.padding = '8px';
+                
+                const editBtn = document.createElement('button');
+                editBtn.textContent = '수정';
+                editBtn.className = 'edit-btn';
+                editBtn.onclick = () => editRoute(index, input, nameSpan, editBtn);
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '삭제';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.onclick = () => deleteVehicleRoute(index);
+                
+                const moveUpBtn = document.createElement('button');
+                moveUpBtn.textContent = '↑';
+                moveUpBtn.className = 'move-btn';
+                moveUpBtn.disabled = index === 0;
+                moveUpBtn.onclick = () => moveRoute(index, -1);
+                
+                const moveDownBtn = document.createElement('button');
+                moveDownBtn.textContent = '↓';
+                moveDownBtn.className = 'move-btn';
+                moveDownBtn.disabled = index === routes.length - 1;
+                moveDownBtn.onclick = () => moveRoute(index, 1);
+                
+                routeItem.appendChild(nameSpan);
+                routeItem.appendChild(input);
+                routeItem.appendChild(moveUpBtn);
+                routeItem.appendChild(moveDownBtn);
+                routeItem.appendChild(editBtn);
+                routeItem.appendChild(deleteBtn);
+                
+                container.appendChild(routeItem);
+            });
+        }
+
+        // 노선 추가
+        function addNewRoute() {
+            const input = document.getElementById('new-route-name');
+            const routeName = input.value.trim();
+            
+            if (!routeName) {
+                alert('노선 이름을 입력해주세요.');
+                return;
+            }
+            
+            if (!currentManagingCenter) {
+                alert('센터 정보를 찾을 수 없습니다.');
+                return;
+            }
+            
+            const routes = loadRoutesFromStorage(currentManagingCenter);
+            
+            if (routes.includes(routeName)) {
+                alert('이미 존재하는 노선입니다.');
+                return;
+            }
+            
+            routes.push(routeName);
+            saveRoutesToStorage(currentManagingCenter, routes);
+            renderRouteList(routes);
+            input.value = '';
+            
+            // 페이지 새로고침
+            refreshCurrentPage();
+        }
+
+        // 노선 수정
+        function editRoute(index, input, nameSpan, editBtn) {
+            if (input.style.display === 'none') {
+                // 수정 모드로 전환
+                input.style.display = 'block';
+                nameSpan.style.display = 'none';
+                input.value = nameSpan.textContent;
+                input.focus();
+                editBtn.textContent = '저장';
+                
+                input.onkeypress = (e) => {
+                    if (e.key === 'Enter') {
+                        saveRouteEdit(index, input, nameSpan, editBtn);
+                    }
+                };
+            } else {
+                // 저장
+                saveRouteEdit(index, input, nameSpan, editBtn);
+            }
+        }
+
+        function saveRouteEdit(index, input, nameSpan, editBtn) {
+            const newName = input.value.trim();
+            
+            if (!newName) {
+                alert('노선 이름을 입력해주세요.');
+                return;
+            }
+            
+            if (!currentManagingCenter) {
+                alert('센터 정보를 찾을 수 없습니다.');
+                return;
+            }
+            
+            const routes = loadRoutesFromStorage(currentManagingCenter);
+            
+            if (routes.includes(newName) && routes[index] !== newName) {
+                alert('이미 존재하는 노선입니다.');
+                return;
+            }
+            
+            routes[index] = newName;
+            saveRoutesToStorage(currentManagingCenter, routes);
+            
+            nameSpan.textContent = newName;
+            input.style.display = 'none';
+            nameSpan.style.display = 'block';
+            editBtn.textContent = '수정';
+            
+            // 페이지 새로고침
+            refreshCurrentPage();
+        }
+
+        // 입차현황 노선 삭제
+        function deleteVehicleRoute(index) {
+            if (!currentManagingCenter) {
+                alert('센터 정보를 찾을 수 없습니다.');
+                return;
+            }
+            
+            const routes = loadRoutesFromStorage(currentManagingCenter);
+            const routeName = routes[index];
+            
+            if (!routeName) {
+                alert('노선 정보를 찾을 수 없습니다.');
+                return;
+            }
+            
+            if (!confirm(`"${routeName}" 노선을 삭제하시겠습니까?`)) {
+                return;
+            }
+            
+            routes.splice(index, 1);
+            saveRoutesToStorage(currentManagingCenter, routes);
+            renderRouteList(routes);
+            
+            // 페이지 새로고침
+            refreshCurrentPage();
+        }
+
+        // 노선 순서 변경
+        function moveRoute(index, direction) {
+            if (!currentManagingCenter) {
+                alert('센터 정보를 찾을 수 없습니다.');
+                return;
+            }
+            
+            const routes = loadRoutesFromStorage(currentManagingCenter);
+            const newIndex = index + direction;
+            
+            if (newIndex < 0 || newIndex >= routes.length) {
+                return;
+            }
+            
+            // 배열 요소 교환
+            [routes[index], routes[newIndex]] = [routes[newIndex], routes[index]];
+            saveRoutesToStorage(currentManagingCenter, routes);
+            renderRouteList(routes);
+            
+            // 페이지 새로고침
+            refreshCurrentPage();
+        }
+
+        // 기본값으로 복원
+        function resetRoutesToDefault() {
+            if (!confirm('기본 노선 목록으로 복원하시겠습니까? 현재 설정이 모두 사라집니다.')) {
+                return;
+            }
+            
+            if (!currentManagingCenter) {
+                alert('센터 정보를 찾을 수 없습니다.');
+                return;
+            }
+            
+            const defaultRoutes = {
+                '1': ["거제1", "거제2", "김해1", "내서", "남포", "남포1-1", "다대1", "동래", "마산1", "마산2", "명지1", "명지2", "부암", "서면", "서면2", "수영", "장유", "함안"],
+                '3': ["진해2", "진해1", "창원1", "창원2", "창원3", "창원3-1"],
+                '4': ["진주1", "진주2", "통영", "하단"]
+            };
+            
+            const routes = defaultRoutes[currentManagingCenter] || [];
+            saveRoutesToStorage(currentManagingCenter, routes);
+            renderRouteList(routes);
+            
+            // 페이지 새로고침
+            refreshCurrentPage();
+        }
+
+        // 현재 페이지 새로고침
+        function refreshCurrentPage() {
+            if (!currentManagingCenter) return;
+            
+            // 선택된 노선 정보 저장
+            let selectedRoutes = null;
+            if (currentManagingCenter === '1' && window.selectedRoutes1) {
+                selectedRoutes = Array.from(window.selectedRoutes1);
+            } else if (currentManagingCenter === '3' && window.selectedRoutes3) {
+                selectedRoutes = Array.from(window.selectedRoutes3);
+            } else if (currentManagingCenter === '4' && window.selectedRoutes4) {
+                selectedRoutes = Array.from(window.selectedRoutes4);
+            }
+            
+            // 페이지 초기화
+            if (currentManagingCenter === '1') {
+                initializeVehicleStatus1();
+                // 선택된 노선 복원
+                if (selectedRoutes) {
+                    selectedRoutes.forEach(route => {
+                        const routeItems = document.querySelectorAll('#routeGrid1 .route-item');
+                        routeItems.forEach(item => {
+                            if (item.textContent === route) {
+                                toggleRoute1(route, { target: item });
+                            }
+                        });
+                    });
+                }
+            } else if (currentManagingCenter === '3') {
+                initializeVehicleStatus3();
+                if (selectedRoutes) {
+                    selectedRoutes.forEach(route => {
+                        const routeItems = document.querySelectorAll('#routeGrid3 .route-item');
+                        routeItems.forEach(item => {
+                            if (item.textContent === route) {
+                                toggleRoute3(route, { target: item });
+                            }
+                        });
+                    });
+                }
+            } else if (currentManagingCenter === '4') {
+                initializeVehicleStatus4();
+                if (selectedRoutes) {
+                    selectedRoutes.forEach(route => {
+                        const routeItems = document.querySelectorAll('#routeGrid4 .route-item');
+                        routeItems.forEach(item => {
+                            if (item.textContent === route) {
+                                toggleRoute4(route, { target: item });
+                            }
+                        });
+                    });
+                }
+            }
         }
 
         // 공지사항 모달 열기
