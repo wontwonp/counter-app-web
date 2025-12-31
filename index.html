@@ -5209,6 +5209,9 @@
                     stationCountPage.style.display = 'block';
                 }
             }
+            
+            // 쿠팡 노선 목록 업데이트
+            updateSavedRoutesDisplay();
         }
 
         // 시작 페이지에서 새 서비스로 이동 (쿠팡과 동일하게 동작)
@@ -5268,6 +5271,9 @@
                     stationCountPage.style.display = 'block';
                 }
             }
+            
+            // 새 서비스 노선 목록 업데이트
+            updateSavedRoutesDisplay();
         }
 
         // 시작 페이지에서 컬리로 이동
@@ -7555,14 +7561,19 @@
                 savedAt: new Date().toISOString()
             };
             
-            const savedRoutes = JSON.parse(loadFromLocalStorage('savedRoutes') || '[]');
+            // 서비스별로 분리된 저장 키 사용
+            const storageKey = currentService === 'kurly' ? 'kurlySavedRoutes' : 
+                              currentService === 'newservice' ? 'newserviceSavedRoutes' : 
+                              'savedRoutes';
+            
+            const savedRoutes = JSON.parse(loadFromLocalStorage(storageKey) || '[]');
             
             if (isLoadedRoute) {
                 // 불러온 노선인 경우 기존 노선 업데이트
                 const existingIndex = savedRoutes.findIndex(route => route.name === routeName);
                 if (existingIndex !== -1) {
                     savedRoutes[existingIndex] = routeData;
-                    if (saveToLocalStorage('savedRoutes', JSON.stringify(savedRoutes))) {
+                    if (saveToLocalStorage(storageKey, JSON.stringify(savedRoutes))) {
                         alert(`"${routeName}" 노선이 업데이트되었습니다.`);
                         updateSavedRoutesDisplay();
                     }
@@ -7570,7 +7581,7 @@
             } else {
                 // 새로운 노선인 경우 추가
                 savedRoutes.push(routeData);
-                if (saveToLocalStorage('savedRoutes', JSON.stringify(savedRoutes))) {
+                if (saveToLocalStorage(storageKey, JSON.stringify(savedRoutes))) {
                     alert(`"${routeName}" 노선이 저장되었습니다.`);
                     updateSavedRoutesDisplay();
                     
@@ -7703,8 +7714,17 @@
 
         // 저장된 노선 목록 표시 업데이트
         function updateSavedRoutesDisplay() {
-            const savedRoutes = JSON.parse(loadFromLocalStorage('savedRoutes') || '[]');
-            const routesContainer = document.getElementById('saved-routes-container');
+            // 서비스별로 분리된 저장 키 사용
+            const storageKey = currentService === 'kurly' ? 'kurlySavedRoutes' : 
+                              currentService === 'newservice' ? 'newserviceSavedRoutes' : 
+                              'savedRoutes';
+            
+            const savedRoutes = JSON.parse(loadFromLocalStorage(storageKey) || '[]');
+            
+            // 컬리는 별도 컨테이너 사용
+            const routesContainer = currentService === 'kurly' ? 
+                document.getElementById('kurly-saved-routes-container') : 
+                document.getElementById('saved-routes-container');
             
             if (!routesContainer) return;
             
@@ -7743,12 +7763,17 @@
 
         // 노선 삭제 함수
         function deleteRoute(index) {
-            const savedRoutes = JSON.parse(loadFromLocalStorage('savedRoutes') || '[]');
+            // 서비스별로 분리된 저장 키 사용
+            const storageKey = currentService === 'kurly' ? 'kurlySavedRoutes' : 
+                              currentService === 'newservice' ? 'newserviceSavedRoutes' : 
+                              'savedRoutes';
+            
+            const savedRoutes = JSON.parse(loadFromLocalStorage(storageKey) || '[]');
             const route = savedRoutes[index];
             
             if (confirm(`"${route.name}" 노선을 삭제하시겠습니까?`)) {
                 savedRoutes.splice(index, 1);
-                saveToLocalStorage('savedRoutes', JSON.stringify(savedRoutes));
+                saveToLocalStorage(storageKey, JSON.stringify(savedRoutes));
                 updateSavedRoutesDisplay();
                 alert(`"${route.name}" 노선이 삭제되었습니다.`);
             }
