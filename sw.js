@@ -1,11 +1,12 @@
-const CACHE_NAME = 'bus-counter-v2';
+const CACHE_NAME = 'bus-counter-v3';
+const BASE_PATH = '/counter-app-web/';
 const urlsToCache = [
-  '/',
-  '/standalone.html',
-  '/index.html',
-  '/manifest.json',
-  '/icons/icon-192x192.svg',
-  '/icons/icon-512x512.svg'
+  BASE_PATH,
+  BASE_PATH + 'index.html',
+  BASE_PATH + 'standalone.html',
+  BASE_PATH + 'manifest.json',
+  BASE_PATH + 'icons/icon-192x192.svg',
+  BASE_PATH + 'icons/icon-512x512.svg'
 ];
 
 // 서비스 워커 설치
@@ -56,7 +57,7 @@ self.addEventListener('fetch', function(event) {
         return fetch(event.request).catch(function(error) {
           // 네트워크 실패 시 index.html로 fallback (SPA 라우팅 지원)
           if (event.request.mode === 'navigate') {
-            return caches.match('/index.html') || caches.match('/');
+            return caches.match(BASE_PATH + 'index.html') || caches.match(BASE_PATH);
           }
           throw error;
         });
