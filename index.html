@@ -4681,12 +4681,7 @@
 
         // 현재 시간에 따라 자동으로 시간대 선택
         function autoSelectTimePeriod() {
-            // 새 서비스(다이소)는 시간대 구분이 없으므로 처리하지 않음
-            if (currentService === 'newservice') {
-                return;
-            }
-            
-            // 먼저 날짜 변경 확인 (쿠팡/컬리 공용)
+            // 먼저 날짜 변경 확인 (쿠팡/컬리/다이소 공용)
             checkDateChangeAndReset();
             
             const now = new Date();
@@ -4776,14 +4771,14 @@
                     }
                 }
             } else {
-                // 쿠팡일 때: 기존 로직 유지
+                // 쿠팡/다이소일 때: 기존 로직 유지
                 // 오전: 00시~12시, 오후: 12시01분~23시59분
                 if (currentHour >= 0 && currentHour <= 12) {
                     selectedTimePeriod = 'morning';
-                    console.log(`쿠팡: ${currentHour}시는 오전 범위 (0-12시)`);
+                    console.log(`${currentService === 'newservice' ? '다이소' : '쿠팡'}: ${currentHour}시는 오전 범위 (0-12시)`);
                 } else {
                     selectedTimePeriod = 'afternoon';
-                    console.log(`쿠팡: ${currentHour}시는 오후 범위 (13-23시)`);
+                    console.log(`${currentService === 'newservice' ? '다이소' : '쿠팡'}: ${currentHour}시는 오후 범위 (13-23시)`);
                 }
             }
             
@@ -4985,19 +4980,10 @@
             const vehicleStatusBtn = document.getElementById('vehicle-status-btn-keypad');
             const arrivalTimeRow = document.getElementById('arrival-time-row');
             
-            // 새 서비스(다이소)일 때 시간대 선택 버튼 숨기기 (시간대 구분 없음)
-            if (currentService === 'newservice') {
-                const timePeriodContainer = morningBtnKeypad?.parentElement;
-                if (timePeriodContainer) {
-                    timePeriodContainer.style.display = 'none';
-                }
-                return; // 새 서비스는 시간대 선택이 없으므로 여기서 종료
-            } else {
-                // 다른 서비스일 때는 버튼 표시
-                const timePeriodContainer = morningBtnKeypad?.parentElement;
-                if (timePeriodContainer) {
-                    timePeriodContainer.style.display = 'flex';
-                }
+            // 쿠팡/다이소/컬리일 때 시간대 선택 버튼 표시
+            const timePeriodContainer = morningBtnKeypad?.parentElement;
+            if (timePeriodContainer) {
+                timePeriodContainer.style.display = 'flex';
             }
             
             // 컬리일 때 입차현황 버튼 숨기기, 퇴근운행 버튼 표시 (한 번만 설정)
