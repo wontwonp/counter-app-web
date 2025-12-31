@@ -6818,9 +6818,10 @@
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // 캔버스 크기 설정 (컬리일 때는 도착시간 행 추가, 쿠팡/컬리일 때는 택시 인원 행 추가)
+            // 캔버스 크기 설정 (컬리일 때는 도착시간 행 추가, 쿠팡/컬리/새 서비스일 때는 택시 인원 행 추가)
             const isKurly = currentService === 'kurly';
             const isCoupang = currentService === 'coupang';
+            const isNewService = currentService === 'newservice';
             canvas.width = 1300;
             // 택시 인원이 있을 때만 행 추가
             const hasTaxiPassengers = (taxiPassengers.morning > 0 || taxiPassengers.afternoon > 0 || (isKurly && taxiPassengers.evening > 0));
@@ -6828,7 +6829,7 @@
             if (isKurly) {
                 extraHeight += 40; // 도착시간 행
             }
-            if ((isCoupang || isKurly) && hasTaxiPassengers) {
+            if ((isCoupang || isKurly || isNewService) && hasTaxiPassengers) {
                 extraHeight += 40; // 택시 인원 행
             }
             canvas.height = 350 + (stations.length * 40) + extraHeight;
@@ -6879,14 +6880,14 @@
                 otherColWidth   // 오후승차인원
             ];
             
-            // 테이블 테두리 (컬리일 때는 도착시간 행 추가, 쿠팡/컬리일 때는 택시 인원 행 추가 - 택시 인원이 있을 때만)
+            // 테이블 테두리 (컬리일 때는 도착시간 행 추가, 쿠팡/컬리/새 서비스일 때는 택시 인원 행 추가 - 택시 인원이 있을 때만)
             ctx.strokeStyle = '#000000';
             ctx.lineWidth = 1;
             let totalRows = stations.length + 1; // 정류장 행 + 총계 행
             if (isKurly) {
                 totalRows += 1; // 도착시간 행
             }
-            if ((isCoupang || isKurly) && hasTaxiPassengers) {
+            if ((isCoupang || isKurly || isNewService) && hasTaxiPassengers) {
                 totalRows += 1; // 택시 인원 행
             }
             ctx.strokeRect(tableX, tableY, tableWidth, rowHeight + (totalRows * rowHeight));
@@ -7149,8 +7150,8 @@
                 ctx.fillText(eveningTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4] + colWidths[5]/2, totalRowY + rowHeight/2 + 8);
             }
             
-            // 쿠팡/컬리일 때 택시 인원 정보 표시 (총계 행 아래, 택시 인원이 있을 때만)
-            if ((isCoupang || isKurly) && hasTaxiPassengers) {
+            // 쿠팡/컬리/새 서비스일 때 택시 인원 정보 표시 (총계 행 아래, 택시 인원이 있을 때만)
+            if ((isCoupang || isKurly || isNewService) && hasTaxiPassengers) {
                 const taxiRowY = totalRowY + rowHeight;
                 
                 // 택시 인원 행 배경색 (연두색)
@@ -7178,7 +7179,12 @@
                 ctx.textAlign = 'left';
                 let taxiTextParts = [];
                 
-                if (isKurly) {
+                if (isNewService) {
+                    // 새 서비스는 시간대 구분 없이 표시 (morning에 저장됨)
+                    if (taxiPassengers.morning > 0) {
+                        taxiTextParts.push(`택시인원 ${taxiPassengers.morning}명`);
+                    }
+                } else if (isKurly) {
                     // 컬리는 오전/오후/퇴근 모두 표시 (0보다 큰 경우만)
                     if (taxiPassengers.morning > 0) {
                         taxiTextParts.push(`오전택시인원 ${taxiPassengers.morning}명`);
