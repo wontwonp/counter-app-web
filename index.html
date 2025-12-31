@@ -4980,6 +4980,21 @@
             const vehicleStatusBtn = document.getElementById('vehicle-status-btn-keypad');
             const arrivalTimeRow = document.getElementById('arrival-time-row');
             
+            // 새 서비스(다이소)일 때 시간대 선택 버튼 숨기기 (시간대 구분 없음)
+            if (currentService === 'newservice') {
+                const timePeriodContainer = morningBtnKeypad?.parentElement;
+                if (timePeriodContainer) {
+                    timePeriodContainer.style.display = 'none';
+                }
+                return; // 새 서비스는 시간대 선택이 없으므로 여기서 종료
+            } else {
+                // 다른 서비스일 때는 버튼 표시
+                const timePeriodContainer = morningBtnKeypad?.parentElement;
+                if (timePeriodContainer) {
+                    timePeriodContainer.style.display = 'flex';
+                }
+            }
+            
             // 컬리일 때 입차현황 버튼 숨기기, 퇴근운행 버튼 표시 (한 번만 설정)
             if (currentService === 'kurly') {
                 if (vehicleStatusBtn && vehicleStatusBtn.style.display !== 'none') {
