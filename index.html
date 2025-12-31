@@ -4145,6 +4145,7 @@
 
         // 부산허브 입차현황 초기화
         function initializeVehicleStatusBusan() {
+            console.log('부산허브 입차현황 초기화 시작');
             updateVehicleStatusDarkMode(); // 다크모드 초기화
             
             // 메인 다크모드 버튼 숨김 처리
@@ -4162,6 +4163,7 @@
             
             // localStorage에서 노선 불러오기
             const routes = loadRoutesFromStorage('busan');
+            console.log('부산허브 노선 로드:', routes);
             
             const routeGrid = document.getElementById("routeGridBusan");
             if (!routeGrid) {
@@ -4173,7 +4175,9 @@
             window.selectedRoutesBusan = new Set();
             window.currentRoutesBusan = routes; // 현재 노선 목록 저장
             
-            routes.forEach(route => {
+            console.log('부산허브 노선 개수:', routes.length);
+            routes.forEach((route, index) => {
+                console.log(`노선 ${index + 1} 추가:`, route);
                 const routeItem = document.createElement("div");
                 routeItem.className = "route-item";
                 routeItem.textContent = route;
@@ -4182,7 +4186,9 @@
                 routeGrid.appendChild(routeItem);
             });
             
+            console.log('부산허브 노선 그리드에 추가된 요소 개수:', routeGrid.children.length);
             updateStatsBusan();
+            console.log('부산허브 입차현황 초기화 완료');
         }
 
         // 부산허브 노선 선택/해제 토글
