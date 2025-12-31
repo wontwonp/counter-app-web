@@ -1,4 +1,5 @@
 {
+  "id": "/counter-app-web/",
   "name": "정류장 카운터",
   "short_name": "카운터",
   "description": "버스 정류장 승객 카운팅 앱",
