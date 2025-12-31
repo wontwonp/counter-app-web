@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bus-counter-v1';
+const CACHE_NAME = 'bus-counter-v2';
 const urlsToCache = [
   '/',
   '/standalone.html',
@@ -52,7 +52,14 @@ self.addEventListener('fetch', function(event) {
         if (response) {
           return response;
         }
-        return fetch(event.request);
+        // 네트워크 요청 시도
+        return fetch(event.request).catch(function(error) {
+          // 네트워크 실패 시 index.html로 fallback (SPA 라우팅 지원)
+          if (event.request.mode === 'navigate') {
+            return caches.match('/index.html') || caches.match('/');
+          }
+          throw error;
+        });
       }
     )
   );
