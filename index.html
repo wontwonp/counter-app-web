@@ -4412,23 +4412,26 @@
         
         // 공지사항 내용 표시 함수
         function displayNoticeContent(notices, noticeDisplay) {
-            if (notices.length === 0) {
-                // 기본 공지사항 표시 (번호 없이, 줄바꿈 유지)
-                noticeDisplay.innerHTML = `
-                    <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">업데이트 25.11.09</div>
-                    <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">1. 총인원 합계는 45명이상 집계되지 않음</div>
-                    <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">2. 택시인원은 총 인원 45명 도달시 택시인원추가 버튼이 나타남</div>
-                    <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">3. 컬리 출 퇴근 추가 / 도착시간 버튼 클릭시 도착시간버튼누른시간으로 기입됌</div>
-                    <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">4. 퇴근운행추가 퇴근운행은 역순으로 카운트가능함 정류장 0명하차시에는 그냥 엔터누르면 다음정류장으로 이동됨</div>
-                `;
-            } else {
-                // 저장된 공지사항 표시 (번호 없이, 줄바꿈 유지)
-                noticeDisplay.innerHTML = notices.map((notice) => {
+            // 기본 공지사항 (항상 표시)
+            let htmlContent = `
+                <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">업데이트 25.11.09</div>
+                <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">1. 총인원 합계는 45명이상 집계되지 않음</div>
+                <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">2. 택시인원은 총 인원 45명 도달시 택시인원추가 버튼이 나타남</div>
+                <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">3. 컬리 출 퇴근 추가 / 도착시간 버튼 클릭시 도착시간버튼누른시간으로 기입됌</div>
+                <div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">4. 퇴근운행추가 퇴근운행은 역순으로 카운트가능함 정류장 0명하차시에는 그냥 엔터누르면 다음정류장으로 이동됨</div>
+            `;
+            
+            // 저장된 공지사항이 있으면 추가로 표시
+            if (notices.length > 0) {
+                const savedNotices = notices.map((notice) => {
                     // HTML 이스케이프 처리 후 줄바꿈 유지
                     const escapedContent = escapeHtml(notice.content);
                     return `<div style="margin: 10px 0; white-space: pre-wrap; word-wrap: break-word;">${escapedContent}</div>`;
                 }).join('');
+                htmlContent += savedNotices;
             }
+            
+            noticeDisplay.innerHTML = htmlContent;
             
             // 다크모드일 경우 모든 텍스트를 흰색으로 설정
             if (document.body.classList.contains('dark-mode')) {
