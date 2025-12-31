@@ -7,17 +7,17 @@
   "background_color": "#1a1a1a",
   "theme_color": "#4CAF50",
   "orientation": "portrait",
-  "scope": "/counter-app-web/",
+  "scope": "https://wontwonp.github.io/counter-app-web/",
   "lang": "ko",
   "icons": [
     {
-      "src": "/counter-app-web/icons/icon-192x192.svg",
+      "src": "https://wontwonp.github.io/counter-app-web/icons/icon-192x192.svg",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "maskable any"
     },
     {
-      "src": "/counter-app-web/icons/icon-512x512.svg",
+      "src": "https://wontwonp.github.io/counter-app-web/icons/icon-512x512.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "maskable any"
