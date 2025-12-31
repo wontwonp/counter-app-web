@@ -4960,8 +4960,8 @@
                 
                 updateKeypadPage();
                 
-                // 택시 인원 표시 업데이트 (쿠팡일 때)
-                if (currentService === 'coupang') {
+                // 택시 인원 표시 업데이트 (쿠팡/새 서비스일 때)
+                if (currentService === 'coupang' || currentService === 'newservice') {
                     updateTaxiPassengerDisplay();
                 }
             }
@@ -5658,7 +5658,10 @@
         function updateKeypadPage() {
             // 선택된 시간대에 따른 총 카운트 계산
             let totalCount = 0;
-            if (selectedTimePeriod === 'morning') {
+            if (currentService === 'newservice') {
+                // 새 서비스는 count 기준
+                totalCount = stations.reduce((sum, station) => sum + (station.count || 0), 0);
+            } else if (selectedTimePeriod === 'morning') {
                 totalCount = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
             } else if (selectedTimePeriod === 'afternoon') {
                 totalCount = stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
@@ -5742,18 +5745,18 @@
                 stationNameElement.textContent = `${currentStation.name || '정류장'}${timeDisplay}`;
             }
             if (stationCountElement) {
-                // 쿠팡/컬리일 때는 45명 제한 표시
-                if ((currentService === 'coupang' || currentService === 'kurly') && totalCount >= 45) {
+                // 쿠팡/컬리/새 서비스일 때는 45명 제한 표시
+                if ((currentService === 'coupang' || currentService === 'kurly' || currentService === 'newservice') && totalCount >= 45) {
                     stationCountElement.textContent = `총 탑승자수: 45명 (최대)`;
                 } else {
                     stationCountElement.textContent = `총 탑승자수: ${totalCount}`;
                 }
             }
             
-            // 택시 인원 추가 버튼 표시 (쿠팡/컬리일 때만, 45명 이상일 때만)
+            // 택시 인원 추가 버튼 표시 (쿠팡/컬리/새 서비스일 때만, 45명 이상일 때만)
             const taxiSection = document.getElementById('taxi-passenger-section');
             if (taxiSection) {
-                if ((currentService === 'coupang' || currentService === 'kurly') && totalCount >= 45) {
+                if ((currentService === 'coupang' || currentService === 'kurly' || currentService === 'newservice') && totalCount >= 45) {
                     taxiSection.style.display = 'block';
                     updateTaxiPassengerDisplay();
                 } else {
@@ -5925,10 +5928,18 @@
                 // 입력된 숫자가 있으면 그 값을, 없으면 0을 추가
                 const inputValue = currentInput ? parseInt(currentInput) : 0;
                 
-                // 쿠팡/컬리일 때 45명 제한 로직 (0명이 아닐 때만 체크)
-                if (currentService === 'coupang' || currentService === 'kurly') {
+                // 쿠팡/컬리/새 서비스일 때 45명 제한 로직 (0명이 아닐 때만 체크)
+                if (currentService === 'coupang' || currentService === 'kurly' || currentService === 'newservice') {
                     let currentTotal = 0;
-                    if (selectedTimePeriod === 'morning') {
+                    if (currentService === 'newservice') {
+                        // 새 서비스는 count 기준
+                        currentTotal = stations.reduce((sum, station) => sum + (station.count || 0), 0);
+                        const newTotal = currentTotal + inputValue;
+                        if (newTotal > 45) {
+                            alert('총 인원은 45명을 초과할 수 없습니다.');
+                            return;
+                        }
+                    } else if (selectedTimePeriod === 'morning') {
                         currentTotal = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
                         const newTotal = currentTotal + inputValue;
                         if (newTotal > 45) {
@@ -6140,8 +6151,8 @@
                 // 완료 상태 초기화
                 completedTimePeriods = { morning: false, afternoon: false, evening: false };
                 
-                // 택시 인원 초기화 (쿠팡/컬리일 때)
-                if (currentService === 'coupang' || currentService === 'kurly') {
+                // 택시 인원 초기화 (쿠팡/컬리/새 서비스일 때)
+                if (currentService === 'coupang' || currentService === 'kurly' || currentService === 'newservice') {
                     taxiPassengers = { morning: 0, afternoon: 0, evening: 0 };
                     localStorage.removeItem('taxiPassengers');
                 }
@@ -6400,7 +6411,7 @@
         // 저장된 시간대 설정 불러오기
         // 택시 인원 추가 함수 - 키패드 모달 열기
         function addTaxiPassenger() {
-            if (currentService !== 'coupang' && currentService !== 'kurly') {
+            if (currentService !== 'coupang' && currentService !== 'kurly' && currentService !== 'newservice') {
                 return;
             }
             
@@ -6454,7 +6465,10 @@
                 return;
             }
             
-            if (selectedTimePeriod === 'morning') {
+            if (currentService === 'newservice') {
+                // 새 서비스는 morning에 저장 (시간대 구분 없음)
+                taxiPassengers.morning += taxiCount;
+            } else if (selectedTimePeriod === 'morning') {
                 taxiPassengers.morning += taxiCount;
             } else if (selectedTimePeriod === 'afternoon') {
                 taxiPassengers.afternoon += taxiCount;
@@ -6469,9 +6483,12 @@
             closeTaxiKeypadModal();
             
             // 택시 인원 추가 후 다음 정류장으로 이동 (45명 도달 시)
-            if ((currentService === 'coupang' || currentService === 'kurly') && stations.length > 0) {
+            if ((currentService === 'coupang' || currentService === 'kurly' || currentService === 'newservice') && stations.length > 0) {
                 let currentTotal = 0;
-                if (selectedTimePeriod === 'morning') {
+                if (currentService === 'newservice') {
+                    // 새 서비스는 count 기준
+                    currentTotal = stations.reduce((sum, station) => sum + (station.count || 0), 0);
+                } else if (selectedTimePeriod === 'morning') {
                     currentTotal = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
                 } else if (selectedTimePeriod === 'afternoon') {
                     currentTotal = stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
@@ -6509,7 +6526,10 @@
             const taxiCountDisplay = document.getElementById('taxi-count-display');
             if (taxiCountDisplay) {
                 let currentTaxiCount = 0;
-                if (selectedTimePeriod === 'morning') {
+                if (currentService === 'newservice') {
+                    // 새 서비스는 morning에 저장 (시간대 구분 없음)
+                    currentTaxiCount = taxiPassengers.morning || 0;
+                } else if (selectedTimePeriod === 'morning') {
                     currentTaxiCount = taxiPassengers.morning;
                 } else if (selectedTimePeriod === 'afternoon') {
                     currentTaxiCount = taxiPassengers.afternoon;
