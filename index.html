@@ -2196,26 +2196,30 @@
         /* 차량현황 페이지 다크모드 */
         body.dark-mode #vehicle-status-1-page,
         body.dark-mode #vehicle-status-3-page,
-        body.dark-mode #vehicle-status-4-page {
+        body.dark-mode #vehicle-status-4-page,
+        body.dark-mode #vehicle-status-busan-page {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
         }
 
         body.dark-mode #vehicle-status-1-page > div > div,
         body.dark-mode #vehicle-status-3-page > div > div,
-        body.dark-mode #vehicle-status-4-page > div > div {
+        body.dark-mode #vehicle-status-4-page > div > div,
+        body.dark-mode #vehicle-status-busan-page > div > div {
             background: transparent !important;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3) !important;
         }
 
         body.dark-mode #vehicle-status-1-page h1,
         body.dark-mode #vehicle-status-3-page h1,
-        body.dark-mode #vehicle-status-4-page h1 {
+        body.dark-mode #vehicle-status-4-page h1,
+        body.dark-mode #vehicle-status-busan-page h1 {
             color: #fff !important;
         }
 
         body.dark-mode #vehicle-status-1-page .route-item,
         body.dark-mode #vehicle-status-3-page .route-item,
-        body.dark-mode #vehicle-status-4-page .route-item {
+        body.dark-mode #vehicle-status-4-page .route-item,
+        body.dark-mode #vehicle-status-busan-page .route-item {
             background: rgba(255, 255, 255, 0.2) !important;
             border-color: rgba(255, 255, 255, 0.3) !important;
             color: #fff !important;
@@ -2223,7 +2227,8 @@
 
         body.dark-mode #vehicle-status-1-page button,
         body.dark-mode #vehicle-status-3-page button,
-        body.dark-mode #vehicle-status-4-page button {
+        body.dark-mode #vehicle-status-4-page button,
+        body.dark-mode #vehicle-status-busan-page button {
             color: #fff !important;
         }
 
@@ -2848,7 +2853,7 @@
         </div>
     </div>
 
-    <!-- 차량입차현황 선택 페이지 -->
+    <!-- 차량입차현황 선택 페이지 (쿠팡용) -->
     <div id="vehicle-status-page" class="hidden vehicle-status-page">
         <div class="station-count-input" style="width: 100%; max-width: 400px; text-align: center;">
             <h2 style="margin-bottom: 40px; font-size: 2rem; color: white;">저장된 센터</h2>
@@ -3110,6 +3115,7 @@
             const vehicleStatus1Page = document.getElementById('vehicle-status-1-page');
             const vehicleStatus3Page = document.getElementById('vehicle-status-3-page');
             const vehicleStatus4Page = document.getElementById('vehicle-status-4-page');
+            const vehicleStatusBusanPage = document.getElementById('vehicle-status-busan-page');
             
             if (vehicleStatus1Page && !vehicleStatus1Page.classList.contains('hidden')) {
                 updateVehicleStatusDarkMode();
@@ -3118,6 +3124,9 @@
                 updateVehicleStatusDarkMode();
             }
             if (vehicleStatus4Page && !vehicleStatus4Page.classList.contains('hidden')) {
+                updateVehicleStatusDarkMode();
+            }
+            if (vehicleStatusBusanPage && !vehicleStatusBusanPage.classList.contains('hidden')) {
                 updateVehicleStatusDarkMode();
             }
             
@@ -3436,6 +3445,17 @@
             const keypadPage = document.getElementById('keypad-page');
             const vehicleStatusPage = document.getElementById('vehicle-status-page');
             
+            // 다이소일 때는 부산허브 입차현황으로 직접 이동
+            if (currentService === 'newservice') {
+                if (keypadPage) {
+                    keypadPage.classList.add('hidden');
+                    keypadPage.style.display = 'none';
+                }
+                openBusanHubVehicleStatus();
+                return;
+            }
+            
+            // 쿠팡일 때는 센터 선택 페이지 표시
             if (keypadPage) {
                 keypadPage.classList.add('hidden');
                 keypadPage.style.display = 'none';
@@ -3491,9 +3511,21 @@
             initializeVehicleStatus4();
         };
 
+        // 부산허브 입차현황 열기 (다이소 전용)
+        window.openBusanHubVehicleStatus = function() {
+            const keypadPage = document.getElementById('keypad-page');
+            if (keypadPage) {
+                keypadPage.classList.add('hidden');
+                keypadPage.style.display = 'none';
+            }
+            document.getElementById('vehicle-status-busan-page').classList.remove('hidden');
+            document.getElementById('vehicle-status-busan-page').style.display = 'block';
+            initializeVehicleStatusBusan();
+        };
+
         // 차량현황 페이지 다크모드 업데이트
         function updateVehicleStatusDarkMode() {
-            const pages = ['vehicle-status-1-page', 'vehicle-status-3-page', 'vehicle-status-4-page'];
+            const pages = ['vehicle-status-1-page', 'vehicle-status-3-page', 'vehicle-status-4-page', 'vehicle-status-busan-page'];
             
             pages.forEach(pageId => {
                 const page = document.getElementById(pageId);
@@ -3653,7 +3685,7 @@
         
         // localStorage에 노선 목록 저장
         function saveRoutesToStorage(centerId, routes) {
-            const storageKey = `changwon${centerId}Routes`;
+            const storageKey = centerId === 'busan' ? 'busanHubRoutes' : `changwon${centerId}Routes`;
             localStorage.setItem(storageKey, JSON.stringify(routes));
         }
         
@@ -4083,6 +4115,11 @@
             openRouteManageModal('4', '창원4센터');
         }
 
+        function openRouteManageModalBusan() {
+            currentManagingCenter = 'busan';
+            openRouteManageModal('busan', '부산허브');
+        }
+
         function openRouteManageModal(centerId, centerName) {
             const modal = document.getElementById('route-manage-modal');
             const title = document.getElementById('route-manage-title');
@@ -4328,7 +4365,8 @@
             const defaultRoutes = {
                 '1': ["거제1", "거제2", "김해1", "내서", "남포", "남포1-1", "다대1", "동래", "마산1", "마산2", "명지1", "명지2", "부암", "서면", "서면2", "수영", "장유", "함안"],
                 '3': ["진해2", "진해1", "창원1", "창원2", "창원3", "창원3-1"],
-                '4': ["진주1", "진주2", "통영", "하단"]
+                '4': ["진주1", "진주2", "통영", "하단"],
+                'busan': ["김해", "화명", "부산"]
             };
             
             const routes = defaultRoutes[currentManagingCenter] || [];
@@ -4351,6 +4389,8 @@
                 selectedRoutes = Array.from(window.selectedRoutes3);
             } else if (currentManagingCenter === '4' && window.selectedRoutes4) {
                 selectedRoutes = Array.from(window.selectedRoutes4);
+            } else if (currentManagingCenter === 'busan' && window.selectedRoutesBusan) {
+                selectedRoutes = Array.from(window.selectedRoutesBusan);
             }
             
             // 페이지 초기화
@@ -4387,6 +4427,18 @@
                         routeItems.forEach(item => {
                             if (item.textContent === route) {
                                 toggleRoute4(route, { target: item });
+                            }
+                        });
+                    });
+                }
+            } else if (currentManagingCenter === 'busan') {
+                initializeVehicleStatusBusan();
+                if (selectedRoutes) {
+                    selectedRoutes.forEach(route => {
+                        const routeItems = document.querySelectorAll('#routeGridBusan .route-item');
+                        routeItems.forEach(item => {
+                            if (item.textContent === route) {
+                                toggleRouteBusan(route, { target: item });
                             }
                         });
                     });
