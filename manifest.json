@@ -2,7 +2,7 @@
   "name": "정류장 카운터",
   "short_name": "카운터",
   "description": "버스 정류장 승객 카운팅 앱",
-  "start_url": "/counter-app-web/",
+  "start_url": "https://wontwonp.github.io/counter-app-web/",
   "display": "standalone",
   "background_color": "#1a1a1a",
   "theme_color": "#4CAF50",
