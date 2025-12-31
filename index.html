@@ -3708,10 +3708,11 @@
             const defaultRoutes = {
                 '1': ["거제1", "거제2", "김해1", "내서", "남포", "남포1-1", "다대1", "동래", "마산1", "마산2", "명지1", "명지2", "부암", "서면", "서면2", "수영", "장유", "함안"],
                 '3': ["진해2", "진해1", "창원1", "창원2", "창원3", "창원3-1"],
-                '4': ["진주1", "진주2", "통영", "하단"]
+                '4': ["진주1", "진주2", "통영", "하단"],
+                'busan': ["김해", "화명", "부산"] // 부산허브 기본 노선
             };
             
-            const storageKey = `changwon${centerId}Routes`;
+            const storageKey = centerId === 'busan' ? 'busanHubRoutes' : `changwon${centerId}Routes`;
             const savedRoutes = localStorage.getItem(storageKey);
             
             if (savedRoutes) {
@@ -4138,6 +4139,163 @@
         function goBackToCounter4() {
             document.getElementById('vehicle-status-4-page').classList.add('hidden');
             document.getElementById('vehicle-status-4-page').style.display = 'none';
+            document.getElementById('keypad-page').classList.remove('hidden');
+            document.getElementById('keypad-page').style.display = 'block';
+        }
+
+        // 부산허브 입차현황 초기화
+        function initializeVehicleStatusBusan() {
+            updateVehicleStatusDarkMode(); // 다크모드 초기화
+            
+            // 메인 다크모드 버튼 숨김 처리
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                if (window.vehicleStatusThemeHideTimer) {
+                    clearTimeout(window.vehicleStatusThemeHideTimer);
+                }
+                window.vehicleStatusThemeHideTimer = setTimeout(() => {
+                    themeToggle.style.opacity = '0';
+                    themeToggle.style.transform = 'translateX(100px)';
+                    themeToggle.style.pointerEvents = 'none';
+                }, 5000);
+            }
+            
+            // localStorage에서 노선 불러오기
+            const routes = loadRoutesFromStorage('busan');
+            
+            const routeGrid = document.getElementById("routeGridBusan");
+            if (!routeGrid) {
+                console.error('routeGridBusan 요소를 찾을 수 없습니다.');
+                return;
+            }
+            routeGrid.innerHTML = '';
+            
+            window.selectedRoutesBusan = new Set();
+            window.currentRoutesBusan = routes; // 현재 노선 목록 저장
+            
+            routes.forEach(route => {
+                const routeItem = document.createElement("div");
+                routeItem.className = "route-item";
+                routeItem.textContent = route;
+                routeItem.style.cssText = "display: flex; align-items: center; justify-content: center; padding: 20px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; background: white; font-size: 18px; font-weight: 500; color: #333; min-height: 70px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;";
+                routeItem.onclick = (e) => toggleRouteBusan(route, e);
+                routeGrid.appendChild(routeItem);
+            });
+            
+            updateStatsBusan();
+        }
+
+        // 부산허브 노선 선택/해제 토글
+        function toggleRouteBusan(route, event) {
+            const routeItem = event.target;
+            
+            // 진동 실행
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+            
+            if (window.selectedRoutesBusan.has(route)) {
+                window.selectedRoutesBusan.delete(route);
+                routeItem.classList.remove("selected");
+                if (isDarkMode) {
+                    routeItem.style.borderColor = "rgba(255,255,255,0.3)";
+                    routeItem.style.backgroundColor = "rgba(255,255,255,0.2)";
+                    routeItem.style.color = "#fff";
+                } else {
+                    routeItem.style.borderColor = "#ddd";
+                    routeItem.style.backgroundColor = "white";
+                    routeItem.style.color = "#333";
+                }
+            } else {
+                window.selectedRoutesBusan.add(route);
+                routeItem.classList.add("selected");
+                // 다크모드에서도 초록색으로 명확하게 표시
+                routeItem.style.setProperty('background-color', '#4CAF50', 'important');
+                routeItem.style.setProperty('border-color', '#4CAF50', 'important');
+                routeItem.style.setProperty('color', '#fff', 'important');
+                routeItem.style.setProperty('font-weight', 'bold', 'important');
+            }
+            
+            updateStatusBusan();
+            updateStatsBusan();
+        }
+
+        // 부산허브 상태 업데이트
+        function updateStatusBusan() {
+            const statusText = document.getElementById("statusTextBusan");
+            if (!statusText) return;
+            
+            const selectedArray = Array.from(window.selectedRoutesBusan || []);
+            const routes = window.currentRoutesBusan || loadRoutesFromStorage('busan');
+            const excludedArray = routes.filter(route => !window.selectedRoutesBusan.has(route));
+            
+            let statusHTML = "";
+            
+            if (selectedArray.length === routes.length) {
+                const color = isDarkMode ? '#4CAF50' : '#2e7d32';
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">부산허브 차량현황 총${routes.length}대 퇴근준비완료</div>`;
+            } else if (excludedArray.length > 0) {
+                const excludedNames = excludedArray.join(",");
+                const selectedCount = selectedArray.length;
+                const color = isDarkMode ? '#FFD700' : '#f44336';
+                statusHTML = `<div style="font-size: 18px; font-weight: bold; color: ${color};">부산허브 차량현황 ${excludedNames} 노선제외 ${selectedCount}대 퇴근준비완료</div>`;
+            } else {
+                statusHTML = `<div style="color: ${isDarkMode ? '#fff' : '#333'};">노선을 선택해주세요.</div>`;
+            }
+            
+            statusText.innerHTML = statusHTML;
+        }
+
+        // 부산허브 통계 업데이트
+        function updateStatsBusan() {
+            const routes = window.currentRoutesBusan || loadRoutesFromStorage('busan');
+            const totalCountEl = document.getElementById("totalCountBusan");
+            const selectedCountEl = document.getElementById("selectedCountBusan");
+            const excludedCountEl = document.getElementById("excludedCountBusan");
+            
+            if (totalCountEl) totalCountEl.textContent = routes.length;
+            if (selectedCountEl) selectedCountEl.textContent = (window.selectedRoutesBusan || new Set()).size;
+            if (excludedCountEl) excludedCountEl.textContent = routes.length - (window.selectedRoutesBusan || new Set()).size;
+        }
+
+        // 부산허브 선택 초기화
+        function resetSelectionBusan() {
+            if (!window.selectedRoutesBusan) {
+                window.selectedRoutesBusan = new Set();
+            }
+            window.selectedRoutesBusan.clear();
+            document.querySelectorAll("#routeGridBusan .route-item").forEach(item => {
+                if (isDarkMode) {
+                    item.style.borderColor = "rgba(255,255,255,0.3)";
+                    item.style.backgroundColor = "rgba(255,255,255,0.2)";
+                    item.style.color = "#fff";
+                } else {
+                    item.style.borderColor = "#ddd";
+                    item.style.backgroundColor = "white";
+                    item.style.color = "#333";
+                }
+            });
+            updateStatusBusan();
+            updateStatsBusan();
+        }
+
+        // 부산허브 카카오톡 공유
+        function shareToKakaoBusan() {
+            const statusText = document.getElementById("statusTextBusan");
+            if (!statusText) return;
+            
+            const text = statusText.textContent;
+            if (navigator.share) {
+                navigator.share({ title: '부산허브차량현황', text: text }).catch(err => console.log('공유 실패:', err));
+            } else {
+                navigator.clipboard.writeText(text).then(() => alert('클립보드에 복사되었습니다.')).catch(err => alert('복사 실패: ' + err));
+            }
+        }
+
+        // 부산허브 카운터로 돌아가기
+        function goBackToCounterBusan() {
+            document.getElementById('vehicle-status-busan-page').classList.add('hidden');
+            document.getElementById('vehicle-status-busan-page').style.display = 'none';
             document.getElementById('keypad-page').classList.remove('hidden');
             document.getElementById('keypad-page').style.display = 'block';
         }
