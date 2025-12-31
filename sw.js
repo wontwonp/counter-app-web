@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bus-counter-v3';
+const CACHE_NAME = 'bus-counter-v4';
 const BASE_PATH = '/counter-app-web/';
 const urlsToCache = [
   BASE_PATH,
@@ -46,6 +46,29 @@ self.addEventListener('activate', function(event) {
 
 // 네트워크 요청 가로채기
 self.addEventListener('fetch', function(event) {
+  const requestUrl = new URL(event.request.url);
+  
+  // 네비게이션 요청 (페이지 로드)인 경우
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then(function(response) {
+          // 성공하면 응답 반환
+          if (response && response.status === 200) {
+            return response;
+          }
+          // 404 등 실패 시 index.html로 fallback
+          return caches.match(BASE_PATH + 'index.html') || caches.match(BASE_PATH);
+        })
+        .catch(function(error) {
+          // 네트워크 오류 시 캐시에서 index.html 반환
+          return caches.match(BASE_PATH + 'index.html') || caches.match(BASE_PATH);
+        })
+    );
+    return;
+  }
+  
+  // 일반 리소스 요청
   event.respondWith(
     caches.match(event.request)
       .then(function(response) {
@@ -54,15 +77,8 @@ self.addEventListener('fetch', function(event) {
           return response;
         }
         // 네트워크 요청 시도
-        return fetch(event.request).catch(function(error) {
-          // 네트워크 실패 시 index.html로 fallback (SPA 라우팅 지원)
-          if (event.request.mode === 'navigate') {
-            return caches.match(BASE_PATH + 'index.html') || caches.match(BASE_PATH);
-          }
-          throw error;
-        });
-      }
-    )
+        return fetch(event.request);
+      })
   );
 });
 
