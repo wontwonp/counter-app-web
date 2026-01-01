@@ -2091,12 +2091,16 @@
 
         .notice-modal-content {
             background: white;
-            padding: 30px;
+            padding: 25px 20px;
             border-radius: 15px;
             max-width: 500px;
             width: 90%;
+            max-height: 90vh;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             color: #333;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
         
         /* 라이트 모드에서 공지사항 텍스트 색상 */
@@ -2122,6 +2126,30 @@
         
         #notice-content-display {
             color: #555 !important;
+            max-height: calc(1.8em * 5); /* 5줄 높이 (line-height 1.8 기준) */
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 10px;
+            margin-bottom: 15px !important;
+        }
+        
+        /* 스크롤바 스타일링 (모바일 친화적) */
+        #notice-content-display::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        #notice-content-display::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        #notice-content-display::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        
+        #notice-content-display::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
         
         #notice-content-display * {
@@ -2171,6 +2199,18 @@
         
         body.dark-mode #notice-content-display {
             color: #ffffff !important;
+        }
+        
+        body.dark-mode #notice-content-display::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        
+        body.dark-mode #notice-content-display::-webkit-scrollbar-thumb {
+            background: #666;
+        }
+        
+        body.dark-mode #notice-content-display::-webkit-scrollbar-thumb:hover {
+            background: #888;
         }
         
         body.dark-mode #notice-content-display * {
@@ -3052,16 +3092,16 @@
             <div style="margin-bottom: 20px;">
                 <h2 style="margin: 0 0 15px 0; font-size: 1.5rem;" class="notice-title">📢 공지사항</h2>
             </div>
-            <div id="notice-content-display" style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 25px;" class="notice-content">
+            <div id="notice-content-display" style="font-size: 1.1rem; line-height: 1.8;" class="notice-content">
                 <!-- 공지사항 내용이 여기에 동적으로 표시됩니다 -->
             </div>
-            <div style="margin-bottom: 15px;">
+            <div style="margin-top: auto; margin-bottom: 15px;">
                 <label style="display: flex; align-items: center; cursor: pointer; user-select: none;" class="notice-label">
                     <input type="checkbox" id="dont-show-today" style="margin-right: 8px; cursor: pointer;">
                     <span style="font-size: 0.9rem;" class="notice-checkbox-text">오늘 하루 표시 안 함</span>
                 </label>
             </div>
-            <button onclick="closeNoticeModal()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease;">
+            <button onclick="closeNoticeModal()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; flex-shrink: 0;">
                 확인
             </button>
         </div>
