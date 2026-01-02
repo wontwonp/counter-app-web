@@ -5728,17 +5728,17 @@
                         <input type="number" min="1" max="12" placeholder="시" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
                                value="${station.departureTime.morningHour || 8}" onchange="updateDepartureTime(${index}, 'morningHour', this.value)">
                         <span style="color: white;">시</span>
+                        <input type="number" min="0" max="59" placeholder="분" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
+                               value="${station.departureTime.morningMinute !== undefined ? station.departureTime.morningMinute : (station.departureTime.minute !== undefined ? station.departureTime.minute : 0)}" onchange="updateDepartureTime(${index}, 'morningMinute', this.value)">
+                        <span style="color: white;">분</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">오후시간:</label>
                         <input type="number" min="1" max="12" placeholder="시" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
                                value="${station.departureTime.afternoonHour || 5}" onchange="updateDepartureTime(${index}, 'afternoonHour', this.value)">
                         <span style="color: white;">시</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">분:</label>
                         <input type="number" min="0" max="59" placeholder="분" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
-                               value="${station.departureTime.minute || 0}" onchange="updateDepartureTime(${index}, 'minute', this.value)">
+                               value="${station.departureTime.afternoonMinute !== undefined ? station.departureTime.afternoonMinute : (station.departureTime.minute !== undefined ? station.departureTime.minute : 0)}" onchange="updateDepartureTime(${index}, 'afternoonMinute', this.value)">
                         <span style="color: white;">분</span>
                     </div>
                 `;
@@ -5760,15 +5760,36 @@
         // 출발 시간 업데이트
         function updateDepartureTime(index, type, value) {
             if (!stations[index].departureTime) {
-                stations[index].departureTime = { morningHour: 8, afternoonHour: 5, minute: 0 };
+                stations[index].departureTime = { morningHour: 8, morningMinute: 0, afternoonHour: 5, afternoonMinute: 0 };
+            }
+            
+            // 기존 minute 필드가 있으면 morningMinute와 afternoonMinute로 변환
+            if (stations[index].departureTime.minute !== undefined && stations[index].departureTime.morningMinute === undefined) {
+                stations[index].departureTime.morningMinute = stations[index].departureTime.minute;
+                stations[index].departureTime.afternoonMinute = stations[index].departureTime.minute;
+                delete stations[index].departureTime.minute;
+            }
+            
+            // morningMinute나 afternoonMinute가 없으면 0으로 설정
+            if (stations[index].departureTime.morningMinute === undefined) {
+                stations[index].departureTime.morningMinute = 0;
+            }
+            if (stations[index].departureTime.afternoonMinute === undefined) {
+                stations[index].departureTime.afternoonMinute = 0;
             }
             
             if (type === 'morningHour') {
                 stations[index].departureTime.morningHour = parseInt(value) || 8;
+            } else if (type === 'morningMinute') {
+                stations[index].departureTime.morningMinute = parseInt(value) || 0;
             } else if (type === 'afternoonHour') {
                 stations[index].departureTime.afternoonHour = parseInt(value) || 5;
+            } else if (type === 'afternoonMinute') {
+                stations[index].departureTime.afternoonMinute = parseInt(value) || 0;
             } else if (type === 'minute') {
-                stations[index].departureTime.minute = parseInt(value) || 0;
+                // 기존 minute 필드 호환성 유지 (morningMinute와 afternoonMinute로 변환)
+                stations[index].departureTime.morningMinute = parseInt(value) || 0;
+                stations[index].departureTime.afternoonMinute = parseInt(value) || 0;
             }
             
             // 출발 시간을 localStorage에 저장
@@ -5786,8 +5807,9 @@
                 afternoonCount: 0,
                 departureTime: { 
                     morningHour: 8, 
+                    morningMinute: 0,
                     afternoonHour: 5, 
-                    minute: 0
+                    afternoonMinute: 0
                 }
             };
             
@@ -6011,22 +6033,23 @@
                 let hour, minute;
                 if (selectedTimePeriod === 'morning') {
                     hour = currentStation.departureTime.morningHour || 8;
-                    // 컬리일 때는 morningMinute 사용, 쿠팡일 때는 minute 사용
-                    minute = currentService === 'kurly' ? 
-                        (currentStation.departureTime.morningMinute || 0) : 
-                        (currentStation.departureTime.minute || 0);
+                    // morningMinute가 있으면 사용, 없으면 minute 사용 (호환성), 둘 다 없으면 0
+                    minute = currentStation.departureTime.morningMinute !== undefined ? 
+                        currentStation.departureTime.morningMinute : 
+                        (currentStation.departureTime.minute !== undefined ? currentStation.departureTime.minute : 0);
                 } else if (selectedTimePeriod === 'afternoon') {
                     hour = currentStation.departureTime.afternoonHour || 17;
-                    // 컬리일 때는 afternoonMinute 사용, 쿠팡일 때는 minute 사용
-                    minute = currentService === 'kurly' ? 
-                        (currentStation.departureTime.afternoonMinute || 0) : 
-                        (currentStation.departureTime.minute || 0);
+                    // afternoonMinute가 있으면 사용, 없으면 minute 사용 (호환성), 둘 다 없으면 0
+                    minute = currentStation.departureTime.afternoonMinute !== undefined ? 
+                        currentStation.departureTime.afternoonMinute : 
+                        (currentStation.departureTime.minute !== undefined ? currentStation.departureTime.minute : 0);
                 } else if (selectedTimePeriod === 'evening') {
                     // 퇴근운행은 오후 시간 사용
                     hour = currentStation.departureTime.afternoonHour || 17;
-                    minute = currentService === 'kurly' ? 
-                        (currentStation.departureTime.afternoonMinute || 0) : 
-                        (currentStation.departureTime.minute || 0);
+                    // afternoonMinute가 있으면 사용, 없으면 minute 사용 (호환성), 둘 다 없으면 0
+                    minute = currentStation.departureTime.afternoonMinute !== undefined ? 
+                        currentStation.departureTime.afternoonMinute : 
+                        (currentStation.departureTime.minute !== undefined ? currentStation.departureTime.minute : 0);
                 }
                 const timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
                 timeDisplay = ` (${timeStr})`;
@@ -7304,11 +7327,17 @@
                 
                 // 오전/오후 모든 데이터 표시
                 const morningHour = station.departureTime?.morningHour || 8;
-                const morningMinute = isKurly ? (station.departureTime?.morningMinute || 0) : (station.departureTime?.minute || 0);
+                // morningMinute가 있으면 사용, 없으면 minute 사용 (호환성), 둘 다 없으면 0
+                const morningMinute = station.departureTime?.morningMinute !== undefined ? 
+                    station.departureTime.morningMinute : 
+                    (station.departureTime?.minute !== undefined ? station.departureTime.minute : 0);
                 const morningTimeStr = `${morningHour}:${String(morningMinute).padStart(2, '0')}`;
                 
                 const afternoonHour = station.departureTime?.afternoonHour || 17;
-                const afternoonMinute = isKurly ? (station.departureTime?.afternoonMinute || 0) : (station.departureTime?.minute || 0);
+                // afternoonMinute가 있으면 사용, 없으면 minute 사용 (호환성), 둘 다 없으면 0
+                const afternoonMinute = station.departureTime?.afternoonMinute !== undefined ? 
+                    station.departureTime.afternoonMinute : 
+                    (station.departureTime?.minute !== undefined ? station.departureTime.minute : 0);
                 const afternoonTimeStr = `${afternoonHour}:${String(afternoonMinute).padStart(2, '0')}`;
                 
                 ctx.textAlign = 'center';
