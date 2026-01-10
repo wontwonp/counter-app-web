@@ -3910,7 +3910,6 @@
             
             if (navigator.share) {
                 navigator.share({
-                    title: '창원1센터차량현황',
                     text: statusText
                 }).catch(err => console.log('공유 실패:', err));
             } else {
@@ -4044,7 +4043,7 @@
         function shareToKakao3() {
             const statusText = document.getElementById("statusText3").textContent;
             if (navigator.share) {
-                navigator.share({ title: '창원3센터차량현황', text: statusText }).catch(err => console.log('공유 실패:', err));
+                navigator.share({ text: statusText }).catch(err => console.log('공유 실패:', err));
             } else {
                 navigator.clipboard.writeText(statusText).then(() => alert('클립보드에 복사되었습니다.')).catch(err => alert('복사 실패: ' + err));
             }
@@ -4170,7 +4169,7 @@
         function shareToKakao4() {
             const statusText = document.getElementById("statusText4").textContent;
             if (navigator.share) {
-                navigator.share({ title: '창원4센터차량현황', text: statusText }).catch(err => console.log('공유 실패:', err));
+                navigator.share({ text: statusText }).catch(err => console.log('공유 실패:', err));
             } else {
                 navigator.clipboard.writeText(statusText).then(() => alert('클립보드에 복사되었습니다.')).catch(err => alert('복사 실패: ' + err));
             }
@@ -4332,7 +4331,7 @@
             
             const text = statusText.textContent;
             if (navigator.share) {
-                navigator.share({ title: '부산허브차량현황', text: text }).catch(err => console.log('공유 실패:', err));
+                navigator.share({ text: text }).catch(err => console.log('공유 실패:', err));
             } else {
                 navigator.clipboard.writeText(text).then(() => alert('클립보드에 복사되었습니다.')).catch(err => alert('복사 실패: ' + err));
             }
