@@ -2800,7 +2800,15 @@
         <!-- 정류장 이름 입력 페이지 -->
         <div id="station-names-page" class="hidden">
             <div class="station-names-input">
-                <h2>정류장 이름을 입력하세요</h2>
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                    <h2 style="margin: 0;">정류장 이름을 입력하세요</h2>
+                    <label style="display: flex; align-items: center; gap: 8px; color: white; font-size: 1rem; cursor: pointer;">
+                        <input type="checkbox" id="global-night-service" 
+                               onchange="toggleGlobalNightService(this.checked)" 
+                               style="width: 20px; height: 20px; cursor: pointer;">
+                        <span>심야운행</span>
+                    </label>
+                </div>
                 <div id="station-inputs" class="station-inputs"></div>
                 <div class="button-group">
                     <button id="add-station" class="add-station-btn" onclick="addStation()"><span class="button-text-top">정류장</span><br><span class="button-text-bottom">추가</span></button>
@@ -2823,6 +2831,7 @@
                 <div style="display: flex; gap: 15px; justify-content: center;">
                     <button id="morning-btn-keypad" class="time-period-btn active" onclick="selectTimePeriod('morning')">오전 운행</button>
                     <button id="afternoon-btn-keypad" class="time-period-btn" onclick="selectTimePeriod('afternoon')">오후 운행</button>
+                    <button id="night-btn-keypad" class="time-period-btn" onclick="selectTimePeriod('night')" style="display: none;">심야운행</button>
                     <button id="evening-btn-keypad" class="time-period-btn" onclick="selectTimePeriod('evening')" style="display: none;">퇴근운행</button>
                 </div>
             </div>
@@ -3144,15 +3153,15 @@
         let isDarkMode = false;
         let routeName = '';
         let stationDepartureTimes = [];
-        let selectedTimePeriod = 'morning'; // 'morning', 'afternoon', 또는 'evening'
+        let selectedTimePeriod = 'morning'; // 'morning', 'afternoon', 'night', 또는 'evening'
         let isLoadedRoute = false; // 불러온 노선인지 추적
-        let completedTimePeriods = { morning: false, afternoon: false, evening: false }; // 완료된 운행 시간대 추적
+        let completedTimePeriods = { morning: false, afternoon: false, night: false, evening: false }; // 완료된 운행 시간대 추적
         let currentService = 'coupang'; // 'coupang' 또는 'kurly' - 현재 선택된 서비스
         let isEveningMode = false; // 퇴근운행 모드 (역순 카운트)
         let morningArrivalTime = null; // 14시운행 도착시간
         let afternoonArrivalTime = null; // 17시운행 도착시간
         let eveningArrivalTime = null; // 퇴근운행 도착시간
-        let taxiPassengers = { morning: 0, afternoon: 0, evening: 0 }; // 택시 인원 (쿠팡/컬리 공용)
+        let taxiPassengers = { morning: 0, afternoon: 0, evening: 0, night: 0 }; // 택시 인원 (쿠팡/컬리 공용)
         let taxiInput = ''; // 택시 인원 입력 임시 저장
         
         // Firebase 초기화 (공지사항 동기화용)
@@ -4905,9 +4914,11 @@
             if (savedStations && savedStations.length > 0) {
                 console.log('쿠팡 정류장 데이터 초기화:', savedStations.length, '개');
                 savedStations.forEach(station => {
+                    // 날짜 변경 시 모든 카운트 초기화 (nightCount 포함)
                     station.count = 0;
                     station.morningCount = 0;
                     station.afternoonCount = 0;
+                    station.nightCount = 0; // 날짜 변경 시 심야운행도 초기화
                 });
                 localStorage.setItem('savedStations', JSON.stringify(savedStations));
                 
@@ -4915,11 +4926,15 @@
                 if (stations && stations.length > 0) {
                     stations.forEach((station, index) => {
                         if (savedStations[index]) {
+                            // 날짜 변경 시 모든 카운트 초기화 (nightCount 포함)
                             station.count = 0;
                             station.morningCount = 0;
                             station.afternoonCount = 0;
+                            station.nightCount = 0; // 날짜 변경 시 심야운행도 초기화
                         }
                     });
+                    // 메모리 업데이트 후 다시 저장
+                    localStorage.setItem('savedStations', JSON.stringify(stations));
                 }
             }
             
@@ -4959,7 +4974,7 @@
             saveToLocalStorage('kurlyCurrentStationIndex', '0');
             saveToLocalStorage('currentInput', '');
             saveToLocalStorage('kurlyCurrentInput', '');
-            saveToLocalStorage('completedTimePeriods', JSON.stringify({ morning: false, afternoon: false, evening: false }));
+            saveToLocalStorage('completedTimePeriods', JSON.stringify({ morning: false, afternoon: false, night: false, evening: false }));
             saveToLocalStorage('keypadDisabled', 'false');
             saveToLocalStorage('morningRunCompleted', 'false');
             
@@ -4972,7 +4987,7 @@
             localStorage.removeItem('eveningArrivalTime');
             
             // 택시 인원 초기화
-            taxiPassengers = { morning: 0, afternoon: 0, evening: 0 };
+            taxiPassengers = { morning: 0, afternoon: 0, evening: 0, night: 0 };
             localStorage.removeItem('taxiPassengers');
             
             // 키패드 활성화 및 페이지 업데이트 (stations 배열이 있을 때만)
@@ -5078,13 +5093,38 @@
                 }
             } else {
                 // 쿠팡/다이소일 때: 기존 로직 유지
-                // 오전: 00시~12시, 오후: 12시01분~23시59분
-                if (currentHour >= 0 && currentHour <= 12) {
-                    selectedTimePeriod = 'morning';
-                    console.log(`${currentService === 'newservice' ? '다이소' : '쿠팡'}: ${currentHour}시는 오전 범위 (0-12시)`);
+                // 심야운행이 체크되어 있는지 확인
+                const hasNightService = stations && stations.length > 0 && stations.some(station => 
+                    station.departureTime && station.departureTime.nightHour !== undefined
+                );
+                
+                if (hasNightService) {
+                    // 심야운행이 있으면 새로운 시간대 기준 적용
+                    // 04~09시: 오전운행, 13~18시: 오후운행, 19~21시: 심야운행
+                    if (currentHour >= 4 && currentHour <= 9) {
+                        selectedTimePeriod = 'morning';
+                        console.log(`${currentService === 'newservice' ? '다이소' : '쿠팡'}: ${currentHour}시는 오전 범위 (4-9시)`);
+                    } else if (currentHour >= 13 && currentHour <= 18) {
+                        selectedTimePeriod = 'afternoon';
+                        console.log(`${currentService === 'newservice' ? '다이소' : '쿠팡'}: ${currentHour}시는 오후 범위 (13-18시)`);
+                    } else if (currentHour >= 19 && currentHour <= 21) {
+                        selectedTimePeriod = 'night';
+                        console.log(`${currentService === 'newservice' ? '다이소' : '쿠팡'}: ${currentHour}시는 심야운행 범위 (19-21시)`);
+                    } else {
+                        // 기본값은 오전
+                        selectedTimePeriod = 'morning';
+                        console.log(`${currentService === 'newservice' ? '다이소' : '쿠팡'}: ${currentHour}시는 기본값(오전)`);
+                    }
                 } else {
-                    selectedTimePeriod = 'afternoon';
-                    console.log(`${currentService === 'newservice' ? '다이소' : '쿠팡'}: ${currentHour}시는 오후 범위 (13-23시)`);
+                    // 심야운행이 없으면 기존 로직
+                    // 오전: 00시~12시, 오후: 12시01분~23시59분
+                    if (currentHour >= 0 && currentHour <= 12) {
+                        selectedTimePeriod = 'morning';
+                        console.log(`${currentService === 'newservice' ? '다이소' : '쿠팡'}: ${currentHour}시는 오전 범위 (0-12시)`);
+                    } else {
+                        selectedTimePeriod = 'afternoon';
+                        console.log(`${currentService === 'newservice' ? '다이소' : '쿠팡'}: ${currentHour}시는 오후 범위 (13-23시)`);
+                    }
                 }
             }
             
@@ -5186,7 +5226,7 @@
             
             // 완료된 운행 시간대로 전환하려는 경우 경고
             if (completedTimePeriods[period]) {
-                const periodName = period === 'morning' ? '오전' : period === 'afternoon' ? '오후' : '퇴근';
+                const periodName = period === 'morning' ? '오전' : period === 'afternoon' ? '오후' : period === 'night' ? '심야' : '퇴근';
                 alert(`${periodName}운행이 이미 완료되었습니다. 카운팅을 다시 시작할 수 없습니다.`);
                 return;
             }
@@ -5194,7 +5234,7 @@
             const previousPeriod = selectedTimePeriod;
             selectedTimePeriod = period;
             
-            // 퇴근운행 모드 설정
+            // 퇴근운행 모드 설정 (심야운행은 일반 모드)
             isEveningMode = (period === 'evening');
             
             updateTimePeriodButtons();
@@ -5219,6 +5259,7 @@
                                         count: savedStations[index].count || station.count,
                                         morningCount: savedStations[index].morningCount || station.morningCount,
                                         afternoonCount: savedStations[index].afternoonCount || station.afternoonCount,
+                                        nightCount: savedStations[index].nightCount || station.nightCount || 0,
                                         eveningCount: savedStations[index].eveningCount || station.eveningCount
                                     };
                                 }
@@ -5282,9 +5323,37 @@
             // 키패드 화면 버튼 업데이트
             const morningBtnKeypad = document.getElementById('morning-btn-keypad');
             const afternoonBtnKeypad = document.getElementById('afternoon-btn-keypad');
+            const nightBtnKeypad = document.getElementById('night-btn-keypad');
             const eveningBtnKeypad = document.getElementById('evening-btn-keypad');
             const vehicleStatusBtn = document.getElementById('vehicle-status-btn-keypad');
             const arrivalTimeRow = document.getElementById('arrival-time-row');
+            
+            // 심야운행이 체크되어 있는지 확인
+            const hasNightService = stations && stations.length > 0 && stations.some(station => 
+                station.departureTime && station.departureTime.nightHour !== undefined
+            );
+            
+            // 심야운행 버튼 표시/숨김 (쿠팡/다이소일 때만)
+            if (currentService !== 'kurly' && nightBtnKeypad) {
+                if (hasNightService) {
+                    nightBtnKeypad.style.display = 'block';
+                    nightBtnKeypad.style.visibility = 'visible';
+                    nightBtnKeypad.style.opacity = '1';
+                    nightBtnKeypad.style.height = 'auto';
+                    nightBtnKeypad.style.width = 'auto';
+                    nightBtnKeypad.style.padding = '';
+                    nightBtnKeypad.style.margin = '';
+                    nightBtnKeypad.disabled = false;
+                } else {
+                    nightBtnKeypad.style.display = 'none';
+                    nightBtnKeypad.style.visibility = 'hidden';
+                    nightBtnKeypad.style.opacity = '0';
+                    nightBtnKeypad.style.height = '0';
+                    nightBtnKeypad.style.width = '0';
+                    nightBtnKeypad.style.padding = '0';
+                    nightBtnKeypad.style.margin = '0';
+                }
+            }
             
             // 쿠팡/다이소/컬리일 때 시간대 선택 버튼 표시
             const timePeriodContainer = morningBtnKeypad?.parentElement;
@@ -5381,6 +5450,9 @@
             if (morningBtnKeypad && afternoonBtnKeypad) {
                 morningBtnKeypad.classList.remove('active');
                 afternoonBtnKeypad.classList.remove('active');
+                if (nightBtnKeypad) {
+                    nightBtnKeypad.classList.remove('active');
+                }
                 if (eveningBtnKeypad) {
                     eveningBtnKeypad.classList.remove('active');
                 }
@@ -5389,6 +5461,8 @@
                     morningBtnKeypad.classList.add('active');
                 } else if (selectedTimePeriod === 'afternoon') {
                     afternoonBtnKeypad.classList.add('active');
+                } else if (selectedTimePeriod === 'night' && nightBtnKeypad) {
+                    nightBtnKeypad.classList.add('active');
                 } else if (selectedTimePeriod === 'evening' && eveningBtnKeypad) {
                     eveningBtnKeypad.classList.add('active');
                 }
@@ -5712,17 +5786,29 @@
         function createStationInputs() {
             const stationInputs = document.getElementById('station-inputs');
             stationInputs.innerHTML = '';
+            
+            // 저장된 심야운행 상태 확인
+            const hasAnyNightService = stations.some(station => 
+                station.departureTime && station.departureTime.nightHour !== undefined
+            );
+            const globalNightCheckbox = document.getElementById('global-night-service');
+            if (globalNightCheckbox) {
+                globalNightCheckbox.checked = hasAnyNightService;
+            }
+            const globalNightServiceChecked = hasAnyNightService;
+            
             stations.forEach((station, index) => {
                 const inputGroup = document.createElement('div');
                 inputGroup.className = 'station-input-group';
                 inputGroup.style.flexDirection = 'column';
                 inputGroup.style.alignItems = 'stretch';
                 inputGroup.style.gap = '10px';
+                const hasNightService = globalNightServiceChecked && station.departureTime && station.departureTime.nightHour !== undefined;
                 inputGroup.innerHTML = `
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">정류장 ${index + 1}:</label>
                         <input type="text" class="station-name-input" placeholder="정류장 ${index + 1} 이름" 
-                               value="${station.name || ''}" onchange="updateStationName(${index}, this.value)" lang="ko" ime-mode="active">
+                               value="${station.name || ''}" onchange="updateStationName(${index}, this.value)" lang="ko" ime-mode="active" style="flex: 1;">
                     </div>
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">오전시간:</label>
@@ -5740,6 +5826,15 @@
                         <span style="color: white;">시</span>
                         <input type="number" min="0" max="59" placeholder="분" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
                                value="${station.departureTime.afternoonMinute !== undefined ? station.departureTime.afternoonMinute : (station.departureTime.minute !== undefined ? station.departureTime.minute : 0)}" onchange="updateDepartureTime(${index}, 'afternoonMinute', this.value)">
+                        <span style="color: white;">분</span>
+                    </div>
+                    <div id="night-time-${index}" style="display: ${globalNightServiceChecked ? 'flex' : 'none'}; align-items: center; gap: 15px;">
+                        <label style="min-width: 100px; text-align: left; font-size: 1.1rem;">심야시간:</label>
+                        <input type="number" min="0" max="23" placeholder="시" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
+                               value="${station.departureTime.nightHour !== undefined ? station.departureTime.nightHour : 22}" onchange="updateDepartureTime(${index}, 'nightHour', this.value)">
+                        <span style="color: white;">시</span>
+                        <input type="number" min="0" max="59" placeholder="분" style="width: 60px; padding: 8px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); color: #333; text-align: center;" 
+                               value="${station.departureTime.nightMinute !== undefined ? station.departureTime.nightMinute : 0}" onchange="updateDepartureTime(${index}, 'nightMinute', this.value)">
                         <span style="color: white;">분</span>
                     </div>
                 `;
@@ -5791,9 +5886,52 @@
                 // 기존 minute 필드 호환성 유지 (morningMinute와 afternoonMinute로 변환)
                 stations[index].departureTime.morningMinute = parseInt(value) || 0;
                 stations[index].departureTime.afternoonMinute = parseInt(value) || 0;
+            } else if (type === 'nightHour') {
+                stations[index].departureTime.nightHour = parseInt(value) || 22;
+            } else if (type === 'nightMinute') {
+                stations[index].departureTime.nightMinute = parseInt(value) || 0;
             }
             
             // 출발 시간을 localStorage에 저장
+            const savedDepartureTimes = stations.map(station => station.departureTime);
+            localStorage.setItem('savedDepartureTimes', JSON.stringify(savedDepartureTimes));
+            
+            // 정류장 데이터도 함께 저장
+            localStorage.setItem('savedStations', JSON.stringify(stations));
+        }
+
+        // 전역 심야운행 체크박스 토글 함수
+        function toggleGlobalNightService(checked) {
+            // 모든 정류장에 대해 심야시간 입력란 표시/숨김
+            stations.forEach((station, index) => {
+                if (!station.departureTime) {
+                    station.departureTime = { morningHour: 8, morningMinute: 0, afternoonHour: 5, afternoonMinute: 0 };
+                }
+                
+                const nightTimeDiv = document.getElementById(`night-time-${index}`);
+                if (checked) {
+                    // 심야운행 체크 시 기본값 설정
+                    if (station.departureTime.nightHour === undefined) {
+                        station.departureTime.nightHour = 22;
+                    }
+                    if (station.departureTime.nightMinute === undefined) {
+                        station.departureTime.nightMinute = 0;
+                    }
+                    if (nightTimeDiv) {
+                        nightTimeDiv.style.display = 'flex';
+                    }
+                } else {
+                    // 심야운행 체크 해제 시 데이터 삭제
+                    delete station.departureTime.nightHour;
+                    delete station.departureTime.nightMinute;
+                    if (nightTimeDiv) {
+                        nightTimeDiv.style.display = 'none';
+                    }
+                }
+            });
+            
+            // localStorage에 저장
+            localStorage.setItem('savedStations', JSON.stringify(stations));
             const savedDepartureTimes = stations.map(station => station.departureTime);
             localStorage.setItem('savedDepartureTimes', JSON.stringify(savedDepartureTimes));
         }
@@ -5879,6 +6017,9 @@
                 
                 // 키패드 페이지 업데이트 (currentStationIndex는 이미 0으로 설정됨)
                 updateKeypadPage();
+                
+                // 심야운행 버튼 표시 업데이트
+                updateTimePeriodButtons();
                 
                 // 시계 시작
                 updateClock();
@@ -5999,6 +6140,8 @@
                 totalCount = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
             } else if (selectedTimePeriod === 'afternoon') {
                 totalCount = stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
+            } else if (selectedTimePeriod === 'night') {
+                totalCount = stations.reduce((sum, station) => sum + (station.nightCount || 0), 0);
             } else if (selectedTimePeriod === 'evening') {
                 totalCount = stations.reduce((sum, station) => sum + (station.eveningCount || 0), 0);
             }
@@ -6044,6 +6187,10 @@
                     minute = currentStation.departureTime.afternoonMinute !== undefined ? 
                         currentStation.departureTime.afternoonMinute : 
                         (currentStation.departureTime.minute !== undefined ? currentStation.departureTime.minute : 0);
+                } else if (selectedTimePeriod === 'night') {
+                    hour = currentStation.departureTime.nightHour || 22;
+                    minute = currentStation.departureTime.nightMinute !== undefined ? 
+                        currentStation.departureTime.nightMinute : 0;
                 } else if (selectedTimePeriod === 'evening') {
                     // 퇴근운행은 오후 시간 사용
                     hour = currentStation.departureTime.afternoonHour || 17;
@@ -6171,13 +6318,22 @@
                 // 오전/오후 카운트를 분리하여 표시
                 const morningCount = station.morningCount || 0;
                 const afternoonCount = station.afternoonCount || 0;
+                const nightCount = station.nightCount || 0;
                 
                 // 컬리일 때는 퇴근운행도 표시
                 if (currentService === 'kurly') {
                     const eveningCount = station.eveningCount || 0;
                     summaryItem.textContent = `${index + 1}. ${station.name}: 오전 ${morningCount}명, 오후 ${afternoonCount}명, 퇴근 ${eveningCount}명`;
                 } else {
-                    summaryItem.textContent = `${index + 1}. ${station.name}: 오전 ${morningCount}명, 오후 ${afternoonCount}명`;
+                    // 심야운행이 체크되어 있으면 항상 표시
+                    const hasNightService = stations && stations.length > 0 && stations.some(s => 
+                        s.departureTime && s.departureTime.nightHour !== undefined
+                    );
+                    if (hasNightService) {
+                        summaryItem.textContent = `${index + 1}. ${station.name}: 오전 ${morningCount}명, 오후 ${afternoonCount}명, 심야 ${nightCount}명`;
+                    } else {
+                        summaryItem.textContent = `${index + 1}. ${station.name}: 오전 ${morningCount}명, 오후 ${afternoonCount}명`;
+                    }
                 }
                 
                 summaryList.appendChild(summaryItem);
@@ -6296,6 +6452,14 @@
                             alert('총 인원은 45명을 초과할 수 없습니다.');
                             return;
                         }
+                    } else if (selectedTimePeriod === 'night') {
+                        // 심야운행도 45명 제한 적용
+                        currentTotal = stations.reduce((sum, station) => sum + (station.nightCount || 0), 0);
+                        const newTotal = currentTotal + inputValue;
+                        if (newTotal > 45) {
+                            alert('총 인원은 45명을 초과할 수 없습니다.');
+                            return;
+                        }
                     }
                 }
                 
@@ -6311,6 +6475,12 @@
                         saveToLocalStorage('morningRunCompleted', 'false');
                         console.log('오후운행 시작, 오전운행 완료 플래그 초기화');
                     }
+                } else if (selectedTimePeriod === 'night') {
+                    // 심야운행은 nightCount 필드 사용 (없으면 생성)
+                    if (!stations[currentStationIndex].nightCount) {
+                        stations[currentStationIndex].nightCount = 0;
+                    }
+                    stations[currentStationIndex].nightCount += inputValue;
                 } else if (selectedTimePeriod === 'evening') {
                     // 퇴근운행은 eveningCount 필드 사용 (없으면 생성)
                     if (!stations[currentStationIndex].eveningCount) {
@@ -6365,8 +6535,26 @@
                 // localStorage에 저장 (오류 처리 포함)
                 const storageKey = currentService === 'kurly' ? 'kurlySavedStations' : 'savedStations';
                 const indexKey = currentService === 'kurly' ? 'kurlyCurrentStationIndex' : 'currentStationIndex';
+                
+                // nightCount 포함 여부 확인
+                console.log('enterNumber 저장 전 stations:', stations.map(s => ({
+                    name: s.name,
+                    nightCount: s.nightCount,
+                    morningCount: s.morningCount,
+                    afternoonCount: s.afternoonCount
+                })));
+                
                 saveToLocalStorage(storageKey, JSON.stringify(stations));
                 saveToLocalStorage(indexKey, currentStationIndex.toString());
+                
+                // 저장 후 확인
+                const savedData = JSON.parse(loadFromLocalStorage(storageKey) || '[]');
+                console.log('enterNumber 저장 후 확인:', savedData.map(s => ({
+                    name: s.name,
+                    nightCount: s.nightCount,
+                    morningCount: s.morningCount,
+                    afternoonCount: s.afternoonCount
+                })));
             }
         }
 
@@ -6484,11 +6672,11 @@
                 currentInput = '';
                 
                 // 완료 상태 초기화
-                completedTimePeriods = { morning: false, afternoon: false, evening: false };
+                completedTimePeriods = { morning: false, afternoon: false, night: false, evening: false };
                 
                 // 택시 인원 초기화 (쿠팡/컬리/새 서비스일 때)
                 if (currentService === 'coupang' || currentService === 'kurly' || currentService === 'newservice') {
-                    taxiPassengers = { morning: 0, afternoon: 0, evening: 0 };
+                    taxiPassengers = { morning: 0, afternoon: 0, evening: 0, night: 0 };
                     localStorage.removeItem('taxiPassengers');
                 }
                 
@@ -6555,8 +6743,8 @@
                     // 모든 카운트를 0으로 만들고 저장
                     currentStationIndex = 0;
                     currentInput = '';
-                    completedTimePeriods = { morning: false, afternoon: false, evening: false };
-                    taxiPassengers = { morning: 0, afternoon: 0, evening: 0 };
+                    completedTimePeriods = { morning: false, afternoon: false, night: false, evening: false };
+                    taxiPassengers = { morning: 0, afternoon: 0, evening: 0, night: 0 };
                     
                     // 도착시간 초기화 (각 시간대별)
                     morningArrivalTime = null;
@@ -6809,6 +6997,8 @@
                 taxiPassengers.afternoon += taxiCount;
             } else if (selectedTimePeriod === 'evening') {
                 taxiPassengers.evening += taxiCount;
+            } else if (selectedTimePeriod === 'night') {
+                taxiPassengers.night += taxiCount;
             }
             
             // localStorage에 저장
@@ -6870,6 +7060,8 @@
                     currentTaxiCount = taxiPassengers.afternoon;
                 } else if (selectedTimePeriod === 'evening') {
                     currentTaxiCount = taxiPassengers.evening || 0;
+                } else if (selectedTimePeriod === 'night') {
+                    currentTaxiCount = taxiPassengers.night || 0;
                 }
                 taxiCountDisplay.textContent = currentTaxiCount;
             }
@@ -7001,6 +7193,7 @@
                     const savedCount = typeof savedStation === 'object' ? (savedStation?.count || 0) : 0;
                     const savedMorningCount = typeof savedStation === 'object' ? (savedStation?.morningCount || 0) : 0;
                     const savedAfternoonCount = typeof savedStation === 'object' ? (savedStation?.afternoonCount || 0) : 0;
+                    const savedNightCount = typeof savedStation === 'object' ? (savedStation?.nightCount || 0) : 0;
                     
                     // 출발 시간 복원: savedDepartureTimes 배열에서 가져오거나, savedStation 객체에서 가져오거나, 기본값 사용
                     let departureTime = null;
@@ -7016,12 +7209,33 @@
                         };
                     }
                     
+                    // 심야운행이 체크되어 있으면 nightHour가 없을 때 기본값 설정
+                    const hasNightService = savedStations.some(s => 
+                        typeof s === 'object' && s?.departureTime && s.departureTime.nightHour !== undefined
+                    );
+                    if (hasNightService && (!departureTime.nightHour || departureTime.nightHour === undefined)) {
+                        // 다른 정류장에서 nightHour 찾기
+                        const stationWithNightHour = savedStations.find(s => 
+                            typeof s === 'object' && s?.departureTime && s.departureTime.nightHour !== undefined
+                        );
+                        if (stationWithNightHour && stationWithNightHour.departureTime) {
+                            departureTime.nightHour = stationWithNightHour.departureTime.nightHour;
+                            departureTime.nightMinute = stationWithNightHour.departureTime.nightMinute || 0;
+                        } else {
+                            departureTime.nightHour = 22;
+                            departureTime.nightMinute = 0;
+                        }
+                    }
+                    
                     console.log(`정류장 ${index} 복원:`, {
                         name: stationName,
                         departureTime: departureTime,
                         count: savedCount,
                         morningCount: savedMorningCount,
-                        afternoonCount: savedAfternoonCount
+                        afternoonCount: savedAfternoonCount,
+                        nightCount: savedNightCount,
+                        savedStation: savedStation,
+                        savedStationNightCount: typeof savedStation === 'object' ? savedStation?.nightCount : 'N/A'
                     });
                     
                     return {
@@ -7030,6 +7244,7 @@
                         count: savedCount, // 저장된 카운트 복원
                         morningCount: savedMorningCount, // 저장된 오전 카운트 복원
                         afternoonCount: savedAfternoonCount, // 저장된 오후 카운트 복원
+                        nightCount: savedNightCount, // 저장된 심야 카운트 복원
                         departureTime: departureTime
                     };
                 });
@@ -7157,9 +7372,13 @@
             const isKurly = currentService === 'kurly';
             const isCoupang = currentService === 'coupang';
             const isNewService = currentService === 'newservice';
-            canvas.width = 1300;
+            // 심야운행이 있을 때는 캔버스 너비를 더 넓게 설정
+            const hasNightServiceForCanvas = stations && stations.length > 0 && stations.some(station => 
+                station.departureTime && station.departureTime.nightHour !== undefined
+            );
+            canvas.width = hasNightServiceForCanvas ? 2000 : 1300;
             // 택시 인원이 있을 때만 행 추가
-            const hasTaxiPassengers = (taxiPassengers.morning > 0 || taxiPassengers.afternoon > 0 || (isKurly && taxiPassengers.evening > 0));
+            const hasTaxiPassengers = (taxiPassengers.morning > 0 || taxiPassengers.afternoon > 0 || taxiPassengers.night > 0 || (isKurly && taxiPassengers.evening > 0));
             let extraHeight = 0;
             if (isKurly) {
                 extraHeight += 40; // 도착시간 행
@@ -7174,10 +7393,10 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             // 테이블 설정
-            const tableX = 10; // 좌우 여백 최소화
+            let tableX = 10; // 초기값, 나중에 가운데 정렬로 재계산됨
             const tableY = 50;
-            const tableWidth = canvas.width - (tableX * 2); // 화면 너비에 맞춰 동적 계산
             const rowHeight = 40;
+            // tableWidth는 나중에 colWidths의 합으로 계산됨
             
             // 정류장 이름 최대 길이 측정하여 동적 컬럼 너비 계산
             ctx.font = '28px Arial';
@@ -7190,30 +7409,58 @@
                 }
             });
             
-            // 최소 너비 보장 (노선명 + 여백)
-            const minFirstColWidth = tableWidth * (isKurly ? 0.4 : 0.5);
+            // 최소 너비 보장 (노선명 + 여백) - 임시 tableWidth 사용
+            const tempTableWidth = canvas.width - (tableX * 2);
+            const minFirstColWidth = tempTableWidth * (isKurly ? 0.4 : 0.5);
             const requiredFirstColWidth = Math.max(minFirstColWidth, maxStationNameWidth + 30); // 여백 30px 추가
             
-            // 나머지 컬럼 너비 계산
-            const remainingWidth = tableWidth - requiredFirstColWidth;
-            const otherColCount = isKurly ? 5 : 4; // 첫 번째 컬럼 제외한 컬럼 수
-            const otherColWidth = remainingWidth / otherColCount;
+            // 심야운행이 체크되어 있는지 확인
+            const hasNightService = stations && stations.length > 0 && stations.some(station => 
+                station.departureTime && station.departureTime.nightHour !== undefined
+            );
             
-            // 컬럼 너비 설정 (컬리일 때 6개 컬럼, 쿠팡일 때 5개 컬럼) - 동적 계산
+            console.log('이미지 생성 - hasNightService:', hasNightService, 'stations:', stations.map(s => ({
+                name: s.name,
+                nightHour: s.departureTime?.nightHour,
+                nightCount: s.nightCount
+            })));
+            
+            // 텍스트 너비 측정을 위한 폰트 설정
+            ctx.font = 'bold 30px Arial';
+            const departureTimeTextWidth = ctx.measureText('출발시간').width;
+            const passengerCountTextWidth = ctx.measureText('승차인원').width;
+            // 데이터 텍스트도 측정 (시간 형식: "22:00", 숫자: "999" 등)
+            ctx.font = '28px Arial';
+            const timeDataWidth = Math.max(ctx.measureText('22:00').width, departureTimeTextWidth);
+            const countDataWidth = Math.max(ctx.measureText('999').width, passengerCountTextWidth);
+            
+            // 컬럼 너비를 텍스트에 맞게 설정 (여백 최소화)
+            const departureTimeColWidth = timeDataWidth + 10; // 최소 여백 10px
+            const passengerCountColWidth = countDataWidth + 10; // 최소 여백 10px
+            
+            // 컬럼 너비 설정 (컬리일 때 6개 컬럼, 쿠팡일 때 5개 컬럼, 심야운행이 있으면 7개 컬럼) - 텍스트에 맞게
             const colWidths = isKurly ? [
                 requiredFirstColWidth,  // 노선명 (동적)
-                otherColWidth,  // 오전출발시간
-                otherColWidth,  // 오전승차인원
-                otherColWidth,  // 오후출발시간
-                otherColWidth,  // 오후승차인원
-                otherColWidth   // 퇴근인원
+                departureTimeColWidth,  // 오전출발시간
+                passengerCountColWidth,  // 오전승차인원
+                departureTimeColWidth,  // 오후출발시간
+                passengerCountColWidth,  // 오후승차인원
+                ...(hasNightService ? [departureTimeColWidth, passengerCountColWidth] : []),  // 심야출발시간, 심야승차인원
+                passengerCountColWidth   // 퇴근인원
             ] : [
                 requiredFirstColWidth,  // 노선명 (동적)
-                otherColWidth,  // 오전출발시간
-                otherColWidth,  // 오전승차인원
-                otherColWidth,  // 오후출발시간
-                otherColWidth   // 오후승차인원
+                departureTimeColWidth,  // 오전출발시간
+                passengerCountColWidth,  // 오전승차인원
+                departureTimeColWidth,  // 오후출발시간
+                passengerCountColWidth,  // 오후승차인원
+                ...(hasNightService ? [departureTimeColWidth, passengerCountColWidth] : [])  // 심야출발시간, 심야승차인원
             ];
+            
+            // 테이블 너비를 colWidths의 합으로 계산 (빈 공간 제거)
+            const tableWidth = colWidths.reduce((sum, width) => sum + width, 0);
+            
+            // 테이블을 가운데 정렬
+            tableX = (canvas.width - tableWidth) / 2;
             
             // 테이블 테두리 (컬리일 때는 도착시간 행 추가, 쿠팡/컬리/새 서비스일 때는 택시 인원 행 추가 - 택시 인원이 있을 때만)
             ctx.strokeStyle = '#000000';
@@ -7236,10 +7483,10 @@
                 if (i === 0) {
                     // 첫 번째 컬럼 (노선이름 통합) - 주황색
                     ctx.fillStyle = '#FF8C00';
-                } else if (i === 1 || i === 3) {
-                    // 출발시간 컬럼 - 연두색
+                } else if (i === 1 || i === 3 || (hasNightService && i === 5)) {
+                    // 출발시간 컬럼 (오전, 오후, 심야) - 연두색
                     ctx.fillStyle = '#C6E0B4';
-                } else if (i === 2 || i === 4 || (isKurly && i === 5)) {
+                } else if (i === 2 || i === 4 || (hasNightService && i === 6) || (isKurly && ((hasNightService && i === 7) || (!hasNightService && i === 5)))) {
                     // 승차인원 컬럼 및 퇴근인원 컬럼 - 연두색
                     ctx.fillStyle = '#C6E0B4';
                 } else {
@@ -7266,7 +7513,12 @@
             ctx.textAlign = 'center';
             
             currentX = tableX;
-            const headers = isKurly ? ['', '출발시간', '승차인원', '출발시간', '승차인원', '퇴근인원'] : ['', '출발시간', '승차인원', '출발시간', '승차인원'];
+            const headers = isKurly ? 
+                (hasNightService ? ['', '출발시간', '승차인원', '출발시간', '승차인원', '출발시간', '승차인원', '퇴근인원'] : ['', '출발시간', '승차인원', '출발시간', '승차인원', '퇴근인원']) :
+                (hasNightService ? ['', '출발시간', '승차인원', '출발시간', '승차인원', '출발시간', '승차인원'] : ['', '출발시간', '승차인원', '출발시간', '승차인원']);
+            
+            console.log('이미지 생성 - colWidths.length:', colWidths.length, 'headers.length:', headers.length, 'hasNightService:', hasNightService);
+            
             for (let i = 0; i < headers.length; i++) {
                 if (i === 0) {
                     // 첫 번째 컬럼에 노선이름 표시 (검은색 텍스트)
@@ -7275,7 +7527,16 @@
                     ctx.fillText(displayRouteName, currentX + colWidths[i]/2, headerRowY + rowHeight/2 + 8);
                 } else if (headers[i]) { // 빈 문자열이 아닌 경우만 텍스트 표시
                     ctx.fillStyle = '#000000';
-                    ctx.fillText(headers[i], currentX + colWidths[i]/2, headerRowY + rowHeight/2 + 8);
+                    const headerTextX = currentX + colWidths[i]/2;
+                    const headerTextY = headerRowY + rowHeight/2 + 8;
+                    console.log(`헤더 ${i} 그리기:`, {
+                        headerText: headers[i],
+                        x: headerTextX,
+                        y: headerTextY,
+                        colWidth: colWidths[i],
+                        currentX: currentX
+                    });
+                    ctx.fillText(headers[i], headerTextX, headerTextY);
                 }
                 currentX += colWidths[i];
             }
@@ -7293,11 +7554,11 @@
                     if (i === 0) {
                         // 첫 번째 컬럼 (노선이름/번호/정류장명) - 흰색
                         ctx.fillStyle = '#FFFFFF';
-                    } else if ((i === 1 || i === 3) && index === 0) {
-                        // 첫 번째 정류장의 출발시간 컬럼들만 - 노란색
+                    } else if ((i === 1 || i === 3 || (hasNightService && i === 5)) && index === 0) {
+                        // 첫 번째 정류장의 출발시간 컬럼들만 (오전, 오후, 심야) - 노란색
                         ctx.fillStyle = '#FFFF00';
-                    } else if (isKurly && i === 5) {
-                        // 퇴근인원 열 (6열) - 연한 회색
+                    } else if (isKurly && ((hasNightService && i === 7) || (!hasNightService && i === 5))) {
+                        // 퇴근인원 열 - 연한 회색
                         ctx.fillStyle = '#E0E0E0';
                     } else {
                         // 나머지 모든 컬럼들 - 흰색
@@ -7341,6 +7602,45 @@
                     (station.departureTime?.minute !== undefined ? station.departureTime.minute : 0);
                 const afternoonTimeStr = `${afternoonHour}:${String(afternoonMinute).padStart(2, '0')}`;
                 
+                // 심야운행 시간 (hasNightService가 true이면 모든 정류장에 nightHour가 있어야 함)
+                let nightTimeStr = '';
+                if (hasNightService) {
+                    // 현재 정류장의 nightHour 확인
+                    let nightHour = station.departureTime?.nightHour;
+                    let nightMinute = station.departureTime?.nightMinute;
+                    
+                    // 현재 정류장에 없으면 다른 정류장에서 찾기
+                    if (nightHour === undefined || nightHour === null) {
+                        // 첫 번째 정류장에서 찾기
+                        if (stations[0]?.departureTime?.nightHour !== undefined) {
+                            nightHour = stations[0].departureTime.nightHour;
+                            nightMinute = stations[0].departureTime.nightMinute;
+                        } else {
+                            // 다른 정류장에서 찾기
+                            const stationWithNightHour = stations.find(s => 
+                                s.departureTime && s.departureTime.nightHour !== undefined
+                            );
+                            if (stationWithNightHour && stationWithNightHour.departureTime) {
+                                nightHour = stationWithNightHour.departureTime.nightHour;
+                                nightMinute = stationWithNightHour.departureTime.nightMinute;
+                            }
+                        }
+                    }
+                    
+                    // 그래도 없으면 기본값 사용
+                    nightHour = nightHour !== undefined && nightHour !== null ? nightHour : 22;
+                    nightMinute = nightMinute !== undefined && nightMinute !== null ? nightMinute : 0;
+                    
+                    nightTimeStr = `${nightHour}:${String(nightMinute).padStart(2, '0')}`;
+                    
+                    console.log(`정류장 ${index} (${station.name}) 심야시간:`, {
+                        nightHour: nightHour,
+                        nightMinute: nightMinute,
+                        nightTimeStr: nightTimeStr,
+                        stationDepartureTime: station.departureTime
+                    });
+                }
+                
                 ctx.textAlign = 'center';
                 
                 // 오전 출발시간 (2열)
@@ -7359,10 +7659,47 @@
                 ctx.fillStyle = '#000000';
                 ctx.fillText(station.afternoonCount?.toString() || '0', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, dataRowY + rowHeight/2 + 8);
                 
-                // 퇴근 인원 (6열) - 컬리일 때만 표시
-                if (isKurly) {
+                // 심야운행 출발시간 및 승차인원 (6열, 7열) - 심야운행이 있을 때만
+                if (hasNightService) {
+                    // 심야 출발시간 (6열) - 항상 표시
+                    // 첫 번째 정류장의 심야 출발시간은 노란색 배경이므로 검은색 텍스트
                     ctx.fillStyle = '#000000';
-                    ctx.fillText((station.eveningCount || 0).toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4] + colWidths[5]/2, dataRowY + rowHeight/2 + 8);
+                    const nightTimeX = tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4] + colWidths[5]/2;
+                    const nightTimeY = dataRowY + rowHeight/2 + 8;
+                    console.log(`정류장 ${index} 심야시간 그리기:`, {
+                        nightTimeStr: nightTimeStr,
+                        x: nightTimeX,
+                        y: nightTimeY,
+                        colWidths: colWidths.length,
+                        stationDepartureTime: station.departureTime
+                    });
+                    // nightTimeStr이 비어있지 않을 때만 표시
+                    if (nightTimeStr && nightTimeStr.trim() !== '') {
+                        ctx.fillText(nightTimeStr, nightTimeX, nightTimeY);
+                    } else {
+                        // 비어있으면 기본값 표시
+                        ctx.fillText('22:00', nightTimeX, nightTimeY);
+                    }
+                    
+                    // 심야 승차인원 (7열) - 항상 표시 (0이어도)
+                    ctx.fillStyle = '#000000';
+                    const nightCountX = tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4] + colWidths[5] + colWidths[6]/2;
+                    const nightCountY = dataRowY + rowHeight/2 + 8;
+                    const nightCountValue = (station.nightCount !== undefined && station.nightCount !== null) ? station.nightCount.toString() : '0';
+                    console.log(`정류장 ${index} 심야승차인원 그리기:`, {
+                        nightCount: nightCountValue,
+                        x: nightCountX,
+                        y: nightCountY,
+                        stationNightCount: station.nightCount
+                    });
+                    ctx.fillText(nightCountValue, nightCountX, nightCountY);
+                }
+                
+                // 퇴근 인원 - 컬리일 때만 표시 (심야운행이 있으면 8열, 없으면 6열)
+                if (isKurly) {
+                    const eveningColIndex = hasNightService ? 7 : 5;
+                    ctx.fillStyle = '#000000';
+                    ctx.fillText((station.eveningCount || 0).toString(), tableX + colWidths.slice(0, eveningColIndex).reduce((a, b) => a + b, 0) + colWidths[eveningColIndex]/2, dataRowY + rowHeight/2 + 8);
                 }
                 
                 ctx.textAlign = 'left';
@@ -7440,11 +7777,12 @@
             // 총계 행 배경색 설정
             let currentXTotal = tableX;
             for (let i = 0; i < colWidths.length; i++) {
-                if (isKurly && i === 5) {
-                    // 퇴근인원 열 (6열) - 연한 회색
+                const eveningColIndex = hasNightService ? 7 : 5;
+                if (isKurly && i === eveningColIndex) {
+                    // 퇴근인원 열 - 연한 회색
                     ctx.fillStyle = '#E0E0E0';
                 } else {
-            ctx.fillStyle = '#FFFFFF';
+                    ctx.fillStyle = '#FFFFFF';
                 }
                 ctx.fillRect(currentXTotal, totalRowY, colWidths[i], rowHeight);
                 currentXTotal += colWidths[i];
@@ -7474,10 +7812,11 @@
             ctx.textAlign = 'left';
             ctx.fillText('계', tableX + 10, totalRowY + rowHeight/2 + 8);
             
-            // 총계 계산 및 표시 (오전/오후 모든 데이터)
+            // 총계 계산 및 표시 (오전/오후/심야 모든 데이터)
             ctx.textAlign = 'center';
             const morningTotal = stations.reduce((sum, station) => sum + (station.morningCount || 0), 0);
             const afternoonTotal = stations.reduce((sum, station) => sum + (station.afternoonCount || 0), 0);
+            const nightTotal = hasNightService ? stations.reduce((sum, station) => sum + (station.nightCount || 0), 0) : 0;
             const eveningTotal = isKurly ? stations.reduce((sum, station) => sum + (station.eveningCount || 0), 0) : 0;
             
             // 오전 총계 (3열)
@@ -7486,9 +7825,15 @@
             // 오후 총계 (5열)
             ctx.fillText(afternoonTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4]/2, totalRowY + rowHeight/2 + 8);
             
-            // 퇴근 총계 (6열) - 컬리일 때만 표시
+            // 심야 총계 (7열) - 심야운행이 있을 때만
+            if (hasNightService) {
+                ctx.fillText(nightTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4] + colWidths[5] + colWidths[6]/2, totalRowY + rowHeight/2 + 8);
+            }
+            
+            // 퇴근 총계 - 컬리일 때만 표시 (심야운행이 있으면 8열, 없으면 6열)
             if (isKurly) {
-                ctx.fillText(eveningTotal.toString(), tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] + colWidths[4] + colWidths[5]/2, totalRowY + rowHeight/2 + 8);
+                const eveningColIndex = hasNightService ? 7 : 5;
+                ctx.fillText(eveningTotal.toString(), tableX + colWidths.slice(0, eveningColIndex).reduce((a, b) => a + b, 0) + colWidths[eveningColIndex]/2, totalRowY + rowHeight/2 + 8);
             }
             
             // 쿠팡/컬리/새 서비스일 때 택시 인원 정보 표시 (총계 행 아래, 택시 인원이 있을 때만)
@@ -7526,23 +7871,29 @@
                         taxiTextParts.push(`택시인원 ${taxiPassengers.morning}명`);
                     }
                 } else if (isKurly) {
-                    // 컬리는 오전/오후/퇴근 모두 표시 (0보다 큰 경우만)
+                    // 컬리는 오전/오후/심야/퇴근 모두 표시 (0보다 큰 경우만)
                     if (taxiPassengers.morning > 0) {
                         taxiTextParts.push(`오전택시인원 ${taxiPassengers.morning}명`);
                     }
                     if (taxiPassengers.afternoon > 0) {
                         taxiTextParts.push(`오후택시인원 ${taxiPassengers.afternoon}명`);
+                    }
+                    if (taxiPassengers.night > 0) {
+                        taxiTextParts.push(`심야택시인원 ${taxiPassengers.night}명`);
                     }
                     if (taxiPassengers.evening > 0) {
                         taxiTextParts.push(`퇴근택시인원 ${taxiPassengers.evening}명`);
                     }
                 } else {
-                    // 쿠팡은 오전/오후만 표시 (0보다 큰 경우만)
+                    // 쿠팡은 오전/오후/심야 표시 (0보다 큰 경우만)
                     if (taxiPassengers.morning > 0) {
                         taxiTextParts.push(`오전택시인원 ${taxiPassengers.morning}명`);
                     }
                     if (taxiPassengers.afternoon > 0) {
                         taxiTextParts.push(`오후택시인원 ${taxiPassengers.afternoon}명`);
+                    }
+                    if (taxiPassengers.night > 0) {
+                        taxiTextParts.push(`심야택시인원 ${taxiPassengers.night}명`);
                     }
                 }
                 
@@ -7668,7 +8019,7 @@
                         currentInput = '';
                         
                         // 완료 상태 초기화
-                        completedTimePeriods = { morning: false, afternoon: false };
+                        completedTimePeriods = { morning: false, afternoon: false, night: false };
                         
                         enableKeypad();
                         updateKeypadPage();
@@ -8001,6 +8352,7 @@
                     let savedCount = 0;
                     let savedMorningCount = 0;
                     let savedAfternoonCount = 0;
+                    let savedNightCount = 0;
                     
                     if (savedRouteName === routeName && savedStations.length > 0 && savedStations[index]) {
                         const savedStation = savedStations[index];
@@ -8008,6 +8360,44 @@
                             savedCount = savedStation.count || 0;
                             savedMorningCount = savedStation.morningCount || 0;
                             savedAfternoonCount = savedStation.afternoonCount || 0;
+                            savedNightCount = savedStation.nightCount || 0;
+                        }
+                    }
+                    
+                    // departureTime 복원 및 nightHour 설정
+                    let departureTime = station.departureTime || { 
+                        morningHour: 8, 
+                        afternoonHour: 17, 
+                        minute: Math.min(index * 5, 59) 
+                    };
+                    
+                    // 심야운행이 체크되어 있으면 nightHour가 없을 때 기본값 설정
+                    const hasNightService = savedStations.some(s => 
+                        typeof s === 'object' && s?.departureTime && s.departureTime.nightHour !== undefined
+                    );
+                    if (hasNightService && (!departureTime.nightHour || departureTime.nightHour === undefined)) {
+                        // 다른 정류장에서 nightHour 찾기
+                        const stationWithNightHour = savedStations.find(s => 
+                            typeof s === 'object' && s?.departureTime && s.departureTime.nightHour !== undefined
+                        );
+                        if (stationWithNightHour && stationWithNightHour.departureTime) {
+                            departureTime.nightHour = stationWithNightHour.departureTime.nightHour;
+                            departureTime.nightMinute = stationWithNightHour.departureTime.nightMinute || 0;
+                        } else if (routeData.stations && routeData.stations.length > 0) {
+                            // routeData에서 nightHour 찾기
+                            const routeStationWithNightHour = routeData.stations.find(s => 
+                                s?.departureTime && s.departureTime.nightHour !== undefined
+                            );
+                            if (routeStationWithNightHour && routeStationWithNightHour.departureTime) {
+                                departureTime.nightHour = routeStationWithNightHour.departureTime.nightHour;
+                                departureTime.nightMinute = routeStationWithNightHour.departureTime.nightMinute || 0;
+                            } else {
+                                departureTime.nightHour = 22;
+                                departureTime.nightMinute = 0;
+                            }
+                        } else {
+                            departureTime.nightHour = 22;
+                            departureTime.nightMinute = 0;
                         }
                     }
                     
@@ -8017,11 +8407,8 @@
                         count: savedCount, // 저장된 카운트 유지
                         morningCount: savedMorningCount, // 저장된 오전 카운트 유지
                         afternoonCount: savedAfternoonCount, // 저장된 오후 카운트 유지
-                        departureTime: station.departureTime || { 
-                            morningHour: 8, 
-                            afternoonHour: 17, 
-                            minute: Math.min(index * 5, 59) 
-                        }
+                        nightCount: savedNightCount, // 저장된 심야 카운트 유지
+                        departureTime: departureTime
                     };
                 });
                 
@@ -8048,7 +8435,7 @@
                 saveToLocalStorage('currentInput', '');
                 
                 // 완료 상태 초기화 (노선을 불러올 때는 완료 상태를 초기화하여 새로 운행할 수 있도록)
-                completedTimePeriods = { morning: false, afternoon: false, evening: false };
+                completedTimePeriods = { morning: false, afternoon: false, night: false, evening: false };
                 saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
                 saveToLocalStorage('morningRunCompleted', 'false');
                 saveToLocalStorage('keypadDisabled', 'false');
@@ -8440,7 +8827,7 @@
                 
                 // 다른 노선일 때만 완료 상태 초기화 (같은 노선이면 유지)
                 if (!isSameRoute) {
-                    completedTimePeriods = { morning: false, afternoon: false, evening: false };
+                    completedTimePeriods = { morning: false, afternoon: false, night: false, evening: false };
                     saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
                     saveToLocalStorage('keypadDisabled', 'false');
                 } else {
@@ -8450,7 +8837,7 @@
                         try {
                             completedTimePeriods = JSON.parse(savedCompletedTimePeriods);
                         } catch (e) {
-                            completedTimePeriods = { morning: false, afternoon: false, evening: false };
+                            completedTimePeriods = { morning: false, afternoon: false, night: false, evening: false };
                         }
                     }
                 }
@@ -8735,7 +9122,7 @@
             
             // 다른 노선일 때만 완료 상태 초기화 (같은 노선이면 유지)
             if (!isSameRoute) {
-                completedTimePeriods = { morning: false, afternoon: false, evening: false };
+                completedTimePeriods = { morning: false, afternoon: false, night: false, evening: false };
                 saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
                 saveToLocalStorage('keypadDisabled', 'false');
                 saveToLocalStorage('morningRunCompleted', 'false'); // 오전운행 완료 플래그도 초기화
@@ -8751,7 +9138,7 @@
                     try {
                         completedTimePeriods = JSON.parse(savedCompletedTimePeriods);
                     } catch (e) {
-                        completedTimePeriods = { morning: false, afternoon: false, evening: false };
+                        completedTimePeriods = { morning: false, afternoon: false, night: false, evening: false };
                     }
                 }
                 // 같은 노선이면 currentStationIndex는 복원하지 않음 (운행 버튼 변경 시 첫번째 정류장부터 시작)
@@ -8905,7 +9292,7 @@
                 
                 if (allCountsZero) {
                     // 모든 카운트가 0이면 완료 상태 초기화
-                    completedTimePeriods = { morning: false, afternoon: false, evening: false };
+                    completedTimePeriods = { morning: false, afternoon: false, night: false, evening: false };
                     saveToLocalStorage('completedTimePeriods', JSON.stringify(completedTimePeriods));
                     saveToLocalStorage('keypadDisabled', 'false');
                     // 키패드 활성화
@@ -8917,7 +9304,7 @@
                         try {
                             completedTimePeriods = JSON.parse(savedCompletedTimePeriods);
                         } catch (e) {
-                            completedTimePeriods = { morning: false, afternoon: false, evening: false };
+                            completedTimePeriods = { morning: false, afternoon: false, night: false, evening: false };
                         }
                     }
                     
