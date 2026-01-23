@@ -2802,7 +2802,7 @@
             <div class="station-names-input">
                 <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
                     <h2 style="margin: 0;">정류장 이름을 입력하세요</h2>
-                    <label style="display: flex; align-items: center; gap: 8px; color: white; font-size: 1rem; cursor: pointer;">
+                    <label id="global-night-service-label" style="display: none; align-items: center; gap: 8px; color: white; font-size: 1rem; cursor: pointer;">
                         <input type="checkbox" id="global-night-service" 
                                onchange="toggleGlobalNightService(this.checked)" 
                                style="width: 20px; height: 20px; cursor: pointer;">
@@ -5335,8 +5335,8 @@
                 station.departureTime && station.departureTime.nightHour !== undefined
             );
             
-            // 심야운행 버튼 표시/숨김 (쿠팡/다이소일 때만)
-            if (currentService !== 'kurly' && nightBtnKeypad) {
+            // 심야운행 버튼 표시/숨김 (쿠팡일 때만)
+            if (currentService === 'coupang' && nightBtnKeypad) {
                 if (hasNightService) {
                     nightBtnKeypad.style.display = 'block';
                     nightBtnKeypad.style.visibility = 'visible';
@@ -5355,6 +5355,15 @@
                     nightBtnKeypad.style.padding = '0';
                     nightBtnKeypad.style.margin = '0';
                 }
+            } else if (nightBtnKeypad) {
+                // 쿠팡이 아닐 때는 심야운행 버튼 숨김
+                nightBtnKeypad.style.display = 'none';
+                nightBtnKeypad.style.visibility = 'hidden';
+                nightBtnKeypad.style.opacity = '0';
+                nightBtnKeypad.style.height = '0';
+                nightBtnKeypad.style.width = '0';
+                nightBtnKeypad.style.padding = '0';
+                nightBtnKeypad.style.margin = '0';
             }
             
             // 쿠팡/다이소/컬리일 때 시간대 선택 버튼 표시
@@ -5544,6 +5553,12 @@
         function goToCoupang() {
             currentService = 'coupang'; // 현재 서비스 설정
             
+            // 심야운행 체크박스 표시 (쿠팡일 때만)
+            const globalNightServiceLabel = document.getElementById('global-night-service-label');
+            if (globalNightServiceLabel) {
+                globalNightServiceLabel.style.display = 'flex';
+            }
+            
             // 도착시간 버튼 완전히 숨기기 (쿠팡에서는 사용하지 않음)
             const arrivalTimeRow = document.getElementById('arrival-time-row');
             if (arrivalTimeRow) {
@@ -5606,6 +5621,19 @@
         function goToNewService() {
             currentService = 'newservice'; // 현재 서비스 설정
             
+            // 심야운행 체크박스 숨김 (다이소에서는 사용하지 않음)
+            const globalNightServiceLabel = document.getElementById('global-night-service-label');
+            if (globalNightServiceLabel) {
+                globalNightServiceLabel.style.display = 'none';
+            }
+            // 심야운행 데이터 제거
+            stations.forEach(station => {
+                if (station.departureTime) {
+                    delete station.departureTime.nightHour;
+                    delete station.departureTime.nightMinute;
+                }
+            });
+            
             // 도착시간 버튼 완전히 숨기기 (쿠팡과 동일)
             const arrivalTimeRow = document.getElementById('arrival-time-row');
             if (arrivalTimeRow) {
@@ -5667,6 +5695,19 @@
         // 시작 페이지에서 컬리로 이동
         function goToKurly() {
             currentService = 'kurly'; // 현재 서비스 설정
+            
+            // 심야운행 체크박스 숨김 (컬리에서는 사용하지 않음)
+            const globalNightServiceLabel = document.getElementById('global-night-service-label');
+            if (globalNightServiceLabel) {
+                globalNightServiceLabel.style.display = 'none';
+            }
+            // 심야운행 데이터 제거
+            stations.forEach(station => {
+                if (station.departureTime) {
+                    delete station.departureTime.nightHour;
+                    delete station.departureTime.nightMinute;
+                }
+            });
             
             // 도착시간 복원 (가장 먼저 실행)
             loadArrivalTimes();
@@ -5789,15 +5830,32 @@
             const stationInputs = document.getElementById('station-inputs');
             stationInputs.innerHTML = '';
             
-            // 저장된 심야운행 상태 확인
-            const hasAnyNightService = stations.some(station => 
+            // 심야운행 체크박스 표시/숨김 (쿠팡일 때만)
+            const globalNightServiceLabel = document.getElementById('global-night-service-label');
+            if (globalNightServiceLabel) {
+                if (currentService === 'coupang') {
+                    globalNightServiceLabel.style.display = 'flex';
+                } else {
+                    globalNightServiceLabel.style.display = 'none';
+                    // 쿠팡이 아닐 때는 심야운행 데이터 제거
+                    stations.forEach(station => {
+                        if (station.departureTime) {
+                            delete station.departureTime.nightHour;
+                            delete station.departureTime.nightMinute;
+                        }
+                    });
+                }
+            }
+            
+            // 저장된 심야운행 상태 확인 (쿠팡일 때만)
+            const hasAnyNightService = currentService === 'coupang' && stations.some(station => 
                 station.departureTime && station.departureTime.nightHour !== undefined
             );
             const globalNightCheckbox = document.getElementById('global-night-service');
             if (globalNightCheckbox) {
                 globalNightCheckbox.checked = hasAnyNightService;
             }
-            const globalNightServiceChecked = hasAnyNightService;
+            const globalNightServiceChecked = currentService === 'coupang' && hasAnyNightService;
             
             stations.forEach((station, index) => {
                 const inputGroup = document.createElement('div');
